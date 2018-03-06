@@ -7,4 +7,4 @@ I was constructing network graph using NodeXL and could do much about customizin
 
 My research
 
-[Home](judekurn.github.io)
+[Home](index.html)
