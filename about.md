@@ -6,3 +6,5 @@ The motivation to learn python surfaced when I needed a different analytical met
 I was constructing network graph using NodeXL and could do much about customizing the visualization.
 
 My research
+
+[Home](judekurn.github.io)
