@@ -1,14 +1,14 @@
 # Jude Herijadi Kurniawan
 
->>[Website](https://judekurn.github.io)
+>[Website](https://judekurn.github.io)
 
->>[Twitter: @JudeHKurniawan](https://twitter.com/JudeHKurniawan)
+>[Twitter: @JudeHKurniawan](https://twitter.com/JudeHKurniawan)
 
->>[Github](https://github.com/judekurn)
+>[Github](https://github.com/judekurn)
 
->>[Google Scholar](https://scholar.google.ca/citations?user=sATZ0I0AAAAJ&hl=en&oi=ao)
+>[Google Scholar](https://scholar.google.ca/citations?user=sATZ0I0AAAAJ&hl=en&oi=ao)
 
->>[ORCID](https://orcid.org/0000-0001-5774-5845)
+>[ORCID](https://orcid.org/0000-0001-5774-5845)
 
 ## PUBLICATIONS
 *Refereed Journal Articles*
