@@ -23,7 +23,7 @@ Scheele R., Kearney N.M., **Kurniawan J.H.** & Schweizer V.J. (2018). What scena
 
 *Manuscripts Submitted for Review*
 
-**Kurniawan J.H.** & Kundurpi A. (2018). Future of space—how the sense of space in the future could be imagined and constructed. To be submitted to Geography Compass. Submission Number: GECO-1143
+**Kurniawan J.H.** & Kundurpi A. (2018). Future of space—how the sense of space in the future could be imagined and constructed. Submitted to Geography Compass. Submission Number: GECO-1143
 
 *Unpublished Paper*
 
