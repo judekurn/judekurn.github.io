@@ -14,10 +14,24 @@ Events and trends affecting the future could cause chained impacts in which the 
 
 ## Learning Objectives
 Upon successful completion of this course, students will:
->Understand various scenario methods, their strengths, and limitations
+* Understand various scenario methods, their strengths, and limitations
+* Be able to design scenario process and scenario planning workshops
+* Experience the process of planning and organizing a scenario planning workshop
+* Learn to facilitate a scenario planning workshop
 
-Be able to design scenario process and scenario planning workshops
+## Material
+Software:
+>[ScenarioWizard 4.2](http://www.cross-impact.de/english/CIB_e_ScW.htm) – application software (free) for cross-impact balance analysis developed by ZIRIUS Centre for Interdisciplinary Risk and Innovation Studies at the University of Stuttgart.
+Journals:
+>Methodological oriented journals: [Environmental Modelling and Software](https://www.journals.elsevier.com/environmental-modelling-and-software) and [Technological forecasting and social change](https://www.journals.elsevier.com/technological-forecasting-and-social-change/)
+>Generalist journals: [Foresight](http://www.emeraldinsight.com/loi/fs), [Futures](https://www.journals.elsevier.com/futures), [Journal of future studies](http://jfsdigital.org/)
 
-Experience the process of planning and organizing a scenario planning workshop
+## Assignments
+**Workshop Proposal** (Assignment 1): Students will write a brief proposal (800 words) for a scenario planning workshop which highlights (1) project goal, (2) process design, and (3) scenario content.
 
-Learn to facilitate a scenario planning workshop
+**ScenarioWizard** (Assignment 2): Students will work in groups and select one workshop proposal to develop. Students will then conduct environmental scanning for 4-5 scenario drivers related to the topic they proposed. These drivers will be subjected to cross-impact balances analysis using an application software called ScenarioWizard.
+
+**Scenario Planning Workshop** (Assignment 3): Students will work in groups to design and organize a participatory scenario planning workshop. Students will be allocated 45 minutes to conduct facilitation of their proposed workshop. The groups will then submit their final paper describing the scenario narratives (storylines) developed during the workshop they facilitated (2500 words).
+
+## Lecture Schedule
+
