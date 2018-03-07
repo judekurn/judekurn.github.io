@@ -1,4 +1,5 @@
 # Scenario Planning
+### Course Code: XXXX
 
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
@@ -38,4 +39,9 @@ Journals:
 **Scenario Planning Workshop** (Assignment 3): Students will work in groups to design and organize a participatory scenario planning workshop. Students will be allocated 45 minutes to conduct facilitation of their proposed workshop. The groups will then submit their final paper describing the scenario narratives (storylines) developed during the workshop they facilitated (2500 words).
 
 ## Lecture Schedule
+
+### Week 1: Introduction to Futures Studies / Scenario Planning
+Reading:
+* European Environmental Agency (2009). Looking back on looking forward: a review of evaluative scenario literature. EEA. Copenhagen. DK
+
 
