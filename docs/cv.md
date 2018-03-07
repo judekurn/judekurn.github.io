@@ -1,7 +1,7 @@
 # Jude Herijadi Kurniawan
 
 ## PUBLICATIONS
-*Refereed Journal Articles*\n
+*Refereed Journal Articles*/n
 Schweizer V.J., **Kurniawan J.H.** (2016), Systematically linking qualitative elements of scenarios across levels, scales, and sectors. Environmental Modelling and Software, 79, 322-333, dx.doi.org/10.1016/j.envsoft.2015.12.014
 **Kurniawan J.H.*, Ong C. & Cheah L. (in press) Examining values and influences affecting public expectations of future urban mobility: A Singapore case study. Transport Policy
 
