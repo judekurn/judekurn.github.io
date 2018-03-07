@@ -26,6 +26,7 @@ Scheele R., Kearney N.M., **Kurniawan J.H.** & Schweizer V.J. (2018). What scena
 
 ## CONFERENCES ACTIVITIES / PRESENTATION
 *Sessions Organized*
+
 Kurniawan J.H. (2016, October). Telling Better Futures. Session organized for CAGONT 2016, University of Waterloo, Waterloo, Ontario
 
 *Papers Presented*
