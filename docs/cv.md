@@ -3,13 +3,13 @@
 ## PUBLICATIONS
 *Refereed Journal Articles*
 
-Schweizer V.J., **Kurniawan J.H.** (2016), Systematically linking qualitative elements of scenarios across levels, scales, and sectors. Environmental Modelling and Software, 79, 322-333, dx.doi.org/10.1016/j.envsoft.2015.12.014
+Schweizer V.J. & **Kurniawan J.H.** (2016), Systematically linking qualitative elements of scenarios across levels, scales, and sectors. Environmental Modelling and Software, 79, 322-333, dx.doi.org/10.1016/j.envsoft.2015.12.014
 
 **Kurniawan J.H.**, Ong C. & Cheah L. (in press) Examining values and influences affecting public expectations of future urban mobility: A Singapore case study. Transport Policy
 
 *Book Chapter*
 
-Scheele R., Kearney N.M., **Kurniawan J.H.**, Schweizer V.J. (2018). What scenarios are you missing? Poststructuralism for deconstructing and reconstructing organizational futures in Krämer H. & Wenzel M. (eds). How Organizations Manage the Future: Theoretical Perspectives and Empirical Insights. Palgrave Macmillan
+Scheele R., Kearney N.M., **Kurniawan J.H.** & Schweizer V.J. (2018). What scenarios are you missing? Poststructuralism for deconstructing and reconstructing organizational futures in Krämer H. & Wenzel M. (eds). How Organizations Manage the Future: Theoretical Perspectives and Empirical Insights. Palgrave Macmillan
 
 ## CONFERENCES ACTIVITIES / PRESENTATION
 *Sessions Organized*
