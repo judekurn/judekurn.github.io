@@ -1,3 +1,8 @@
+---
+layout: default
+title: "Scenario Planning"
+---
+
 # Scenario Planning
 This course syllabus is inspired from the works ...
 
