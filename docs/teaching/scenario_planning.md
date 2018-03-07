@@ -1,5 +1,5 @@
 # Scenario Planning
-### Course Code: XXXX
+This course syllabus is inspired from the works ...
 
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
