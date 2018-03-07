@@ -44,4 +44,12 @@ Journals:
 Reading:
 * European Environmental Agency (2009). Looking back on looking forward: a review of evaluative scenario literature. EEA. Copenhagen. DK
 
+### Week 2: Futures Research Methodologies - Environment scanning, Delphi, Futures Wheel, Roadmap, Scenario
+Reading:
+* Bishop, P., Hines, A., & Collins, T. (2007). The current state of scenario development: an overview of techniques. Foresight, 9(1), 5–25. https://doi.org/10.1108/14636680710727516
+* Glenn, J. C., & Gordon, T. (Eds.). (2009). Futures research methodology Version 3.0. Washington DC: The Millennium Project.
 
+### Week 3: Scenario planning – Origins, types and methods
+Reading:
+* Bradfield, R., Wright, G., Burt, G., Cairns, G., & Van Der Heijden, K. (2005). The origins and evolution of scenario techniques in long range business planning. Futures, 37(8), 795–812. https://doi.org/10.1016/j.futures.2005.01.003
+* van Notten, P. W. F., Rotmans, J., van Asselt, M. B. A., & Rothman, D. S. (2003). An updated scenario typology. Futures, 35(5), 423–443. https://doi.org/10.1016/S0016-3287(02)00090-3
