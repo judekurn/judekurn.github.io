@@ -1,7 +1,7 @@
 # Jude Herijadi Kurniawan
-[Website](https://judekurn.github.io)
-[Twitter: @JudeHKurniawan](https://twitter.com/JudeHKurniawan)
-[Github](https://github.com/judekurn)
+* [Website](https://judekurn.github.io)
+* [Twitter: @JudeHKurniawan](https://twitter.com/JudeHKurniawan)
+* [Github](https://github.com/judekurn)
 
 ## PUBLICATIONS
 *Refereed Journal Articles*
