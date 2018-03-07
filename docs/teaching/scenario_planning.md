@@ -24,13 +24,11 @@ Upon successful completion of this course, students will:
 
 ## Material
 Software:
->[ScenarioWizard 4.2](http://www.cross-impact.de/english/CIB_e_ScW.htm) – application software (free) for cross-impact balance analysis developed by ZIRIUS Centre for Interdisciplinary Risk and Innovation Studies at the University of Stuttgart.
->
+* [ScenarioWizard 4.2](http://www.cross-impact.de/english/CIB_e_ScW.htm) – application software (free) for cross-impact balance analysis developed by ZIRIUS Centre for Interdisciplinary Risk and Innovation Studies at the University of Stuttgart.
+
 Journals:
->
 * Methodological oriented journals: [Environmental Modelling and Software](https://www.journals.elsevier.com/environmental-modelling-and-software) and [Technological forecasting and social change](https://www.journals.elsevier.com/technological-forecasting-and-social-change/)
 * Generalist journals: [Foresight](http://www.emeraldinsight.com/loi/fs), [Futures](https://www.journals.elsevier.com/futures), [Journal of future studies](http://jfsdigital.org/)
->
 
 ## Assignments
 **Workshop Proposal** (Assignment 1): Students will write a brief proposal (800 words) for a scenario planning workshop which highlights (1) project goal, (2) process design, and (3) scenario content.
