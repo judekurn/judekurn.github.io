@@ -42,7 +42,7 @@ Journals:
 
 ### Week 1: Introduction to Futures Studies / Scenario Planning
 Reading:
-* [European Environmental Agency](http://www.eea.europa.eu/publications/looking-back-on-looking-forward-a-review-of-evaluative-scenario-literature) (2009). Looking back on looking forward: a review of evaluative scenario literature. EEA. Copenhagen. DK
+* European Environmental Agency (2009). [Looking back on looking forward: a review of evaluative scenario literature](http://www.eea.europa.eu/publications/looking-back-on-looking-forward-a-review-of-evaluative-scenario-literature). EEA. Copenhagen. DK
 
 ### Week 2: Futures Research Methodologies - Environment scanning, Delphi, Futures Wheel, Roadmap, Scenario
 Reading:
