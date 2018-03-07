@@ -1,15 +1,26 @@
 # Jude Herijadi Kurniawan
+[Website](https://judekurn.github.io)
+[Twitter: @JudeHKurniawan](https://twitter.com/JudeHKurniawan)
+[Github](https://github.com/judekurn)
 
 ## PUBLICATIONS
 *Refereed Journal Articles*
 
-Schweizer V.J. & **Kurniawan J.H.** (2016), Systematically linking qualitative elements of scenarios across levels, scales, and sectors. Environmental Modelling and Software, 79, 322-333, dx.doi.org/10.1016/j.envsoft.2015.12.014
+Schweizer V.J. & **Kurniawan J.H.** (2016), Systematically linking qualitative elements of scenarios across levels, scales, and sectors. *Environmental Modelling and Software*, 79, 322-333, dx.doi.org/10.1016/j.envsoft.2015.12.014
 
-**Kurniawan J.H.**, Ong C. & Cheah L. (in press) Examining values and influences affecting public expectations of future urban mobility: A Singapore case study. Transport Policy
+**Kurniawan J.H.**, Ong C. & Cheah L. (in press) Examining values and influences affecting public expectations of future urban mobility: A Singapore case study. *Transport Policy*
 
 *Book Chapter*
 
-Scheele R., Kearney N.M., **Kurniawan J.H.** & Schweizer V.J. (2018). What scenarios are you missing? Poststructuralism for deconstructing and reconstructing organizational futures in Krämer H. & Wenzel M. (eds). How Organizations Manage the Future: Theoretical Perspectives and Empirical Insights. Palgrave Macmillan
+Scheele R., Kearney N.M., **Kurniawan J.H.** & Schweizer V.J. (2018). What scenarios are you missing? Poststructuralism for deconstructing and reconstructing organizational futures in Krämer H. & Wenzel M. (eds). *How Organizations Manage the Future: Theoretical Perspectives and Empirical Insights*. Palgrave Macmillan
+
+*Manuscripts Submitted for Review*
+
+**Kurniawan J.H.** & Kundurpi A. (2018). Future of space—how the sense of space in the future could be imagined and constructed. To be submitted to Geography Compass. Submission Number: GECO-1143
+
+*Unpublished Paper*
+
+**Kurniawan J.H.** (2016, April). Scenario development process for the future of urban mobility 2040. Report submitted for “Future Cities” project, Lee Kuan Yew Centre for Innovative Cities, Singapore University of Technology and Design, Singapore
 
 ## CONFERENCES ACTIVITIES / PRESENTATION
 *Sessions Organized*
