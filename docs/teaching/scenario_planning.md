@@ -2,8 +2,11 @@
 
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
+
 Office: EV1-246
+
 Office Hour: TBA
+
 Class Schedule: TBA
 
 ## Calendar Description
