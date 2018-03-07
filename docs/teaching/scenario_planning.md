@@ -53,3 +53,17 @@ Reading:
 Reading:
 * Bradfield, R., Wright, G., Burt, G., Cairns, G., & Van Der Heijden, K. (2005). The origins and evolution of scenario techniques in long range business planning. Futures, 37(8), 795–812. https://doi.org/10.1016/j.futures.2005.01.003
 * van Notten, P. W. F., Rotmans, J., van Asselt, M. B. A., & Rothman, D. S. (2003). An updated scenario typology. Futures, 35(5), 423–443. https://doi.org/10.1016/S0016-3287(02)00090-3
+
+### Week 4: Intuitive logic approach (qualitative method)
+Reading:
+* Ogilvy, J., & Schwartz, P. (2004). [Plotting your scenarios](http://www.meadowlark.co/plotting_your_scenarios.pdf). Global Business Network.
+* Wack, P. (1985). Scenarios: uncharted waters ahead. Harvard Business Review, 73–89.
+
+### Week 5: Probability modified trend approach (quantitative method)
+Reading:
+* Gordon, T. J., & Hayward, H. (1968). Initial experiments with the cross impact matrix method of forecasting. Futures, 1(2), 100–116. https://doi.org/10.1016/S0016-3287(68)80003-5
+* Weimer-Jehle, W. (2006). Cross-impact balances: A system-theoretical approach to cross-impact analysis. Technological Forecasting and Social Change, 73(4), 334–361. https://doi.org/10.1016/j.techfore.2005.06.005
+
+### Week 6: ScenarioWizard 4.2 (Assignment 2)
+Reading:
+* Weimer-Jehle, W. (2006). Cross-impact balances: A system-theoretical approach to cross-impact analysis. Technological Forecasting and Social Change, 73(4), 334–361. https://doi.org/10.1016/j.techfore.2005.06.005
