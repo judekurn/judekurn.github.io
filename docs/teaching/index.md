@@ -1,4 +1,4 @@
 # TEACHING
 
 ## Scenario Planning
-Blurb about scenario planning. [Syllabus](site/docs/teaching/scenario_planning.md)
+Blurb about scenario planning. [Syllabus](/scenario_planning.md)
