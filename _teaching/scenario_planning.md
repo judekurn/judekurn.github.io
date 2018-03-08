@@ -1,3 +1,8 @@
+---
+layout: teaching
+title: "Scenario Planning"
+coursename: "Scenario Planning"
+---
 
 # Scenario Planning
 This course syllabus is inspired from the works ...
