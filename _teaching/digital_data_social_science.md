@@ -40,4 +40,15 @@ Before coming to class, all students must install [Anaconda for Python 3.6](http
 |Notebook Tutorial|Tutorial for any Python packages in Jupyter Notebook|20
 |Hackathon| Bibliometric Project|30|
 |Participation|Ongoing|10|
-20,20,20,30,
+
+## Lecture Schedule
+### Week 1: Introduction / Getting started with Jupyter
+This class meeting will introduce the core themes and learning objectives for the term. By the end of the class, you should (1) know what the key themes of the course are, (2) be able to clearly explain what I expect from you in the course, and (3) understand what you need to do to succeed. 
+>Chapter 1 “Introduction” from Bit by Bit
+>Supplementary / Optional: Chapter 1 “Introduction” from Big Data and Social Science
+>Supplementary / Optional: David Lazer and Jason Radford. 2017. “Data ex Machina: Introduction to Big Data.” Annual Review of Sociology 43:19-39.
+>Supplementary / Optional: Dalton Conley et al. “Big Data. Big Obstacles.” The Chronicle Review.
+>Supplementary / Optional: Eszter Hargittai. 2015. “Is Bigger Always Better? Potential Biases of Big Data Derived from Social Network Sites.” The ANNALS of the American Academy of Political and Social Science 659(1).
+### Week 2:
+By the end of this class, you should be able to (1) explain how social scientists and data scientists use digital data in observational studies, and (2) describe the 10 common characteristics of “big data” discussed in Salganik: big, always on, nonreactive, incomplete, inaccessible, non-representative, drifting, algorithmically confounded, dirty, and sensitive.
+>Chapter 2 “Observing Behavior” from Bit by Bit
