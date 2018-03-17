@@ -29,7 +29,7 @@ Upon successful completion of this course, students will:
 * Experience the process of planning and organizing a scenario planning workshop
 * Learn to facilitate a scenario planning workshop
 
-## Material
+## Materials
 Software:
 * [ScenarioWizard 4.2](http://www.cross-impact.de/english/CIB_e_ScW.htm) – application software (free) for cross-impact balance analysis developed by ZIRIUS Centre for Interdisciplinary Risk and Innovation Studies at the University of Stuttgart.
 
