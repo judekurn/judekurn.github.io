@@ -33,7 +33,11 @@ Before coming to class, all students must install [Anaconda for Python 3.6](http
 
 ## Assignments
 ---
-Assignment #:'Data Challenge #1', 'Data Challenge #2', 'Notebook Tutorial', 'Hackathon','Participation'
-Description:
-%: 20,20,20,30,10
-___
+|Assignment #|Description|%|
+|---|---|---|
+|Data Challenge #1|Web scaping, data parsing and cleaning|20|
+|Data Challenge #2|Machine learning|20|
+|Notebook Tutorial|Tutorial for any Python packages in Jupyter Notebook|20
+|Hackathon| Bibliometric Project|30|
+|Participation|Ongoing|10|
+20,20,20,30,
