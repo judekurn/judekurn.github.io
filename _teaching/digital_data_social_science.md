@@ -12,20 +12,28 @@ Class Schedule: TBA
 
 ## Calendar Description
 
-## Course Description
+## Course Overview
 
 
 ## Learning Objectives
+Upon successful completion of this course, students will:
 
 ## Materials
-# Books:
+### Books:
 Two books will be used extensively, Salganik and Foster et al. For students who are not familiar with Python, it is rudimentary to read Severance and practice along while watching his youtube tutorial videos.
 * Matthew Salganik. 2018. [Bit by Bit: Social Research in the Digital Age](http://www.bitbybitbook.com/en/1st-ed/preface/). Princeton University Press. Currently free to read online.
 * Ian Foster, Rayid Ghani, Ron S. Jarmin, Frauke Kreuter, Julia Lane (eds). 2016. Big Data and Social Science: A Practical Guide to Methods and Tools. CRC Press.
 * Charles Severance. 2016. [Python for Everybody: Exploring Data In Python 3](https://www.py4e.com/book.php). Available for free online.
 * Ryan Mitchell. 2015 / 2018. Web Scraping with Python: Collecting Data from the Modern Web. O’Reilly. This is optional.
 
-# Computing:
+### Computing:
 All students need to bring their laptops to every class. Let me know if this is an issue.
-# Software:
+### Software:
 Before coming to class, all students must install [Anaconda for Python 3.6](https://www.anaconda.com/download/) on your laptop. Anaconda will install most of Python pacakges for data science including Jupyter Notebook, which will be the "work space" for students in all lecture and tutorial sessions. As the lesson progresses, students will be asked to install other packages (e.g. metaknowledge, spaCy, gensim etc) as required.
+
+## Assignments
+---
+Assignment #:'Data Challenge #1', 'Data Challenge #2', 'Notebook Tutorial', 'Hackathon','Participation'
+Description:
+%: 20,20,20,30,10
+___
