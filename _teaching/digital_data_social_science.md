@@ -84,10 +84,31 @@ By the end of this class, you should be able to (1) understand iteration in Pyth
 
 >Chapter 10 “Tuples” from Python for Everyone
 
+### Session 5: GETTING STARTED WITH PYTHON
+By the end of this class, you should be able to (1) read, create, open, modify, and save files; and (2) work with data in the form of Pandas dataframes.
+>Chapter 7 “files” from Python for Everyone
+
+>Watch Daniel Chen’s SciPy 2016 tutorial [Introduction to Pandas](https://www.youtube.com/watch?v=dye7rDktJ2E).
+
+### Session 6: WEB SCRAPING
+By the end of this class, you should be able to (1) understand more complex HTML markup, (2) explain how CSS works, (3) understand how to collect data from websites by scraping or using Application Programming Interfaces (API), and (4) put your new knowledge of HTML and CSS to work in developing your first web scraper.
+>Chapter 2 “Working with Web Data and APIs” from Big Data and Social Sciences
+
+>Chapter 1 “Your First Web Scraper” from Web Scraping with Python
+
+>Chapter 2 “Advanced HTML Parsing” from Web Scraping with Python
+
+>Watch Corey Schafer’s [Beautiful Soup tutorial](https://www.youtube.com/watch?v=ng2o98k983k)
+
+>Supplementary / Optional: Watch Ryan Mitchell’s DEF CON 23 talk “[Separating Bots from the Humans](https://www.youtube.com/watch?v=PADKIdSPOsc).” I suggest watching this video if you really want to get into scraping complex web pages. If the material we have covered so far is all new to you, this video may be a bit too advanced, but it’s still worth watching.
+
 ### Session (optional): AGENT-BASED MODELS IN PYTHON
 These sessions will (1) review some of the fundamental theory and concepts information agent-based models and other simulation methods in the social sciences, (2) review the paradigm of object-oriented programming, and (3) explain how to develop simple agent-based models in Python.
 >Macy and Willer (2002) “From Factors to Actors: Computational Sociology and Agent-Based Modeling.” Annual Review of Sociology. 28:143-166
 
 >“What Is Agent-Based Modeling?” from Wilensky and Rand (2015) An Introduction to Agent-Based Modeling
 
->Nicky Case’s online game “[The Evolution of Trust](http://ncase.me/trust//).” Take about 30 minutes to play . 
+>Nicky Case’s online game “[The Evolution of Trust](http://ncase.me/trust//).” Take about 30 minutes to play.
+
+>“Creating Simple Agent-Based Models” from Wilensky and Rand (2015) An Introduction to Agent-Based Modeling.
+
