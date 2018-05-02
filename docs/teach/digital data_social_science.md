@@ -16,7 +16,7 @@ Class Schedule: TBA
 
 
 ## Learning Objectives
-Upon successful completion of this course, students will:
+The schedule section of the syllabus identifies the core learning objectives for every scheduled topic in the course.
 
 ## Materials
 ### Books:
@@ -26,10 +26,14 @@ Two books will be used extensively, Salganik and Foster et al. For students who 
 * Charles Severance. 2016. [Python for Everybody: Exploring Data In Python 3](https://www.py4e.com/book.php). Available for free online.
 * Ryan Mitchell. 2015 / 2018. Web Scraping with Python: Collecting Data from the Modern Web. O’Reilly. This is optional.
 
+If you have no previous knowledge of HTML or CSS, you might consider getting yourself a copy of Jon Duckett’s (2011) [HTML and CSS: Design and Build Websites.](http://www.htmlandcssbook.com/) It’s a nice (and beautiful) introduction that assumes no prior knowledge. Of course there are plenty of great resources online. You don’t need to buy the book. Your web scraping skills will advance rapidly as you become more familiar with HTML and CSS.
+
 ### Computing:
 All students need to bring their laptops to every class. Let me know if this is an issue.
 ### Software:
 Before coming to class, all students must install [Anaconda for Python 3.6](https://www.anaconda.com/download/) on your laptop. Anaconda will install most of Python pacakges for data science including Jupyter Notebook, which will be the "work space" for students in all lecture and tutorial sessions. As the lesson progresses, students will be asked to install other packages (e.g. metaknowledge, spaCy, gensim etc) as required.
+
+**Important: All the computing we do in this course will be in Jupyter Notebooks**
 
 ## Assignments
 
