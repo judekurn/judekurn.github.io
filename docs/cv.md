@@ -13,24 +13,18 @@
 ## EDUCATION
 **Ph.D. Geography (December 2018 expected)**
 University of Waterloo, Department of Geography and Environmental Management
+
 Thesis Title: Canada’s Low Carbon Energy Futures—Socio-technical dimensions for bridging to a lower carbon energy future
 Advisor: Vanessa J. Schweizer
 
-
 **Master of Climate Change (2014)**
-
 University of Waterloo, Department of Geography and Environmental Management
 
-
 **PG.Dip. Energy Studies (2013)**
-
 Murdoch University, School of Engineering and Information Technology
 
-
 **B.Sc. Management (2011)**
-
 Northeastern University, College of Professional Studies
-
 
 ## PUBLICATIONS
 *Refereed Journal Articles*
