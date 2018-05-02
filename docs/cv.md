@@ -18,14 +18,17 @@ Advisor: Vanessa J. Schweizer
 
 
 **Master of Climate Change (2014)**
+
 University of Waterloo, Department of Geography and Environmental Management
 
 
 **PG.Dip. Energy Studies (2013)**
+
 Murdoch University, School of Engineering and Information Technology
 
 
 **B.Sc. Management (2011)**
+
 Northeastern University, College of Professional Studies
 
 
@@ -73,19 +76,19 @@ Schweizer V.J. & **Kurniawan J.H.** (2016, December). Managing complexity in soc
 ## SERVICE TO PROFESSION
 
 Reviewer for Journals (2017 – Present)
-•	Climatic Change
+* Climatic Change
 
 Participant, Alternative Urban Futures Working Group, UGEC Project (2017)
-•	Collaborated to develop a scalable AUF framework and scenario generation toolbox for a proposal call (Belmont Forum) for an international research collaboration. 
+* Collaborated to develop a scalable AUF framework and scenario generation toolbox for a proposal call (Belmont Forum) for an international research collaboration. 
 
 Research intern, the Millennium Project (2015-6)
-•	Reviewed and edited Futures Research Methodologies and performed environmental scanning on Climate Change and Sustainable Development for State of the Future 2015/6
+* Reviewed and edited Futures Research Methodologies and performed environmental scanning on Climate Change and Sustainable Development for State of the Future 2015/6
 
 Professional memberships / affiliations
-•	Waterloo Institute for Complexity and Innovation (Student Member), since 2015
-•	Canadian Association of Geographers (Student Member), since 2014
-•	Society for Risk Analysis (Student Member), since 2016
-•	Society for Decision Making Under Deep Uncertainty (Member), since 2016
+* Waterloo Institute for Complexity and Innovation (Student Member), since 2015
+* Canadian Association of Geographers (Student Member), since 2014
+* Society for Risk Analysis (Student Member), since 2016
+* Society for Decision Making Under Deep Uncertainty (Member), since 2016
 
 
 
