@@ -140,8 +140,39 @@ By the end of this class, you should be able to (1) explain the role of experime
 >Supplementary / Optional: Devah Pager 2003 “The Mark of a Criminal Record.” American Journal of Sociology. 108(5):937-975.
 
 ### Session 10: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART ONE)
+By the end of this class, you should be able to (1) characterize the general types of problems that machine learning methods can address, (2) describe how machine learning fits into the larger analysis landscapes of data science and computational social science, (3) prepare unstructured text for a computational analysis.
+
+>Gabe Ignatow and Rada Mchalcea. 2018. Pages 99 - 130 in Text Mining: Research Design, Data Collection, and Analysis. SAGE. Chapters cover basic text processing and supervised learning. It is fine to skim the chapter on supervised learning methods. I want you to have a high-level understanding of the general processes and goals. We will get into specific methods later, using concrete examples of applications.
+
+>James Evans and Pedro Aceves. 2016. “Machine Translation: Mining Text for Social Theory.” Annual Review of Sociology. 42:21–50.
+
+>Pages 176 - 187 from John McLevey and Reid McIlroy-Young (2017) [“Introducing metaknowledge: Software for computational research in information science, network analysis, and science of science.”](http://www.johnmclevey.com/pdfs/research/JOI2017.pdf) Journal of Informetrics 11:176-197.
+
+>Supplementary / Optional: NetLab blog post by John McLevey [http://networkslab.org/2017/08/29/2017-08-29-mkrecords/](http://www.johnmclevey.com/440/%22Getting%20Started%20with%20Metaknowledge%22)
+
+>Supplementary / Optional: Justin Grimmer and Brandon Stewart. 2013. “Text as Data: The Promise and Pitfalls of Automatic Content Analysis Methods for Political Texts.” Political Analysis. 1-31.
+
+>Supplementary / Optional: David Zentgraf [“What every programmer absolutely, positively needs to know about encodings and character sets to work with text”](http://kunststube.net/encoding/)
+
+>Supplementary / Optional: Chapter 6 “Machine Leaning” from Big Data and Social Science
+
+>Supplementary / Optional: Alex Hanna. 2017. [“MPEDS: Automating the Generation of Protest Event Data”](https://osf.io/preprints/socarxiv/xuqmv). SocArXiv. osf.io/preprints/socarxiv/xuqmv.
+
+>Supplementary / Optional: Aurélien Géron (2017) Chapter 1 “The Machine Learning Landscape” from Hands-On Machine Learning with Scikit-Learn and TensorFlow.
+
+>Supplementary / Optional: Chapter 1 from Alex Smola and S.V.N. Vishwanathan (2008) [Introduction to Machine Learning](http://alex.smola.org/drafts/thebook.pdf). Cambridge University Press.
+
+>Supplementary / Optional: Michael Smith (2017) [“How Canada has emerged as a leader in artificial intelligence.”](https://www.universityaffairs.ca/features/feature-article/canada-emerged-leader-artificial-intelligence/) University Affairs
+
+>Supplementary / Optional: Chris Albon’s [“Machine Learning Flashcards”](https://machinelearningflashcards.com/)
+
+>Supplementary / Optional: Watch Hilary Mason’s 2015 keynote address on [machine intelligence at the Grace Hopper Celebration of Women in Computing.](https://www.youtube.com/watch?v=Fo7pUJxqLQU)
 
 ### Session 11: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART TWO)
+
+>Watch Jake VanderPlas: [Machine Learning with Scikit Learn](https://www.youtube.com/watch?v=HC0J_SPm9co&t=4760s)
+>Watch Patrick Harrison tutorial on spaCy: [Modern NLP in Python](https://www.youtube.com/watch?v=6zm9NC9uRkk&t=4145s)
+
 
 ### Session 12: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART THREE)
 
