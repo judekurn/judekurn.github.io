@@ -169,10 +169,19 @@ By the end of this class, you should be able to (1) characterize the general typ
 >Supplementary / Optional: Watch Hilary Mason’s 2015 keynote address on [machine intelligence at the Grace Hopper Celebration of Women in Computing.](https://www.youtube.com/watch?v=Fo7pUJxqLQU)
 
 ### Session 11: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART TWO)
+By the end of this class, you should be able to (1) cluster documents based on similarity measures and k-means clustering, (2) develop and interpret an LDA topic model, and (3) develop and interpret topics in a semantic network.
+
+>Chapter 7 “Text Analysis” from Big Data and Social Science
+
+>Alix Rule, Jean-Philippe Cointet, and Peter Bearman. 2015. [“Lexical shifts, substantive changes, and continuity in State of the Union discourse](http://www.pnas.org/content/112/35/10837.abstract), 1790–2014.” PNAS 112(35)
 
 >Watch Jake VanderPlas: [Machine Learning with Scikit Learn](https://www.youtube.com/watch?v=HC0J_SPm9co&t=4760s)
+
 >Watch Patrick Harrison tutorial on spaCy: [Modern NLP in Python](https://www.youtube.com/watch?v=6zm9NC9uRkk&t=4145s)
 
+>Supplementary / Optional: Watch Jennifer Pan’s Databite talk [“How the Chinese Government Fabricates Social Media Posts for Strategic Distraction, not Engaged Argument”](https://www.youtube.com/watch?v=9FL2GWcyshA)
+
+>Supplementary / Optional: Gary King, Jennifer Pan, and Molly Roberts. 2013. [“How Censorship in China Allows Government Criticism but Silences Collective Expression.”](https://www.cambridge.org/core/journals/american-political-science-review/article/how-censorship-in-china-allows-government-criticism-but-silences-collective-expression/C7EF4A9C9D59425C2D09D83742C1FE00) American Political Science Review. 107(2):326-343.
 
 ### Session 12: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART THREE)
 
