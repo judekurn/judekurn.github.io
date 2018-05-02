@@ -94,9 +94,9 @@ Executive, Student Teaching Excellent Committee (2017-8)
 * Social Science Research Methods (Qualitative, Quantitative, Mixed)
 * Foresight and Innovation Research Methods
 * Decision-making (Decision Theory, Complex System Theory)
-* Statistic, Probability, Network Analysis, Data Visualization [[Big Data and Social Science]](https://github.com/judekurn/judekurn.github.io/blob/master/docs/teach/digital%20data_social_science.md)
+* Statistic, Probability, Network Analysis, Data Visualization [[Digital Data and Social Science]](https://github.com/judekurn/judekurn.github.io/blob/master/docs/teach/digital_data_social_science.md)
 * Futures Studies / Research Methodologies
-* Scenario Planning and Techniques [Scenario Panning]
+* Scenario Planning and Techniques [Scenario Planning]
 * Strategy and Strategic Management
 * Human Geography
 * Climate/Energy Policy and Human Dimension of Climate Change
