@@ -1,5 +1,5 @@
 # Digital Data for Social Science
-The design of this course is highly influenced by the course taught by John McLevey ("[Big Data and Social Science](http://www.johnmclevey.com/440/)" at the University of Waterloo) which I attended and also marked the beginning of my journey into a new scholarship of computational social science. Some aspect of this course also resonates with the course by Laura Nelson ("[Digital Methods for Social Sciences and Humanities](http://www.lauraknelson.com/p/teaching.html)" at Northeastern University).
+The design of this course is highly influenced by the course taught by John McLevey ("[Big Data and Social Science](http://www.johnmclevey.com/440/)" at the University of Waterloo) which I attended and also marked the beginning of my journey to computational social science. Some aspects of this course also resonate with the course by Laura Nelson ("[Digital Methods for Social Sciences and Humanities](http://www.lauraknelson.com/p/teaching.html)" at Northeastern University).
 
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
@@ -90,17 +90,33 @@ By the end of this class, you should be able to (1) read, create, open, modify, 
 
 >Watch Daniel Chen’s SciPy 2016 tutorial [Introduction to Pandas](https://www.youtube.com/watch?v=dye7rDktJ2E).
 
-### Session 6: WEB SCRAPING
-By the end of this class, you should be able to (1) understand more complex HTML markup, (2) explain how CSS works, (3) understand how to collect data from websites by scraping or using Application Programming Interfaces (API), and (4) put your new knowledge of HTML and CSS to work in developing your first web scraper.
+### Session 6: WEB SCRAPING AND CRAWLING
+By the end of this class, you should be able to (1) understand more complex HTML markup, (2) explain how CSS works, (3) understand how to collect data from websites by scraping or using Application Programming Interfaces (API), and (4) put your new knowledge of HTML and CSS to work in developing your web scraper that also crawls.
 >Chapter 2 “Working with Web Data and APIs” from Big Data and Social Sciences
 
 >Chapter 1 “Your First Web Scraper” from Web Scraping with Python
 
 >Chapter 2 “Advanced HTML Parsing” from Web Scraping with Python
 
+>Chapter 3 “Starting to Crawl” from Web Scraping with Python
+
 >Watch Corey Schafer’s [Beautiful Soup tutorial](https://www.youtube.com/watch?v=ng2o98k983k)
 
 >Supplementary / Optional: Watch Ryan Mitchell’s DEF CON 23 talk “[Separating Bots from the Humans](https://www.youtube.com/watch?v=PADKIdSPOsc).” I suggest watching this video if you really want to get into scraping complex web pages. If the material we have covered so far is all new to you, this video may be a bit too advanced, but it’s still worth watching.
+
+### Session 7: PARSING DOCUMENTS AND CLEANNG 'DIRTY' DATA
+By the end of this class, you should be able to (1) parse data from documents rather than web pages, and (2) clean up messy unstructured data from web pages and documents.
+
+>Chapter 6 “Reading Documents” from Web Scraping with Python
+
+>Chapter 7 “Cleaning Your Dirty Data” from Web Scraping with Python
+
+### Session 8: ASKING QUESTIONS
+By the end of this class, you should be able to (1) describe the role that survey methods and the ‘total survey error framework’ play in the digital age; (2) accurately describe historical changes in sampling strategies, and explain why Salganik thinks new approaches to non-probability sampling differ from earlier approaches; (3) describe innovations in how we ask questions; and (4) differentiate between “enriched asking” and “amplified asking.”
+
+>Chapter 3 “Asking Questions” from [*Bit by Bit*](http://www.bitbybitbook.com/en/preface/)
+
+>Watch Matt Salganik’s 2017 talk [*“Survey research in the digital age”*](https://www.youtube.com/watch?v=LEbn3_pXvmw) from the Summer Institute in Computational Social Science
 
 ### Session (optional): AGENT-BASED MODELS IN PYTHON
 These sessions will (1) review some of the fundamental theory and concepts information agent-based models and other simulation methods in the social sciences, (2) review the paradigm of object-oriented programming, and (3) explain how to develop simple agent-based models in Python.
