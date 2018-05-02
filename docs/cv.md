@@ -41,7 +41,7 @@ Scheele R., Kearney N.M., **Kurniawan J.H.** & Schweizer V.J. (2018). What scena
 
 **Kurniawan J.H.** & Kundurpi A. (2018). Future of space—how the sense of space in the future could be imagined and constructed. Submitted to Geography Compass. Submission Number: GECO-1143
 
-*Unpublished Paper*
+*Report/Policy Briefs*
 
 **Kurniawan J.H.** (2016, April). [Scenario development process for the future of urban mobility 2040.](https://www.researchgate.net/publication/301512612_Scenario_development_process_for_the_Future_of_Urban_Mobility_2040) Report submitted for “Future Cities” project, Lee Kuan Yew Centre for Innovative Cities, Singapore University of Technology and Design, Singapore
 
@@ -83,6 +83,24 @@ Professional memberships / affiliations
 * Canadian Association of Geographers (Student Member), since 2014
 * Society for Risk Analysis (Student Member), since 2016
 * Society for Decision Making Under Deep Uncertainty (Member), since 2016
+
+## FACULTY/DEPARTMENTAL SERVICE
+
+Executive, Student Teaching Excellent Committee (2017-8)
+* Organized all STEC activities including mentor/mentee matching, mentorship training, panel discussions, and mentorship meet-up sessions.
+
+## TEACHING AREAS
+
+* Social Science Research Methods (Qualitative, Quantitative, Mixed)
+* Foresight and Innovation Research Methods
+* Decision-making (Decision Theory, Complex System Theory)
+* Statistic, Probability, Network Analysis, Data Visualization [Big Data and Social Science]
+* Futures Studies / Research Methodologies
+* Scenario Planning and Techniques [Scenario Panning]
+* Strategy and Strategic Management
+* Human Geography
+* Climate/Energy Policy and Human Dimension of Climate Change
+* Energy Systems Design and Modelling [Energy Policy]
 
 
 
