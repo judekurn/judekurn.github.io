@@ -114,9 +114,37 @@ By the end of this class, you should be able to (1) parse data from documents ra
 ### Session 8: ASKING QUESTIONS
 By the end of this class, you should be able to (1) describe the role that survey methods and the ‘total survey error framework’ play in the digital age; (2) accurately describe historical changes in sampling strategies, and explain why Salganik thinks new approaches to non-probability sampling differ from earlier approaches; (3) describe innovations in how we ask questions; and (4) differentiate between “enriched asking” and “amplified asking.”
 
->Chapter 3 “Asking Questions” from [*Bit by Bit*](http://www.bitbybitbook.com/en/preface/)
+>Chapter 3 “Asking Questions” from [Bit by Bit](http://www.bitbybitbook.com/en/preface/)
 
->Watch Matt Salganik’s 2017 talk [*“Survey research in the digital age”*](https://www.youtube.com/watch?v=LEbn3_pXvmw) from the Summer Institute in Computational Social Science
+>Watch Matt Salganik’s 2017 talk [“Survey research in the digital age”](https://www.youtube.com/watch?v=LEbn3_pXvmw) from the Summer Institute in Computational Social Science
+
+>Supplementary / Optional: Watch Chris Bail’s 2017 talk [“Apps for Social Science Research”](https://www.youtube.com/watch?v=8DBLnYABAMQ&t=258s) from the Summer Institute in Computational Social Science
+
+>Supplementary / Optional: Christopher Bail. 2015. [“Taming Big Data Using App Technology to Study Organizational Behavior on Social Media.”](http://journals.sagepub.com/doi/abs/10.1177/0049124115587825) Sociological Methods & Research 46(2):1-29.
+
+>Supplementary / Optional: Read Chapter 10 “Errors and Inference” from Big Data and Social Science
+
+### Session 9: EXPERIMENTS AND MASS COLLABORATIONS
+By the end of this class, you should be able to (1) explain the role of experiments in social science and data science and explain how they are changing in the digital age, and (3) explain the role of mass collaborations in social science and data science and explain how they are changing in the digital age.
+
+>Chapter 4 “Running Experiments” from Bit by Bit
+
+>Chapter 5 “Creating Mass Collaboration” from Bit by Bit
+
+>Watch Devah Pager’s overview of her experimental audit study [“The Mark of a Criminal Record”](https://scholar.harvard.edu/files/pager/files/pager_ajs.pdf)
+
+>Supplementary / Optional: Devah Pager 2003 “The Mark of a Criminal Record.” American Journal of Sociology. 108(5):937-975.
+
+### Session 10: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART ONE)
+
+### Session 11: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART TWO)
+
+### Session 12: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART THREE)
+
+### Session 13: UNDERSTANDING NETWORK ANALYSIS
+
+### Session 13: NETWORK ANALYSIS USING NETWORKX
+
 
 ### Session (optional): AGENT-BASED MODELS IN PYTHON
 These sessions will (1) review some of the fundamental theory and concepts information agent-based models and other simulation methods in the social sciences, (2) review the paradigm of object-oriented programming, and (3) explain how to develop simple agent-based models in Python.
