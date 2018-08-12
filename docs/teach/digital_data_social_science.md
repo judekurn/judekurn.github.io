@@ -190,11 +190,40 @@ By the end of this class, you should be able to (1) cluster documents based on s
 >Supplementary / Optional: Gary King, Jennifer Pan, and Molly Roberts. 2013. [“How Censorship in China Allows Government Criticism but Silences Collective Expression.”](https://www.cambridge.org/core/journals/american-political-science-review/article/how-censorship-in-china-allows-government-criticism-but-silences-collective-expression/C7EF4A9C9D59425C2D09D83742C1FE00) American Political Science Review. 107(2):326-343.
 
 ## Session 12: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART THREE)
+By the end of this class, you should be able to (1) identify important words in documents, (2) measure the similarity of different texts / documents, (3) develop a ML model in Python using word2vec and doc2vec methods.
+
+>Laura Nelson. 2017. "Computational Grounded Theory." Sociological Methods & Research
+>
+>Watch Trent Hauck's ["Low Friction NLP with Gensim"](https://www.youtube.com/watch?v=KqNkisZ2rPs) for detail on word2vec and doc2vec methods
+>
+>Watch Robert Meyer's ["Analysing user comments with Doc2Vec and Machine Learning classification"](https://www.youtube.com/watch?v=zFScws0mb7M&t=1599s)
+>
+>Supplementary / Optional: Watch Lev Konstantinovskiy's ["Word Embeddings for fun and profit in Gensim"](https://www.youtube.com/watch?v=lfqW46u0UKc)
+>
+>Supplementary / Optional: Christopher Bail. 2015. [“Combining natural language processing and network analysis to examine how advocacy organizations stimulate conversation on social media.”](http://www.pnas.org/content/113/42/11823.full) PNAS
 
 ## Session 13: UNDERSTANDING NETWORK ANALYSIS
+By the end of this class, you should be able to (1) describe some of the key concepts, theories, and methods from social network analysis; and (2) characterize similarities and differences between network analysis in the social sciences and the natural and computational sciences.
+
+>Chapter 8 "Networks: The basics" from Big Data and Social Science
+>
+>Stephen Borgatti, Ajay Mehra, Daniel Brass, and Giuseppe Labianca. 2009. "Network Analysis in the Social Sciences." Science 323(5916):892-895.
+>
+>Watch Sandra Gonzalez-Bailon's 2017 talk ["Decoding the Social World"](https://www.youtube.com/watch?v=OfEe8w_z5jY) from the Summer Institute in Computational Social Science. It's pretty advanced relative to what you have learned so far, so if you watch this video, focus on trying to understand the problem that Dr. Gonzalez-Bailon's is addressing, the logic of her research design, and her key arguments.
+>
+>Supplementary / Optional: Watch Lada Adamic’s talk [“Social Networks as Information Filters.”](https://www.youtube.com/watch?v=PEcMC778Nng) The talk is advanced for what you know so far. Focus on understanding the problem that Dr. Adamic is addressing, her research design, and her core findings.
+>
+>Supplementary / Optional: Watch Jure Leskovec’s 2011 talk [“Rhythms of Information Flow Through Networks.”](https://www.youtube.com/watch?v=_OAA9gkEoII&t=222s) Again, it’s advanced, so focus on understanding the big picture.
+>
+>Supplementary / Optional: Allyson Stokes and John McLevey (2016) “From Porter to Bourdieu: The Evolving Specialty Structure of English Canadian Sociology, 1966 to 2014” Canadian Review of Sociology 53(2): 176-202.
 
 ## Session 13: NETWORK ANALYSIS USING NETWORKX
+By the end of this class, you should be able to (1) explain how social networks shape the diffusion of information, ideas, and behaviors; (2) create and modify networks in Python; (3) compute basic network statistics, and identify groups, positions, and roles.
 
+>John McLevey and Reid McIlroy-Young (2017) "Introducing metaknowledge: Software for computational research in information science, network analysis, and science of science." Journal of Informetrics 11:176-197.
+>
+>Watch Rob Chew and Peter Baumgartner talk ["Connected: A Social Network Analysis Tutorial with NetworkX"](https://www.youtube.com/watch?v=7fsreJMy_pI&t=1590s) which covers much of the same material we will cover in
+class
 
 ## Session (optional): AGENT-BASED MODELS IN PYTHON
 These sessions will (1) review some of the fundamental theory and concepts information agent-based models and other simulation methods in the social sciences, (2) review the paradigm of object-oriented programming, and (3) explain how to develop simple agent-based models in Python.
