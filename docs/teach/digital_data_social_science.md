@@ -188,6 +188,8 @@ By the end of this class, you should be able to (1) cluster documents based on s
 >Supplementary / Optional: Watch Jennifer Pan’s Databite talk [“How the Chinese Government Fabricates Social Media Posts for Strategic Distraction, not Engaged Argument”](https://www.youtube.com/watch?v=9FL2GWcyshA)
 >
 >Supplementary / Optional: Gary King, Jennifer Pan, and Molly Roberts. 2013. [“How Censorship in China Allows Government Criticism but Silences Collective Expression.”](https://www.cambridge.org/core/journals/american-political-science-review/article/how-censorship-in-china-allows-government-criticism-but-silences-collective-expression/C7EF4A9C9D59425C2D09D83742C1FE00) American Political Science Review. 107(2):326-343.
+>
+>Supplementary / Optional: Watch Christine Doig's talk on ["Topic Modeling with Python"](https://www.youtube.com/watch?v=BuMu-bdoVrU). In the first part of her talk, she introduces briefly the various methods of machine learning.
 
 ## Session 12: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART THREE)
 By the end of this class, you should be able to (1) identify important words in documents, (2) measure the similarity of different texts / documents, (3) develop a ML model in Python using word2vec and doc2vec methods.
@@ -225,6 +227,17 @@ By the end of this class, you should be able to (1) explain how social networks 
 >Watch Rob Chew and Peter Baumgartner talk ["Connected: A Social Network Analysis Tutorial with NetworkX"](https://www.youtube.com/watch?v=7fsreJMy_pI&t=1590s) which covers much of the same material we will cover in
 class
 
+## Session (optional): SCALING UP
+By the end of this class, you will be able to (1) compare databases with other ways of storing and accessing data; (2) explain the basic ideas behind Hadoop, MapReduce, and Spark, and time permitting; (3) define and understand how to use the dataframe API for PySpark.
+
+>Skim Chapter 4 “Databases” from Big Data and Social Science
+>
+>Skim Chapter 15 “Using Databases and SQL” from Charles Severance’s [Python for Everyone](https://www.py4e.com/book.php)
+>
+>Read Chapter 5 “Programming with Big Data” from Big Data and Social
+>
+>Supplementary / Optional: Watch Andrew Ray’s talk [“Data Wrangling with PySpark for Data Scientists Who Know Pandas.”](https://www.youtube.com/watch?v=XrpSRCwISdk)
+
 ## Session (optional): AGENT-BASED MODELS IN PYTHON
 These sessions will (1) review some of the fundamental theory and concepts information agent-based models and other simulation methods in the social sciences, (2) review the paradigm of object-oriented programming, and (3) explain how to develop simple agent-based models in Python.
 >Macy and Willer (2002) “From Factors to Actors: Computational Sociology and Agent-Based Modeling.” Annual Review of Sociology. 28:143-166
@@ -234,4 +247,5 @@ These sessions will (1) review some of the fundamental theory and concepts infor
 >Nicky Case’s online game “[The Evolution of Trust](http://ncase.me/trust//).” Take about 30 minutes to play.
 >
 >“Creating Simple Agent-Based Models” from Wilensky and Rand (2015) An Introduction to Agent-Based Modeling.
-
+>
+>Watch Jackie Kazil's talk introducing Mesa ["Agent based modeling in Python"](https://www.youtube.com/watch?v=bjjoHji8KUQ)
