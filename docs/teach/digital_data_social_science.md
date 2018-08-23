@@ -1,5 +1,5 @@
 # Digital Data for Social Science
-The design of this course is highly influenced by the course taught by John McLevey ("[Big Data and Social Science](http://www.johnmclevey.com/440/)" at the University of Waterloo) which I attended and also marked the beginning of my journey to computational social science. Some aspects of this course also resonate with the course by Laura Nelson ("[Digital Methods for Social Sciences and Humanities](http://www.lauraknelson.com/p/teaching.html)" at Northeastern University).
+The design of this course is highly influenced by the course taught by John McLevey ("[Big Data and Social Science](http://www.johnmclevey.com/440/)" at the University of Waterloo) which I attended. Some aspects of this course also resonate with the course by Laura Nelson ("[Digital Methods for Social Sciences and Humanities](http://www.lauraknelson.com/p/teaching.html)" at Northeastern University).
 
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
@@ -98,7 +98,7 @@ By the end of this class, you should be able to (1) understand iteration in Pyth
 By the end of this class, you should be able to (1) read, create, open, modify, and save files; and (2) work with data in the form of Pandas dataframes.
 >Chapter 7 “files” from Python for Everyone
 >
->Watch Daniel Chen’s SciPy 2016 tutorial [Introduction to Pandas](https://www.youtube.com/watch?v=dye7rDktJ2E).
+>Watch Daniel Chen’s SciPy 2016 tutorial ["Introduction to Pandas."](https://www.youtube.com/watch?v=dye7rDktJ2E)
 
 ## Session 6: WEB SCRAPING AND CRAWLING
 By the end of this class, you should be able to (1) understand more complex HTML markup, (2) explain how CSS works, (3) understand how to collect data from websites by scraping or using Application Programming Interfaces (API), and (4) put your new knowledge of HTML and CSS to work in developing your web scraper that also crawls.
@@ -110,7 +110,7 @@ By the end of this class, you should be able to (1) understand more complex HTML
 >
 >Chapter 3 “Starting to Crawl” from Web Scraping with Python
 >
->Watch Corey Schafer’s [Beautiful Soup tutorial](https://www.youtube.com/watch?v=ng2o98k983k)
+>Watch Corey Schafer’s ["Beautiful Soup"](https://www.youtube.com/watch?v=ng2o98k983k) tutorial.
 >
 >Supplementary / Optional: Watch Ryan Mitchell’s DEF CON 23 talk “[Separating Bots from the Humans](https://www.youtube.com/watch?v=PADKIdSPOsc).” I suggest watching this video if you really want to get into scraping complex web pages. If the material we have covered so far is all new to you, this video may be a bit too advanced, but it’s still worth watching.
 
