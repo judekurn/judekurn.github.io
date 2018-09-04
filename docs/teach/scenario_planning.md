@@ -73,3 +73,24 @@ Reading:
 ### Week 6: ScenarioWizard 4.2 (Assignment 2)
 Reading:
 * Weimer-Jehle, W. (2006). Cross-impact balances: A system-theoretical approach to cross-impact analysis. Technological Forecasting and Social Change, 73(4), 334–361. https://doi.org/10.1016/j.techfore.2005.06.005
+
+### Week 7: Advanced scenario techniques and multi-scale scenario analysis
+Reading:
+* Zurek and Henrich (2007). Linking scenarios across geographical scales in international environmental assessment. Technology Forecasting and Social Change, 74(8), 1282-1295.
+* Schweizer and Kurniawan (2016). Systematically linking qualitative elements of scenarios across levels, scales, and sectors. Environmental Modelling and Software, 79, 322-333.
+* Kok et al (2018). New European socioeconomic scenarios for climate change research. Regional Environmental Change
+
+### Week 8: Future of work and technology
+Reading:
+
+### Week 9: Future of urban mobility
+Reading:
+* Kurniawan et al. (2018). Examining values and influences affecting public expectations of future urban mobility: A Singapore case study. Transport Policy, 66, 66-75.
+* Zmud et al. (2013). The future of mobility: Scenario for United States in 2030. RAND Corp. Santa Monica CA, USA.
+* Fishman (2012). Digital age transportation - Future of urban mobility. Deliotte University Press. UK.
+
+### Week 10: Future of Energy (Optional)
+
+### Week 11: Scenario planning workshop 1 (Assignment 3)
+
+### Week 12: Scenario planning workshop 2 (Assignment 3)
