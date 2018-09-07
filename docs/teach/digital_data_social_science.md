@@ -1,5 +1,5 @@
 # Digital Data for Social Science
-The design of this course is highly influenced by the course taught by John McLevey ("[Big Data and Social Science](http://www.johnmclevey.com/440/)" at the University of Waterloo) which I attended. Some aspects of this course also resonate with the course by Laura Nelson ("[Digital Methods for Social Sciences and Humanities](http://www.lauraknelson.com/p/teaching.html)" at Northeastern University).
+The design of this course is highly influenced by the course taught by John McLevey ("[Big Data and Social Science](http://www.johnmclevey.com/475/)" at the University of Waterloo) which I attended. Some aspects of this course also resonate with the course by Laura Nelson ("[Digital Methods for Social Sciences and Humanities](http://www.lauraknelson.com/p/teaching.html)" at Northeastern University).
 
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
