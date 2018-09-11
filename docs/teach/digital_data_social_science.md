@@ -121,7 +121,7 @@ By the end of this class, you should be able to (1) parse data from documents ra
 >
 >Chapter 7 “Cleaning Your Dirty Data” from Web Scraping with Python
 
-## Session 8: ASKING QUESTIONS (Optional for advance researchers only)
+## Session 8: ASKING QUESTIONS (For advance degree only)
 By the end of this class, you should be able to (1) describe the role that survey methods and the ‘total survey error framework’ play in the digital age; (2) accurately describe historical changes in sampling strategies, and explain why Salganik thinks new approaches to non-probability sampling differ from earlier approaches; (3) describe innovations in how we ask questions; and (4) differentiate between “enriched asking” and “amplified asking.”
 
 >Chapter 3 “Asking Questions” from [Bit by Bit](http://www.bitbybitbook.com/en/preface/)
@@ -134,7 +134,7 @@ By the end of this class, you should be able to (1) describe the role that surve
 >
 >Supplementary / Optional: Read Chapter 10 “Errors and Inference” from Big Data and Social Science
 
-## Session 9: EXPERIMENTS AND MASS COLLABORATIONS (Optional for advance researchers only)
+## Session 9: EXPERIMENTS AND MASS COLLABORATIONS (For advance degree only)
 By the end of this class, you should be able to (1) explain the role of experiments in social science and data science and explain how they are changing in the digital age, and (3) explain the role of mass collaborations in social science and data science and explain how they are changing in the digital age.
 
 >Chapter 4 “Running Experiments” from Bit by Bit
@@ -146,7 +146,7 @@ By the end of this class, you should be able to (1) explain the role of experime
 >Supplementary / Optional: Devah Pager 2003 “The Mark of a Criminal Record.” American Journal of Sociology. 108(5):937-975.
 
 ## Session 10: MACHINE LEARNING AND COMPUTATIONAL TEXT ANALYSIS (PART ONE)
-I want to dedicate three full sessions for ML and NLP. Familiarity with the application of ML and NLP for computational text analysis in social science is rudimentary. As this is not an ML course per se, I assume students would have thouroghly read up and practice the basic of ML. I expect students to get their hands dirty and learn the hard way. Please come to class prepared...be very prepared! By the end of this class, you should be able to (1) characterize the general types of problems that machine learning methods can address, (2) describe how machine learning fits into the larger analysis landscapes of data science and computational social science, (3) prepare unstructured text for a computational analysis.
+I want to dedicate three full sessions for ML and NLP. Familiarity with the application of ML and NLP for computational text analysis in social science is rudimentary. As this is not an ML course per se, I assume students would have thouroghly read up and practiced the basic of ML. I expect students to get their hands dirty and learn the hard way. Please come to class prepared...be very prepared! By the end of this class, you should be able to (1) characterize the general types of problems that machine learning methods can address, (2) describe how machine learning fits into the larger analysis landscapes of data science and computational social science, (3) prepare unstructured text for a computational analysis.
 
 >Gabe Ignatow and Rada Mchalcea. 2018. Pages 99 - 130 in Text Mining: Research Design, Data Collection, and Analysis. SAGE. Chapters cover basic text processing and supervised learning. It is fine to skim the chapter on supervised learning methods. I want you to have a high-level understanding of the general processes and goals. We will get into specific methods later, using concrete examples of applications.
 
