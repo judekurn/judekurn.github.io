@@ -121,7 +121,7 @@ By the end of this class, you should be able to (1) parse data from documents ra
 >
 >Chapter 7 “Cleaning Your Dirty Data” from Web Scraping with Python
 
-## Session 8: ASKING QUESTIONS (For advance degree only)
+## Session 8: ASKING QUESTIONS (For advanced degree only)
 By the end of this class, you should be able to (1) describe the role that survey methods and the ‘total survey error framework’ play in the digital age; (2) accurately describe historical changes in sampling strategies, and explain why Salganik thinks new approaches to non-probability sampling differ from earlier approaches; (3) describe innovations in how we ask questions; and (4) differentiate between “enriched asking” and “amplified asking.”
 
 >Chapter 3 “Asking Questions” from [Bit by Bit](http://www.bitbybitbook.com/en/preface/)
@@ -134,7 +134,7 @@ By the end of this class, you should be able to (1) describe the role that surve
 >
 >Supplementary / Optional: Read Chapter 10 “Errors and Inference” from Big Data and Social Science
 
-## Session 9: EXPERIMENTS AND MASS COLLABORATIONS (For advance degree only)
+## Session 9: EXPERIMENTS AND MASS COLLABORATIONS (For advanced degree only)
 By the end of this class, you should be able to (1) explain the role of experiments in social science and data science and explain how they are changing in the digital age, and (3) explain the role of mass collaborations in social science and data science and explain how they are changing in the digital age.
 
 >Chapter 4 “Running Experiments” from Bit by Bit
