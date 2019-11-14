@@ -5,7 +5,7 @@ coursename: "Scenario Planning"
 ---
 
 # Scenario Planning
-This course syllabus is inspired from the works ...
+
 
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
@@ -92,6 +92,8 @@ Reading:
 
 ### Week 10: Future of Energy (Optional)
 Reading:
+* Ernst, A., Biss, K.H., Shamon, H., Schumann, D. and Heinrichs, H.U., 2018. Benefits and challenges of participatory methods in qualitative energy scenario development. Technological Forecasting and Social Change, 127, pp.245-257.
+* Gordon, T.J., 2007. Energy forecasts using a “Roundless” approach to running a Delphi study. Foresight, 9(2), pp.27-35.
 
 ### Week 11: Scenario planning workshop 1 (Assignment 3)
 
