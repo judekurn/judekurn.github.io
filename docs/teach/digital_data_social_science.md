@@ -35,7 +35,7 @@ If you have no previous knowledge of HTML or CSS, you might consider getting you
 ## Computing:
 All students need to bring their laptops to every class. Let me know if this is an issue.
 ## Software:
-Before coming to class, all students must install [Anaconda for Python 3.6](https://www.anaconda.com/download/) on your laptop. Anaconda will install most of Python pacakges for data science including Jupyter Notebook, which will be the "work space" for students in all lecture and tutorial sessions. As the lesson progresses, students will be asked to install other packages (e.g. metaknowledge, spaCy, gensim etc) as required.
+Before coming to class, all students must install [Anaconda for Python 3.6](https://www.anaconda.com/download/) on your laptop. Anaconda will install most of Python pacakges for data science including Jupyter Notebook, which will be the "work space" for students in all lecture and tutorial sessions. As the lesson progresses, students will be asked to install other packages (e.g. metaknowledge, spaCy, gensim, Louvain community detection etc) as required.
 
 **Important: All the computing we do in this course will be in Jupyter Notebooks**
 
@@ -114,7 +114,7 @@ By the end of this class, you should be able to (1) understand more complex HTML
 >
 >Supplementary / Optional: Watch Ryan Mitchell’s DEF CON 23 talk “[Separating Bots from the Humans](https://www.youtube.com/watch?v=PADKIdSPOsc).” I suggest watching this video if you really want to get into scraping complex web pages. If the material we have covered so far is all new to you, this video may be a bit too advanced, but it’s still worth watching.
 
-## Session 7: PARSING DOCUMENTS AND CLEANNG 'DIRTY' DATA
+## Session 7: PARSING DOCUMENTS AND CLEANING 'DIRTY' DATA
 By the end of this class, you should be able to (1) parse data from documents rather than web pages, and (2) clean up messy unstructured data from web pages and documents.
 
 >Chapter 6 “Reading Documents” from Web Scraping with Python
@@ -135,7 +135,7 @@ By the end of this class, you should be able to (1) describe the role that surve
 >Supplementary / Optional: Read Chapter 10 “Errors and Inference” from Big Data and Social Science
 
 ## Session 9: EXPERIMENTS AND MASS COLLABORATIONS (For advanced degree only)
-By the end of this class, you should be able to (1) explain the role of experiments in social science and data science and explain how they are changing in the digital age, and (3) explain the role of mass collaborations in social science and data science and explain how they are changing in the digital age.
+By the end of this class, you should be able to (1) explain the role of experiments in social science and data science and explain how they are changing in the digital age, and (2) explain the role of mass collaborations in social science and data science and explain how they are changing in the digital age.
 
 >Chapter 4 “Running Experiments” from Bit by Bit
 >
