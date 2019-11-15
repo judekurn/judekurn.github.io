@@ -1,9 +1,3 @@
----
-layout: teaching
-title: "Scenario Planning"
-coursename: "Scenario Planning"
----
-
 # Scenario Planning
 
 
@@ -20,12 +14,12 @@ Class Schedule: TBA
 This course examines various futures research methodologies and how these techniques are embraced as scenario development methods by researchers and practitioners. The emphasis is on developing competence in facilitating and organizing a participatory scenario planning workshop using appropriate scenario methods.
 
 ## Course Overview
-Events and trends affecting the future can cause chained impacts in which the potential interconnections between events are becoming more significant in terms of their magnitude and the speed of the occurrence, largely due to the accelerated emerging change—social, technological, and political. This sort of cascading effects is difficult to be intuitively and cognitively mapped, let alone forecasted. Insofar, policymakers and stakeholders must deal with deep uncertainties in exercising judgment and making decisions. Over the last few decades, scenario analysis have emerged as an important tool for decision-making under deep uncertainties. The objective of scenario planning is to engage policymakers and stakeholders to be involved in the development of scenario plots and that they will recognize the importance of uncovering and deliberating the implications of the future scenarios. The motivation for involving stakeholders in scenario development is to obtain insight and creativity from a pool of experts that otherwise would be inaccessible to the scenario researchers and the public.
+Events and trends affecting the future can cause chained impacts in which the potential interconnections between events are becoming more significant in terms of their magnitude and the speed of the occurrence, largely due to the accelerated emerging change—social, technological, and political. This sort of cascading effects is difficult to be intuitively and cognitively mapped, let alone forecasted. Insofar, policymakers and stakeholders must deal with deep uncertainties in exercising judgment and making decisions. Over the last few decades, scenario analysis has emerged as an important tool for decision-making under deep uncertainties. The objective of scenario planning is to engage policymakers and stakeholders to be involved in the development of scenario plots and that they will recognize the importance of uncovering and deliberating the implications of the future scenarios. The motivation for involving stakeholders in scenario development is to obtain insight and creativity from a pool of experts that otherwise would be inaccessible to the scenario researchers and the public.
 
 ## Learning Objectives
 Upon successful completion of this course, students will:
 * Understand various scenario methods, their strengths and limitations
-* Be able to design research process for participatory scenario planning workshops
+* Be able to design a research process using a participatory scenario planning method
 * Experience the process of planning and organizing a scenario planning workshop
 * Learn to facilitate a scenario planning workshop
 
@@ -42,7 +36,7 @@ Upon successful completion of this course, students will:
 
 **ScenarioWizard** (Assignment 2): Students will work in groups and select one workshop proposal to organize. Students will then conduct environmental scanning for up to 4-5 scenario drivers related to the topic they proposed. These drivers will be subjected to cross-impact balances analysis using an application software called ScenarioWizard.
 
-**Scenario Planning Workshop** (Assignment 3): Students will work in groups to design and organize a participatory scenario planning workshop. Students will be allocated 45 minutes to conduct facilitation of their proposed workshop. The groups will then submit their final paper describing the scenario narratives (storylines) developed in the workshop they facilitated (2500 words).
+**Scenario Planning Workshop** (Assignment 3): Students will work in groups to design and organize a participatory scenario planning workshop. Students will be allocated 45 minutes to conduct and faciliate their proposed workshop. The groups will then submit their final paper describing the scenario narratives (storylines) developed in the workshop they facilitated (2500 words).
 
 ## Lecture Schedule
 
@@ -83,6 +77,8 @@ Reading:
 
 ### Week 8: Future of work and technology
 Reading:
+* Frey, C.B. and Osborne, M., 2013. The future of employment. Oxford Martin School, University of Oxford
+* Glenn, J.C. and Florescu, E., 2016. Millennium Project Team (2016) Future Work/Technology 2050 Real-Time Delphi Study: Excerpt from the 2015-16 State of the Future Report. Journal of Socialomics, 5(3), p.1000171.
 
 ### Week 9: Future of urban mobility
 Reading:
