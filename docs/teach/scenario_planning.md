@@ -36,7 +36,7 @@ Upon successful completion of this course, students will:
 
 **ScenarioWizard** (Assignment 2): Students will work in groups and select one workshop proposal, which they will organize. Students will then conduct environmental scanning for up to 4-5 scenario drivers for scenario development. These drivers will be subjected to cross-impact balances analysis using an application software called ScenarioWizard.
 
-**Scenario Planning Workshop** (Assignment 3): Students will work in groups to design and organize a participatory scenario planning workshop. Students will be allocated 45 minutes to conduct and faciliate their proposed workshop. The groups will then submit their final paper describing the scenario narratives (storylines) developed in the workshop they facilitated (2500 words).
+**Scenario Planning Workshop** (Assignment 3): Students will work in groups to design and organize a participatory scenario planning workshop. Students will be allocated 45 minutes to conduct and faciliate their proposed workshop. The groups will then submit their final paper describing the scenario narratives (storylines) developed in the workshop which they facilitated (2500 words).
 
 ## Lecture Schedule
 
