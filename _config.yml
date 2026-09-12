@@ -1,5 +1,13 @@
 title: Sustainability Transitions
 description: Open-source ESG risk assessments and strategies.
 
-# This activates GitHub's native, clean documentation layout instantly
-theme: jekyll-theme-midnight
+# 1. Clear out standard themes and use the proper documentation framework
+remote_theme: just-the-docs/just-the-docs
+
+# 2. Tell GitHub Pages it has permission to fetch this theme over the network
+plugins:
+  - jekyll-remote-theme
+
+# 3. Enable the automatic sidebar search functionality
+search_enabled: true
+
