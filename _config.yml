@@ -1,9 +1,11 @@
 title: Sustainability Transitions
 description: Open-source ESG risk assessments and strategies.
-theme: jekyll-theme-primer
 
-# Just the Docs settings
+# Delete the "theme: jekyll-theme-primer" line entirely!
 remote_theme: just-the-docs/just-the-docs
 
-# Enable the built-in technical search engine
+# Enable the layout plugins
+plugins:
+  - jekyll-remote-theme
+
 search_enabled: true
