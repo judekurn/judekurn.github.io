@@ -1,11 +1,5 @@
 title: Sustainability Transitions
 description: Open-source ESG risk assessments and strategies.
 
-# Delete the "theme: jekyll-theme-primer" line entirely!
-remote_theme: just-the-docs/just-the-docs
-
-# Enable the layout plugins
-plugins:
-  - jekyll-remote-theme
-
-search_enabled: true
+# This activates GitHub's native, clean documentation layout instantly
+theme: jekyll-theme-midnight
