@@ -1,3 +1,9 @@
-name: Jude Kurniawan
-title: Welcome to Jude's website
-theme: jekyll-theme-cayman
+title: Sustainability Transitions
+description: Open-source ESG risk assessments and strategies.
+theme: jekyll-theme-primer
+
+# Just the Docs settings
+remote_theme: just-the-docs/just-the-docs
+
+# Enable the built-in technical search engine
+search_enabled: true
