@@ -15,4 +15,3 @@ Use the navigation menu to explore the modules:
 * **Scenario-based Risk Assessment** (Demystifying IPCC scenarios and downscaling methodologies)
 * **ESG Strategies** (Applying Haasnoot's DAPP to enterprise roadmaps)
 * **Developing Performance Metrics** (Transparent benchmarking frameworks)
-
