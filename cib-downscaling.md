@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Cross-Impact Balance (CIB)
-parent: Scenario-based Risk Assessment
+parent: Scenario-based Assessment
 nav_order: 3
 ---
 
