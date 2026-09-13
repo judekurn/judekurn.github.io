@@ -10,18 +10,18 @@ nav_order: 10
 # Digital Data for Social Science: Learn to code in four months
 The design of this course is highly influenced by the course taught by John McLevey ("[Big Data and Social Science](http://www.johnmclevey.com/teaching/)" at the University of Waterloo) which I attended. In some respect, this course also resonates with the course by Laura Nelson ("[Digital Methods for Social Sciences and Humanities](http://www.lauraknelson.com/p/teaching.html)" at Northeastern University).
 
-## Course Instructor Schedule
+## Course Instructor
 Instructor: Jude H. Kurniawan
 
-<!Office: TBA>
+<--!Office: TBA>
 
-<!Office Hour: TBA>
+<!--Office Hour: TBA>
 
-<!Class Schedule: TBA>
+<!--Class Schedule: TBA>
 
-<!Calendar Description>
+<!--Calendar Description>
 
-<!Course Overview>
+<!--Course Overview-->
 
 
 ## Learning Objectives
