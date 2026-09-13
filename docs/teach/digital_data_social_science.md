@@ -13,7 +13,7 @@ The design of this course is highly influenced by the course taught by John McLe
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
 
-Office: EV1-246
+[//]: Office: TBA
 
 Office Hour: TBA
 
@@ -42,7 +42,7 @@ Two books will be used extensively, Salganik and Foster et al. For students who 
 If you have no previous knowledge of HTML or CSS, you might consider getting yourself a copy of Jon Duckett’s (2011) [HTML and CSS: Design and Build Websites.](http://www.htmlandcssbook.com/) It’s a nice (and beautiful) introduction that assumes no prior knowledge. Of course there are plenty of great resources online. You don’t need to buy the book. Your web scraping skills will advance rapidly as you become more familiar with HTML and CSS.
 
 ## Computing:
-All students need to bring their laptops to every class. Let me know if this is an issue.
+All students need to bring and use their laptops.
 ## Software:
 Before coming to class, all students must install [Anaconda for Python 3.6](https://www.anaconda.com/download/) on your laptop. Anaconda will install most of Python pacakges for data science including Jupyter Notebook, which will be the "work space" for students in all lecture and tutorial sessions. As the lesson progresses, students will be asked to install other packages (e.g. metaknowledge, spaCy, gensim, Louvain community detection etc) as required.
 
