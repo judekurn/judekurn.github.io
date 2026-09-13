@@ -48,17 +48,17 @@ Before coming to class, all students must install [Anaconda for Python 3.6](http
 
 **Important: All the computing we do in this course will be in Jupyter Notebooks**
 
-<!## Assignments
+<!--## Assignments>
 
-<!1. Data Challenge #1: Web scaping, data parsing and cleaning (20%)>
+<!--1. Data Challenge #1: Web scaping, data parsing and cleaning (20%)>
 >
-<!2. Data Challenge #2: Machine learning (20%)>
+<!--2. Data Challenge #2: Machine learning (20%)>
 >
-<!3. Notebook Tutorial: Tutorial for any Python packages in Jupyter Notebook (20%)>
+<!--3. Notebook Tutorial: Tutorial for any Python packages in Jupyter Notebook (20%)>
 >
-<!4. Hackathon: Bibliometric Project(30%)>
+<!--4. Hackathon: Bibliometric Project(30%)>
 >
-<!5. Participation: Ongoing(10%)>
+<!--5. Participation: Ongoing(10%)>
 
 ## Lecture Schedule
 ## Session 1: INTRODUCTION
