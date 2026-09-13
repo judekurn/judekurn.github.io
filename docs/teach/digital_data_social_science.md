@@ -13,7 +13,7 @@ The design of this course is highly influenced by the course taught by John McLe
 ## Course Instructor Schedule
 Instructor: Jude H. Kurniawan
 
-[//] Office: TBA
+<!Office: TBA>
 
 Office Hour: TBA
 
