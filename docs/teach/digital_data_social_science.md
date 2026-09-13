@@ -21,7 +21,7 @@ Instructor: Jude H. Kurniawan
 
 <!Calendar Description>
 
-<! ## Course Overview>
+<!Course Overview>
 
 
 ## Learning Objectives
