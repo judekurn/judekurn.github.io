@@ -58,7 +58,7 @@ Before coming to class, all students must install [Anaconda for Python 3.6](http
 >
 <!--4. Hackathon: Bibliometric Project(30%)>
 >
-<!--5. Participation: Ongoing(10%)>
+<!--5. Participation: Ongoing(10%)-->
 
 ## Lecture Schedule
 ## Session 1: INTRODUCTION
