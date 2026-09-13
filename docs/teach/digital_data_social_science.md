@@ -19,9 +19,9 @@ Instructor: Jude H. Kurniawan
 
 <!Class Schedule: TBA>
 
-<!## Calendar Description>
+<!Calendar Description>
 
-<!## Course Overview>
+<! ## Course Overview>
 
 
 ## Learning Objectives
