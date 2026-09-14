@@ -6,7 +6,7 @@ nav_order: 20
 
 ### What is Sustainability Science?
 
-#### Foundational Horizons & Definitions
+#### Foundational Definitions
 *   **The Origin of Nachhaltigkeit (1713):** Coined by the Saxon mining administrator **Hans Carl von Carlowitz** in his treatise *Sylvicultura Oeconomica* during a devastating timber shortage: *“Harvest only as much wood as can be regenerated, so that a continuous, stable, and sustainable utilization remains.”*
 *   **The Global Paradigm (Brundtland Report, 1987):** Scaled the principle globally as: *“Meeting the needs of the present without compromising the ability of future generations to meet their own needs.”*
 *   **The Transdisciplinary Mandate (Kates et al., 2001):** Formulated the core objective: *“Understand the fundamental character of interactions between nature and society and to encourage those interactions along more sustainable trajectories.”*
