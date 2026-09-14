@@ -13,7 +13,7 @@ Dr. Jude H. Kurniawan is a sustainability transitions scholar and educator speci
 * **National University of Singapore (NUS):** Adjunct Lecturer in Southeast Asian studies.
 
 ## Education
-* **PhD Geography (University of Waterloo):** 
-* **Master of Climate Change (University of Waterloo):**
-* **Post Graduate Diploma in Energy Studies (Murdoch University):**
-* **B.Sc. Management (Northeastern University):** 
+* **PhD Geography (University of Waterloo)** 
+* **Master of Climate Change (University of Waterloo)**
+* **Post Graduate Diploma in Energy Studies (Murdoch University)**
+* **B.Sc. Management (Northeastern University)** 
