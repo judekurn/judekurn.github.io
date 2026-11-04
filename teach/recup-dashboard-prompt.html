@@ -1,0 +1,76 @@
+<h1>RECUP Dashboard Prompt</h1>
+
+<textarea>
+[Act as an expert systems engineer and frontend web developer. Create a fully functional, interactive, single-file HTML/CSS/JS educational dashboard titled "RECUP Germany: Global Systems Mapping & SSP Climate Stress-Tests".
+
+==================================================
+1. DASHBOARD LAYOUT & STRUCTURE
+==================================================
+- Theme: Modern academic/sustainability aesthetic (dark slate color palette, crisp typography, high-contrast visual hierarchy).
+- Responsiveness: Fully responsive layout optimized for desktop and tablet viewports.
+- Navigation: 3 primary interactive tabs:
+  * Tab 01: Global Integrated System Map (CLD)
+  * Tab 02: SSP1-2.5 Resin Scarcity & Material Loop
+  * Tab 03: SSP3-7.0 GHG Emissions & Coffee Supply Loop
+
+==================================================
+2. TAB 01: GLOBAL INTEGRATED SYSTEM MAP (CLD)
+==================================================
+Create a large, de-cluttered SVG Causal Loop Diagram (minimum 1200x720 viewBox) that integrates internal operations with macro external factors across 4 color-coded subsystem zones:
+1. Internal RECUP Core Network (Emerald/Teal Zone): Partner Density (Cafés/Bakeries), Return Convenience, Adoption Volume, Vendor Financial Savings.
+2. Upstream Petrochemical & Material Feedstock (Cyan/Sky Zone): Global Crude Oil / Resin Production, Virgin & Recycled PP Availability, Cup Manufacturing Costs, Replacement Cup Supply.
+3. Reverse Logistics & Industrial Operations (Amber/Gold Zone): Reuse Volume, Industrial Dishwashing Energy, Diesel Truck Redistribution, Water & Grid Electricity Footprint.
+4. Global Climate & Coffee Belt Dynamics (Purple/Rose Zone): Total GHG Emissions, Climate Change & Warming, Extreme Weather in Coffee Belt, Coffee Crop Yield, Coffee Bean Prices, Café Operating Margins.
+
+Core Feedback Loops to Highlight with Interactive Filters (Buttons):
+- R1 (Network Expansion Loop): Partner Density (+) -> Return Convenience (+) -> Adoption Volume (+) -> Vendor Savings (+) -> Partner Density (+).
+- B1 (Cup Hoarding Constraint): Circulating Cup Stock (+) -> Adoption Volume (+) -> Unreturned/Hoarded Cups (+) -> Inventory Depletion (-).
+- B2 (Petro Material Strain): Replacement Demand (+) -> PP Feedstock Deficit (+) -> Manufacturing Cost (+) -> Replacement Cup Shortage (-).
+- B3 (Coffee Supply Climate Feedback): Scaling Operations (+) -> Reverse Logistics & Washing GHG Emissions (+) -> Global Warming (+) -> Coffee Crop Yield Loss (-) -> Coffee Bean Price (+) -> Café Margin Squeeze (-) -> Partner Density (-).
+
+==================================================
+3. TAB 02: SSP1-2.5 RESIN SCARCITY LOOP SIMULATOR
+==================================================
+Focus on Scenario SSP1-2.5 ("Taking the Green Road" / Aggressive Fossil Fuel Phase-Out).
+- Causal Loop Visual: Show the specific vicious sub-loop triggered by plastic production caps:
+  Fossil Resin Production Caps (+) -> Recycled PP Feedstock Shortage (+) -> Replacement Cup Cost Spike (+) -> Extended Cup Usage Past 1,000 Washes (+) -> Surface Micro-Degradation (+) -> Consumer Hygiene Concerns (-) -> Adoption Volume (-).
+- Interactive Simulation Controls:
+  * Slider 1: "Fossil Plastic Production Cap Strictness (%)" And calculate properly where low FF production means low plastic production (since plastic is the byproduct of petroleum)
+  * Slider 2: "Target Cup Washing Lifespan (Washes)"
+- Dynamic Output Cards: Show live impact metrics for "PP Resin Deficit", "Replacement Cup Unit Cost", and "Net System Circulation Capacity".
+
+==================================================
+4. TAB 03: SSP3-7.0 GHG & COFFEE CLIMATE LOOP SIMULATOR
+==================================================
+Focus on Scenario SSP3-7.0 ("Regional Rivalry" / Fragmented High-Emissions Infrastructure).
+- Causal Loop Visual: Show the macro spillover loop where scaling up reuse on a fossil-heavy grid damages the broader coffee ecosystem:
+  Takeaway Reuse Scale (+) -> Washing & Logistics Energy Demand (+) -> Fossil Grid Emissions (+) -> Global Climate Warming (+) -> Coffee Belt Droughts & Yield Loss (-) -> Coffee Bean Price Spike (+) -> Café Operating Margin Squeeze (-) -> Partner Network Contraction (-).
+- Interactive Simulation Controls:
+  * Slider 1: "Energy Grid Carbon Intensity (gCO2e/kWh)"
+  * Slider 2: "Reverse Logistics Diesel Truck Share (%)"
+- Dynamic Output Cards: Show live impact metrics for "Annual Washing GHG Emissions", "Coffee Bean Price Index Impact", and "Partner Network Vulnerability".
+
+==================================================
+5. STUDENT EDITABLE CUSTOM RULES SECTION [not part of the tab]
+==================================================
+[STUDENTS: EDIT OR ADD YOUR CUSTOM RULES BELOW BEFORE RUNNING THIS PROMPT]
+- Rule 1 (Deposit Sensitivity): Increasing deposit value from €1 to €2 increases return speed by 30%, but reduces impulse adoption by 15%.
+- Rule 2 (Bakery Commuter Density): Morning commuter returns at bakery chains reduce return friction twice as fast as sit-down cafés.
+- Rule 3 (Local Sourcing Friction): Sourcing 100% recycled Polypropylene (PP) within Germany increases production cost by 25% but cuts embodied supply chain carbon by 40%.
+[END STUDENT EDITABLE SECTION]
+
+==================================================
+6. TECHNICAL & SVG RENDERING RULES (STRICT)
+==================================================
+- Self-Contained Output: Deliver a single, complete HTML file with embedded CSS and JavaScript.
+- Pure Unicode & Plain Text: DO NOT use LaTeX syntax or math delimiters (do NOT use \rightarrow, $\rightarrow$, $I$, or \text{...}). Use standard plain text, HTML entities (&rarr;), or Unicode symbols (→, +, −, R, B) to prevent raw text escaping glitches.
+- SVG Line Geometry & Arrowhead Padding:
+  * All SVG paths must be routed around node cards with Bezier curves (`M... C...`).
+  * Path endpoints must terminate outside node bounding boxes with at least 15px to 18px clearance.
+  * Define `<marker>` arrowhead markers clearly so they are 100% visible and NEVER covered or obscured by node boxes or background containers.
+- Interactivity: Tab switching, loop highlight filters (R1, B1, B2, B3), and interactive simulation sliders must be fully functional.]
+</textarea>
+
+<button>
+Copy Prompt
+</button>
