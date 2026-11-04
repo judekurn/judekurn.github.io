@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Systems Mapping and Vibe Coding - Master's Lecture Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              850: '#151f32',
+              900: '#0f172a',
+              950: '#080d1a',
+            },
+            accent: {
+              cyan: '#38bdf8',
+              green: '#22c55e',
+              rose: '#f43f5e',
+              amber: '#f59e0b',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom SVG flow animation and custom scrollbars */
+    @keyframes flowDash {
+      to {
+        stroke-dashoffset: -30;
+      }
+    }
+    .animate-flow {
+      stroke-dasharray: 6 6;
+      animation: flowDash 1.5s linear infinite;
+    }
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid #334155;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-slate-900">
+
+  <!-- ==================== HEADER & PACING TIMER ==================== -->
+  <header class="sticky top-0 z-50 bg-slate-900/95 border-b border-slate-800 backdrop-blur-md shadow-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        
+        <!-- Branding / Title -->
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center font-bold text-slate-900 text-lg shadow-lg shadow-sky-500/20">
+            ∞
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-bold text-lg sm:text-xl tracking-tight text-slate-100">Systems Mapping & Vibe Coding</h1>
+              <span class="px-2 py-0.5 text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-full">Master's Lecture</span>
+            </div>
+            <p class="text-xs text-slate-400">Feedback Loop Dynamics & AI-Assisted Interactive Systems Design</p>
+          </div>
+        </div>
+
+        <!-- Lecture Pace Timer & Controls -->
+        <div class="flex items-center justify-between md:justify-end gap-3 bg-slate-850 p-2 rounded-xl border border-slate-700/60">
+          
+          <!-- Play / Pause / Reset -->
+          <div class="flex items-center gap-1">
+            <button id="timer-toggle-btn" onclick="toggleTimer()" class="p-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold transition-all shadow-md active:scale-95" title="Play/Pause Lecture Pace Timer">
+              <span id="timer-play-icon">▶</span>
+            </button>
+            <button onclick="resetTimer()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700 active:scale-95" title="Reset Lecture Pace Timer">
+              ↻
+            </button>
+          </div>
+
+          <!-- Digital Clock Display -->
+          <div class="text-right px-2 min-w-[90px]">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Pace Timer</div>
+            <div id="timer-display" class="font-mono text-lg font-bold text-sky-400">04:00</div>
+          </div>
+
+          <!-- Progress Bar & Target Indicator -->
+          <div class="hidden sm:flex flex-col w-36 gap-1">
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>Section Pace</span>
+              <span id="current-pace-label">Part 01</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden border border-slate-700">
+              <div id="timer-progress-bar" class="bg-gradient-to-r from-sky-500 via-indigo-500 to-emerald-400 h-full w-full transition-all duration-300"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Section Segment Indicators -->
+      <div class="mt-3 grid grid-cols-5 gap-1 text-center text-[11px] font-medium text-slate-400">
+        <button onclick="jumpToTab('tab-01', 0)" class="segment-btn py-1 px-1 rounded bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 transition-colors" data-segment="1">0:00 - Part 1</button>
+        <button onclick="jumpToTab('tab-02', 48)" class="segment-btn py-1 px-1 rounded bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 transition-colors" data-segment="2">0:48 - Part 2</button>
+        <button onclick="jumpToTab('tab-03', 96)" class="segment-btn py-1 px-1 rounded bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 transition-colors" data-segment="3">1:36 - Part 3</button>
+        <button onclick="jumpToTab('tab-04', 144)" class="segment-btn py-1 px-1 rounded bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 transition-colors" data-segment="4">2:24 - Part 4</button>
+        <button onclick="jumpToTab('tab-05', 192)" class="segment-btn py-1 px-1 rounded bg-slate-800/80 hover:bg-slate-700 border border-slate-700/50 transition-colors" data-segment="5">3:12 - Part 5</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN TAB NAVIGATION ==================== -->
+  <nav class="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto flex space-x-2 sm:space-x-4 overflow-x-auto py-2 scrollbar-none">
+      <button onclick="switchTab('tab-01')" id="btn-tab-01" class="tab-nav-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap bg-sky-500/10 text-sky-400 border border-sky-500/30">
+        <span>01.</span> CLD Foundations
+      </button>
+      <button onclick="switchTab('tab-02')" id="btn-tab-02" class="tab-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent">
+        <span>02.</span> Polarity & Logic
+      </button>
+      <button onclick="switchTab('tab-03')" id="btn-tab-03" class="tab-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent">
+        <span>03.</span> Reinforcing Loops (R)
+      </button>
+      <button onclick="switchTab('tab-04')" id="btn-tab-04" class="tab-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent">
+        <span>04.</span> Balancing Loops (B)
+      </button>
+      <button onclick="switchTab('tab-05')" id="btn-tab-05" class="tab-nav-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all whitespace-nowrap text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent">
+        <span>05.</span> Vibe Coding Guide
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ==================== TAB 01: FOUNDATIONS ==================== -->
+    <section id="tab-01" class="tab-content space-y-6">
+      
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <div>
+          <div class="text-xs font-semibold text-sky-400 uppercase tracking-widest mb-1">Part 01 • Lecture Foundations</div>
+          <h2 class="text-2xl font-bold text-slate-100">What is a Causal Loop Diagram (CLD)?</h2>
+          <p class="text-slate-400 text-sm mt-1 max-w-3xl">
+            A visual language for mapping system architecture. CLDs illuminate how interconnected variables generate systemic behaviors through feedback rather than linear cause-and-effect.
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <span class="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono rounded-lg">Polarity (+)</span>
+          <span class="px-3 py-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-mono rounded-lg">Polarity (−)</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Interactive Static SVG Visual Map -->
+        <div class="lg:col-span-7 bg-slate-900 rounded-2xl border border-slate-800 p-6 flex flex-col justify-between relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+              Static Exemplar Map: Reusable Cup Adoption
+            </h3>
+            <span class="text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-md border border-slate-700">3-Variable Closed Feedback Loop</span>
+          </div>
+
+          <!-- SVG Canvas Container -->
+          <div class="w-full flex items-center justify-center py-4">
+            <svg class="w-full h-auto max-w-lg" viewBox="0 0 600 340">
+              <defs>
+                <marker id="arrow-green-1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#22c55e" />
+                </marker>
+                <marker id="arrow-rose-1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e" />
+                </marker>
+              </defs>
+
+              <!-- Closed Curved Paths (Drawn BEFORE Node boxes so lines stop outside) -->
+              <!-- Path 1: Usage (300, 65) -> Waste Reduction (460, 240) -->
+              <path d="M 360 85 Q 460 110 460 210" fill="none" stroke="#22c55e" stroke-width="2.5" marker-end="url(#arrow-green-1)" class="animate-flow" />
+              <!-- Path 2: Waste Reduction (460, 240) -> Norms (140, 240) -->
+              <path d="M 400 265 Q 300 305 190 265" fill="none" stroke="#22c55e" stroke-width="2.5" marker-end="url(#arrow-green-1)" class="animate-flow" />
+              <!-- Path 3: Norms (140, 240) -> Usage (300, 65) -->
+              <path d="M 140 210 Q 140 110 240 85" fill="none" stroke="#22c55e" stroke-width="2.5" marker-end="url(#arrow-green-1)" class="animate-flow" />
+
+              <!-- Polarity Badges on Link Paths -->
+              <g transform="translate(435, 135)">
+                <circle r="13" fill="#0f172a" stroke="#22c55e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#22c55e" font-weight="bold" font-size="14">+</text>
+              </g>
+              <g transform="translate(300, 290)">
+                <circle r="13" fill="#0f172a" stroke="#22c55e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#22c55e" font-weight="bold" font-size="14">+</text>
+              </g>
+              <g transform="translate(165, 135)">
+                <circle r="13" fill="#0f172a" stroke="#22c55e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#22c55e" font-weight="bold" font-size="14">+</text>
+              </g>
+
+              <!-- Central Loop Badge [ R ] -->
+              <g transform="translate(300, 170)">
+                <circle r="32" fill="#1e293b" stroke="#38bdf8" stroke-width="2.5" />
+                <text text-anchor="middle" y="-6" fill="#38bdf8" font-weight="bold" font-size="20">R</text>
+                <text text-anchor="middle" y="14" fill="#94a3b8" font-size="10" font-weight="600">Virtuous</text>
+              </g>
+
+              <!-- Node Cards (Placed after paths so text containers never get cut by lines) -->
+              <!-- Node A: Reusable Cup Usage -->
+              <g transform="translate(300, 60)">
+                <rect x="-105" y="-25" width="210" height="50" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="13">Reusable Cup Usage</text>
+              </g>
+
+              <!-- Node B: Perceivable Waste Reduction -->
+              <g transform="translate(460, 240)">
+                <rect x="-105" y="-25" width="210" height="50" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Perceivable Waste Reduction</text>
+              </g>
+
+              <!-- Node C: Environmental Norms -->
+              <g transform="translate(140, 240)">
+                <rect x="-105" y="-25" width="210" height="50" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Environmental Norms</text>
+              </g>
+            </svg>
+          </div>
+
+          <div class="mt-4 p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 text-xs text-slate-300 flex items-center justify-between">
+            <span><strong>Loop Interpretation:</strong> Higher cup adoption reduces visible waste, reinforcing green social norms, driving further cup adoption.</span>
+            <span class="font-mono text-sky-400 ml-2 whitespace-nowrap">(+) × (+) × (+) = (+)</span>
+          </div>
+        </div>
+
+        <!-- Explanatory Core Principles Cards -->
+        <div class="lg:col-span-5 space-y-4 flex flex-col justify-between">
+          
+          <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="w-7 h-7 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold text-xs">1</span>
+              <h4 class="font-bold text-slate-100">Variables (System States)</h4>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed pl-10">
+              Quantities, conditions, or feelings that fluctuate over time (e.g., <em>Usage</em>, <em>Cost</em>, <em>Trust</em>). Must be quantifiable or directionally variable.
+            </p>
+          </div>
+
+          <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-xs">2</span>
+              <h4 class="font-bold text-slate-100">Positive Link Polarity (+)</h4>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed pl-10">
+              Indicates change in the <strong>same direction</strong>. If Variable X increases, Variable Y increases above baseline. If X decreases, Y decreases.
+            </p>
+          </div>
+
+          <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold text-xs">3</span>
+              <h4 class="font-bold text-slate-100">Negative Link Polarity (−)</h4>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed pl-10">
+              Indicates change in the <strong>opposite direction</strong>. If Variable X increases, Variable Y decreases below baseline, creating counter-forces.
+            </p>
+          </div>
+
+          <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 hover:border-slate-700 transition-colors">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-xs">4</span>
+              <h4 class="font-bold text-slate-100">Closed Feedback Loops</h4>
+            </div>
+            <p class="text-xs text-slate-400 leading-relaxed pl-10">
+              When causal chains wrap back onto themselves, creating non-linear dynamic behavior: either self-reinforcing exponential growth/decay or goal-seeking stability.
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TAB 02: POLARITY RULES & LOGIC ==================== -->
+    <section id="tab-02" class="tab-content hidden space-y-6">
+      
+      <!-- Section Header -->
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <div class="text-xs font-semibold text-sky-400 uppercase tracking-widest mb-1">Part 02 • Loop Classification Engine</div>
+        <h2 class="text-2xl font-bold text-slate-100">Polarity Rules & Mathematical Loop Logic</h2>
+        <p class="text-slate-400 text-sm mt-1 max-w-3xl">
+          To determine whether a feedback loop amplifies change (Reinforcing) or balances change (Balancing), count the total number of negative (−) causal links in the closed loop.
+        </p>
+      </div>
+
+      <!-- Theory Cards: Even / Odd Rule -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-gradient-to-br from-slate-900 to-sky-950/40 p-5 rounded-2xl border border-sky-500/30">
+          <div class="flex items-center justify-between mb-2">
+            <span class="px-2.5 py-1 bg-sky-500/20 text-sky-400 text-xs font-bold rounded-md border border-sky-500/30">RULE 01</span>
+            <span class="font-mono font-bold text-sky-400 text-sm">Even Count of (−) Links</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-100 mb-1">Reinforcing Feedback Loop (R)</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            0, 2, 4, or any <strong>EVEN</strong> number of negative links yields a net positive sign product. The loop amplifies disturbances, driving exponential virtuous growth or vicious collapse.
+          </p>
+        </div>
+
+        <div class="bg-gradient-to-br from-slate-900 to-amber-950/40 p-5 rounded-2xl border border-amber-500/30">
+          <div class="flex items-center justify-between mb-2">
+            <span class="px-2.5 py-1 bg-amber-500/20 text-amber-400 text-xs font-bold rounded-md border border-amber-500/30">RULE 02</span>
+            <span class="font-mono font-bold text-amber-400 text-sm">Odd Count of (−) Links</span>
+          </div>
+          <h3 class="text-lg font-bold text-slate-100 mb-1">Balancing Feedback Loop (B)</h3>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            1, 3, 5, or any <strong>ODD</strong> number of negative links yields a net negative sign product. The loop counteracts disturbances, seeking stability, capacity limits, or equilibrium.
+          </p>
+        </div>
+      </div>
+
+      <!-- Interactive 3-Link Loop Polarity Calculator Tool -->
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-800">
+          <div>
+            <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+              <span class="p-1 rounded bg-sky-500/10 text-sky-400 text-xs">⚡ Interactive</span>
+              3-Link Loop Polarity Calculator
+            </h3>
+            <p class="text-xs text-slate-400">Toggle link polarities below and watch the real-time SVG loop dynamics and mathematical sign multiplication.</p>
+          </div>
+          <button onclick="randomizePolarities()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 border border-slate-700 transition-all self-start sm:self-auto">
+            🎲 Randomize Polarities
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Control Panel (Left Column) -->
+          <div class="lg:col-span-5 space-y-4">
+            
+            <!-- Link 1 Control -->
+            <div class="bg-slate-850 p-4 rounded-xl border border-slate-700/70 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-semibold text-slate-300">Link 1: Variable A &rarr; Variable B</div>
+                <div class="text-[11px] text-slate-400">Policy Support to Resource Input</div>
+              </div>
+              <div class="flex rounded-lg p-1 bg-slate-900 border border-slate-700">
+                <button onclick="setLinkPolarity(1, '+')" id="link-1-plus" class="px-3 py-1 rounded text-xs font-bold transition-all bg-emerald-500 text-slate-950">+</button>
+                <button onclick="setLinkPolarity(1, '-')" id="link-1-minus" class="px-3 py-1 rounded text-xs font-bold transition-all text-slate-400 hover:text-rose-400">−</button>
+              </div>
+            </div>
+
+            <!-- Link 2 Control -->
+            <div class="bg-slate-850 p-4 rounded-xl border border-slate-700/70 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-semibold text-slate-300">Link 2: Variable B &rarr; Variable C</div>
+                <div class="text-[11px] text-slate-400">Resource Input to Friction Level</div>
+              </div>
+              <div class="flex rounded-lg p-1 bg-slate-900 border border-slate-700">
+                <button onclick="setLinkPolarity(2, '+')" id="link-2-plus" class="px-3 py-1 rounded text-xs font-bold transition-all text-slate-400 hover:text-emerald-400">+</button>
+                <button onclick="setLinkPolarity(2, '-')" id="link-2-minus" class="px-3 py-1 rounded text-xs font-bold transition-all bg-rose-500 text-slate-950">−</button>
+              </div>
+            </div>
+
+            <!-- Link 3 Control -->
+            <div class="bg-slate-850 p-4 rounded-xl border border-slate-700/70 flex items-center justify-between">
+              <div>
+                <div class="text-xs font-semibold text-slate-300">Link 3: Variable C &rarr; Variable A</div>
+                <div class="text-[11px] text-slate-400">Friction Level to Policy Support</div>
+              </div>
+              <div class="flex rounded-lg p-1 bg-slate-900 border border-slate-700">
+                <button onclick="setLinkPolarity(3, '+')" id="link-3-plus" class="px-3 py-1 rounded text-xs font-bold transition-all text-slate-400 hover:text-emerald-400">+</button>
+                <button onclick="setLinkPolarity(3, '-')" id="link-3-minus" class="px-3 py-1 rounded text-xs font-bold transition-all bg-rose-500 text-slate-950">−</button>
+              </div>
+            </div>
+
+            <!-- Real-Time Sign Formula Box -->
+            <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-center">
+              <div class="text-[11px] text-slate-400 uppercase tracking-wider mb-1">Sign Product Equation</div>
+              <div id="calc-formula-display" class="font-mono text-lg font-bold text-sky-400">
+                (+) × (−) × (−) = (+)
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Dynamic Live SVG Diagram & Math Result (Right Column) -->
+          <div class="lg:col-span-7 flex flex-col items-center justify-center bg-slate-950 p-6 rounded-2xl border border-slate-800">
+            
+            <svg class="w-full h-auto max-w-md" viewBox="0 0 540 320">
+              <defs>
+                <marker id="calc-arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#22c55e" />
+                </marker>
+                <marker id="calc-arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e" />
+                </marker>
+              </defs>
+
+              <!-- Dynamic Paths (Calculated endpoints outside node bounding boxes) -->
+              <!-- Path 1: A (270, 60) -> B (420, 230) -->
+              <path id="svg-calc-path-1" d="M 330 75 Q 420 100 420 200" fill="none" stroke="#22c55e" stroke-width="3" marker-end="url(#calc-arrow-green)" class="animate-flow" />
+              <!-- Path 2: B (420, 230) -> C (120, 230) -->
+              <path id="svg-calc-path-2" d="M 370 255 Q 270 290 170 255" fill="none" stroke="#f43f5e" stroke-width="3" marker-end="url(#calc-arrow-rose)" class="animate-flow" />
+              <!-- Path 3: C (120, 230) -> A (270, 60) -->
+              <path id="svg-calc-path-3" d="M 120 200 Q 120 100 210 75" fill="none" stroke="#f43f5e" stroke-width="3" marker-end="url(#calc-arrow-rose)" class="animate-flow" />
+
+              <!-- Dynamic Polarity Badges -->
+              <g transform="translate(395, 125)" id="svg-badge-1-group">
+                <circle id="svg-badge-1-bg" r="14" fill="#0f172a" stroke="#22c55e" stroke-width="2" />
+                <text id="svg-badge-1-text" text-anchor="middle" dominant-baseline="central" fill="#22c55e" font-weight="bold" font-size="14">+</text>
+              </g>
+              <g transform="translate(270, 275)" id="svg-badge-2-group">
+                <circle id="svg-badge-2-bg" r="14" fill="#0f172a" stroke="#f43f5e" stroke-width="2" />
+                <text id="svg-badge-2-text" text-anchor="middle" dominant-baseline="central" fill="#f43f5e" font-weight="bold" font-size="14">−</text>
+              </g>
+              <g transform="translate(145, 125)" id="svg-badge-3-group">
+                <circle id="svg-badge-3-bg" r="14" fill="#0f172a" stroke="#f43f5e" stroke-width="2" />
+                <text id="svg-badge-3-text" text-anchor="middle" dominant-baseline="central" fill="#f43f5e" font-weight="bold" font-size="14">−</text>
+              </g>
+
+              <!-- Central Loop Classification Badge -->
+              <g transform="translate(270, 160)">
+                <circle id="calc-center-circle" r="36" fill="#1e293b" stroke="#38bdf8" stroke-width="3" />
+                <text id="calc-center-type" text-anchor="middle" y="-6" fill="#38bdf8" font-weight="bold" font-size="24">R</text>
+                <text id="calc-center-label" text-anchor="middle" y="16" fill="#94a3b8" font-size="10" font-weight="600">Reinforcing</text>
+              </g>
+
+              <!-- Nodes (Drawn on top) -->
+              <g transform="translate(270, 55)">
+                <rect x="-85" y="-22" width="170" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Variable A</text>
+              </g>
+              <g transform="translate(420, 230)">
+                <rect x="-85" y="-22" width="170" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Variable B</text>
+              </g>
+              <g transform="translate(120, 230)">
+                <rect x="-85" y="-22" width="170" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Variable C</text>
+              </g>
+            </svg>
+
+            <!-- Real-time Mathematical Result Banner -->
+            <div id="calc-result-banner" class="w-full mt-4 p-4 rounded-xl bg-sky-500/10 border border-sky-500/30 text-center">
+              <div class="text-xs text-sky-400 font-semibold uppercase tracking-wider">Classification Verdict</div>
+              <div id="calc-result-title" class="text-xl font-bold text-sky-300 mt-0.5">REINFORCING LOOP (R)</div>
+              <p id="calc-result-explanation" class="text-xs text-slate-300 mt-1">
+                Found <strong>2 negative links</strong> (Even). Negative signs cancel out, resulting in self-amplifying feedback dynamics.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================== TAB 03: REINFORCING LOOPS (R) ==================== -->
+    <section id="tab-03" class="tab-content hidden space-y-6">
+      
+      <!-- Section Header -->
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <div class="text-xs font-semibold text-emerald-400 uppercase tracking-widest mb-1">Part 03 • Self-Amplifying Dynamics</div>
+        <h2 class="text-2xl font-bold text-slate-100">Reinforcing Loops (R): Growth & Collapse Engines</h2>
+        <p class="text-slate-400 text-sm mt-1 max-w-3xl">
+          Reinforcing feedback dynamics create compounding effects over time. A initial shift in any variable spirals continuously in the same direction, generating virtuous adoption cycles or vicious decay traps.
+        </p>
+      </div>
+
+      <!-- Real-World Case Study: Renewable Energy Dynamics -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 4-Node SVG Renewable Map -->
+        <div class="lg:col-span-7 bg-slate-900 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              Case Study Map: Renewable Energy Scale Engine
+            </h3>
+            <span class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-md border border-emerald-500/20">2 Negative Links = EVEN = [ R ]</span>
+          </div>
+
+          <div class="w-full flex items-center justify-center py-2">
+            <svg class="w-full h-auto max-w-xl" viewBox="0 0 640 360">
+              <defs>
+                <marker id="r-arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#22c55e" />
+                </marker>
+                <marker id="r-arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e" />
+                </marker>
+              </defs>
+
+              <!-- Link 1: Investment -> Installed Capacity (+) -->
+              <path d="M 390 60 Q 510 70 510 150" fill="none" stroke="#22c55e" stroke-width="2.5" marker-end="url(#r-arrow-green)" class="animate-flow" />
+              <!-- Link 2: Installed Capacity -> Unit Tech Cost (−) [Economies of Scale!] -->
+              <path d="M 510 210 Q 490 290 390 310" fill="none" stroke="#f43f5e" stroke-width="2.5" marker-end="url(#r-arrow-rose)" class="animate-flow" />
+              <!-- Link 3: Unit Tech Cost -> Market Attractiveness (−) [Lower cost raises attraction!] -->
+              <path d="M 250 310 Q 130 290 130 210" fill="none" stroke="#f43f5e" stroke-width="2.5" marker-end="url(#r-arrow-rose)" class="animate-flow" />
+              <!-- Link 4: Market Attractiveness -> Renewable Investment (+) -->
+              <path d="M 130 150 Q 150 70 250 60" fill="none" stroke="#22c55e" stroke-width="2.5" marker-end="url(#r-arrow-green)" class="animate-flow" />
+
+              <!-- Polarity Badges -->
+              <g transform="translate(480, 85)">
+                <circle r="13" fill="#0f172a" stroke="#22c55e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#22c55e" font-weight="bold" font-size="14">+</text>
+              </g>
+              <g transform="translate(480, 275)">
+                <circle r="13" fill="#0f172a" stroke="#f43f5e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f43f5e" font-weight="bold" font-size="14">−</text>
+              </g>
+              <g transform="translate(160, 275)">
+                <circle r="13" fill="#0f172a" stroke="#f43f5e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f43f5e" font-weight="bold" font-size="14">−</text>
+              </g>
+              <g transform="translate(160, 85)">
+                <circle r="13" fill="#0f172a" stroke="#22c55e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#22c55e" font-weight="bold" font-size="14">+</text>
+              </g>
+
+              <!-- Central Loop Badge -->
+              <g transform="translate(320, 180)">
+                <circle r="34" fill="#0f172a" stroke="#22c55e" stroke-width="3" />
+                <text text-anchor="middle" y="-6" fill="#22c55e" font-weight="bold" font-size="22">R</text>
+                <text text-anchor="middle" y="15" fill="#94a3b8" font-size="10" font-weight="600">Scale Engine</text>
+              </g>
+
+              <!-- Nodes -->
+              <!-- Node 1: Renewable Investment (Top) -->
+              <g transform="translate(320, 50)">
+                <rect x="-100" y="-22" width="200" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Renewable Investment</text>
+              </g>
+              <!-- Node 2: Installed Capacity (Right) -->
+              <g transform="translate(510, 180)">
+                <rect x="-95" y="-22" width="190" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Installed Capacity</text>
+              </g>
+              <!-- Node 3: Unit Tech Cost (Bottom) -->
+              <g transform="translate(320, 310)">
+                <rect x="-95" y="-22" width="190" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Unit Technology Cost</text>
+              </g>
+              <!-- Node 4: Market Attractiveness (Left) -->
+              <g transform="translate(130, 180)">
+                <rect x="-95" y="-22" width="190" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Market Attractiveness</text>
+              </g>
+
+            </svg>
+          </div>
+
+          <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 text-xs text-slate-300">
+            <strong>Key Insight:</strong> Notice the double negative link! High capacity <em>reduces</em> unit cost (−), and lower unit cost <em>increases</em> attractiveness (− sign inversion). Combined, they yield compounding growth!
+          </div>
+
+        </div>
+
+        <!-- Interactive Virtuous vs Vicious Cycle Scenario Simulator -->
+        <div class="lg:col-span-5 bg-slate-900 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider flex items-center gap-2">
+                <span class="p-1 rounded bg-emerald-500/10 text-emerald-400 text-xs">Sim</span>
+                Cycle Simulator
+              </h3>
+              
+              <!-- Mode Toggle Button -->
+              <div class="flex rounded-lg bg-slate-950 p-1 border border-slate-800">
+                <button onclick="setReinforcingMode('virtuous')" id="btn-mode-virtuous" class="px-2.5 py-1 rounded text-xs font-bold bg-emerald-500 text-slate-950 transition-all">Virtuous</button>
+                <button onclick="setReinforcingMode('vicious')" id="btn-mode-vicious" class="px-2.5 py-1 rounded text-xs font-bold text-slate-400 hover:text-rose-400 transition-all">Vicious</button>
+              </div>
+            </div>
+
+            <p id="r-sim-description" class="text-xs text-slate-400 mb-4">
+              Simulating <strong>Virtuous Growth Engine</strong>: Initial policy subsidy boosts investment, unlocking Wright's Law learning curves.
+            </p>
+
+            <!-- Time Step Selector Buttons -->
+            <div class="grid grid-cols-5 gap-1.5 mb-5">
+              <button onclick="setRStep(1)" class="r-step-btn px-2 py-2 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs" data-step="1">t = 1</button>
+              <button onclick="setRStep(2)" class="r-step-btn px-2 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700" data-step="2">t = 2</button>
+              <button onclick="setRStep(3)" class="r-step-btn px-2 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700" data-step="3">t = 3</button>
+              <button onclick="setRStep(4)" class="r-step-btn px-2 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700" data-step="4">t = 4</button>
+              <button onclick="setRStep(5)" class="r-step-btn px-2 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700" data-step="5">t = 5</button>
+            </div>
+
+            <!-- Dynamic Progress Bars for System Variables -->
+            <div class="space-y-3 font-mono text-xs">
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1">
+                  <span>Investment Capital</span>
+                  <span id="r-val-investment" class="text-emerald-400 font-bold">$10B</span>
+                </div>
+                <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+                  <div id="r-bar-investment" class="bg-emerald-500 h-full w-[20%] transition-all duration-300"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1">
+                  <span>Installed Capacity</span>
+                  <span id="r-val-capacity" class="text-sky-400 font-bold">50 GW</span>
+                </div>
+                <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+                  <div id="r-bar-capacity" class="bg-sky-400 h-full w-[15%] transition-all duration-300"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1">
+                  <span>Unit Tech Cost</span>
+                  <span id="r-val-cost" class="text-amber-400 font-bold">$0.12 / kWh</span>
+                </div>
+                <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+                  <div id="r-bar-cost" class="bg-amber-400 h-full w-[85%] transition-all duration-300"></div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1">
+                  <span>Market Attractiveness</span>
+                  <span id="r-val-attractiveness" class="text-indigo-400 font-bold">55 / 100</span>
+                </div>
+                <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+                  <div id="r-bar-attractiveness" class="bg-indigo-400 h-full w-[55%] transition-all duration-300"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div id="r-narrative-box" class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-300 font-sans">
+            <strong>Stage t=1 Narrative:</strong> Initial seed capital creates baseline manufacturing scale. Unit tech cost remains at $0.12/kWh.
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== TAB 04: BALANCING LOOPS (B) ==================== -->
+    <section id="tab-04" class="tab-content hidden space-y-6">
+      
+      <!-- Section Header -->
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <div class="text-xs font-semibold text-amber-400 uppercase tracking-widest mb-1">Part 04 • Stabilizing Feedback Dynamics</div>
+        <h2 class="text-2xl font-bold text-slate-100">Balancing Loops (B): Goal-Seeking System Limits</h2>
+        <p class="text-slate-400 text-sm mt-1 max-w-3xl">
+          Balancing loops counteract changes, driving the system toward a target state or capacity ceiling. They act as natural brakes or regulators, preventing unbounded exponential runaway.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- 3-Node SVG Balancing Map (Public Transport Congestion) -->
+        <div class="lg:col-span-6 bg-slate-900 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+              Case Study Map: Transport Congestion Dynamics
+            </h3>
+            <span class="text-xs font-mono text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">1 Negative Link = ODD = [ B ]</span>
+          </div>
+
+          <div class="w-full flex items-center justify-center py-4">
+            <svg class="w-full h-auto max-w-md" viewBox="0 0 560 330">
+              <defs>
+                <marker id="b-arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#22c55e" />
+                </marker>
+                <marker id="b-arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#f43f5e" />
+                </marker>
+              </defs>
+
+              <!-- Path 1: Usage (280, 55) -> Congestion (430, 240) (+) -->
+              <path d="M 330 75 Q 430 100 430 205" fill="none" stroke="#22c55e" stroke-width="2.5" marker-end="url(#b-arrow-green)" class="animate-flow" />
+              <!-- Path 2: Congestion (430, 240) -> Satisfaction (130, 240) (−) -->
+              <path d="M 370 260 Q 280 295 180 260" fill="none" stroke="#f43f5e" stroke-width="2.5" marker-end="url(#b-arrow-rose)" class="animate-flow" />
+              <!-- Path 3: Satisfaction (130, 240) -> Usage (280, 55) (+) -->
+              <path d="M 130 205 Q 130 100 230 75" fill="none" stroke="#22c55e" stroke-width="2.5" marker-end="url(#b-arrow-green)" class="animate-flow" />
+
+              <!-- Polarity Badges -->
+              <g transform="translate(410, 130)">
+                <circle r="13" fill="#0f172a" stroke="#22c55e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#22c55e" font-weight="bold" font-size="14">+</text>
+              </g>
+              <g transform="translate(280, 280)">
+                <circle r="13" fill="#0f172a" stroke="#f43f5e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f43f5e" font-weight="bold" font-size="14">−</text>
+              </g>
+              <g transform="translate(150, 130)">
+                <circle r="13" fill="#0f172a" stroke="#22c55e" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#22c55e" font-weight="bold" font-size="14">+</text>
+              </g>
+
+              <!-- Central Loop Badge [ B ] -->
+              <g transform="translate(280, 160)">
+                <circle r="32" fill="#0f172a" stroke="#f59e0b" stroke-width="3" />
+                <text text-anchor="middle" y="-6" fill="#f59e0b" font-weight="bold" font-size="22">B</text>
+                <text text-anchor="middle" y="15" fill="#94a3b8" font-size="10" font-weight="600">Stabilizer</text>
+              </g>
+
+              <!-- Nodes -->
+              <!-- Node 1: Public Transport Use (Top) -->
+              <g transform="translate(280, 55)">
+                <rect x="-95" y="-22" width="190" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Public Transport Use</text>
+              </g>
+
+              <!-- Node 2: Congestion & Wait Time (Right) -->
+              <g transform="translate(430, 240)">
+                <rect x="-95" y="-22" width="190" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Congestion & Wait Time</text>
+              </g>
+
+              <!-- Node 3: Service Satisfaction (Left) -->
+              <g transform="translate(130, 240)">
+                <rect x="-95" y="-22" width="190" height="44" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
+                <text text-anchor="middle" dominant-baseline="central" fill="#f8fafc" font-weight="bold" font-size="12">Service Satisfaction</text>
+              </g>
+
+            </svg>
+          </div>
+
+          <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/60 text-xs text-slate-300">
+            <strong>System Self-Correction:</strong> When passenger volume rises, congestion worsens. This reduces service satisfaction, which pushes ridership back down toward system capacity equilibrium.
+          </div>
+        </div>
+
+        <!-- Interactive Equilibrium & Capacity Constraint Simulator -->
+        <div class="lg:col-span-6 bg-slate-900 p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider flex items-center gap-2">
+                <span class="p-1 rounded bg-amber-500/10 text-amber-400 text-xs">Sim</span>
+                Equilibrium & Surge Simulator
+              </h3>
+              <span class="text-xs text-slate-400 font-mono">System Target: 100 Passengers/Train</span>
+            </div>
+
+            <!-- Exogenous Surge Slider -->
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2 mb-4">
+              <div class="flex justify-between text-xs font-semibold">
+                <span class="text-slate-300">Exogenous Passenger Surge Injected</span>
+                <span id="surge-slider-val" class="text-amber-400 font-mono font-bold">+50% Surge</span>
+              </div>
+              <input id="surge-slider" type="range" min="0" max="100" value="50" oninput="updateBalancingSim()" class="w-full accent-amber-500 bg-slate-800 rounded-lg cursor-pointer h-2" />
+              <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                <span>0% (Steady State)</span>
+                <span>50% (Peak Rush)</span>
+                <span>100% (Mega Event)</span>
+              </div>
+            </div>
+
+            <!-- SVG Time-Series Goal-Seeking Curve Chart -->
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div class="text-[11px] text-slate-400 font-mono mb-2 flex justify-between">
+                <span>Ridership Convergence Curve</span>
+                <span class="text-amber-400">--- Target Capacity (100)</span>
+              </div>
+              
+              <svg id="b-chart-svg" class="w-full h-40" viewBox="0 0 500 160">
+                <!-- Grid Lines -->
+                <line x1="40" y1="20" x2="480" y2="20" stroke="#1e293b" stroke-width="1" />
+                <line x1="40" y1="60" x2="480" y2="60" stroke="#334155" stroke-dasharray="4 4" stroke-width="1.5" /> <!-- Target Capacity 100 -->
+                <line x1="40" y1="100" x2="480" y2="100" stroke="#1e293b" stroke-width="1" />
+                <line x1="40" y1="140" x2="480" y2="140" stroke="#1e293b" stroke-width="1" />
+
+                <!-- Axes -->
+                <line x1="40" y1="10" x2="40" y2="145" stroke="#475569" stroke-width="1.5" />
+                <line x1="40" y1="145" x2="480" y2="145" stroke="#475569" stroke-width="1.5" />
+
+                <text x="35" y="64" text-anchor="end" fill="#f59e0b" font-size="10" font-mono>100</text>
+                <text x="35" y="24" text-anchor="end" fill="#64748b" font-size="10" font-mono>180</text>
+                <text x="35" y="144" text-anchor="end" fill="#64748b" font-size="10" font-mono>40</text>
+
+                <!-- Dynamic Convergence Path (Drawn by JS) -->
+                <path id="b-chart-path" d="M 40 60 L 480 60" fill="none" stroke="#38bdf8" stroke-width="3" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Dynamic Metrics Cards -->
+          <div class="grid grid-cols-3 gap-2 text-center">
+            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+              <div class="text-[10px] text-slate-400">Peak Load</div>
+              <div id="b-metric-peak" class="font-mono text-sm font-bold text-rose-400">150</div>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+              <div class="text-[10px] text-slate-400">Min Satisfaction</div>
+              <div id="b-metric-sat" class="font-mono text-sm font-bold text-amber-400">42%</div>
+            </div>
+            <div class="bg-slate-950 p-2 rounded-lg border border-slate-800">
+              <div class="text-[10px] text-slate-400">Final Settled</div>
+              <div id="b-metric-final" class="font-mono text-sm font-bold text-emerald-400">102</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================== TAB 05: VIBE CODING & PROMPT BUILDER ==================== -->
+    <section id="tab-05" class="tab-content hidden space-y-6">
+      
+      <!-- Section Header -->
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <div class="text-xs font-semibold text-sky-400 uppercase tracking-widest mb-1">Part 05 • AI-Assisted Educational Engineering</div>
+        <h2 class="text-2xl font-bold text-slate-100">Vibe Coding & Interactive Dashboard Engineering</h2>
+        <p class="text-slate-400 text-sm mt-1 max-w-3xl">
+          "Vibe Coding" is the practice of leveraging structured domain architecture and natural-language AI prompts to build robust, single-file interactive simulations and educational tools without manual boilerplate.
+        </p>
+      </div>
+
+      <!-- 3-Step Vibe Coding Workflow Breakdown -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center gap-2 text-sky-400 font-bold text-sm mb-2">
+            <span class="w-6 h-6 rounded bg-sky-500/10 flex items-center justify-center border border-sky-500/20 text-xs">1</span>
+            Prompt Architecture
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Define clear system boundaries: layout design tokens (e.g. dark slate palette), interactive state models, strict mathematical polarity formulas, and single-file mandate.
+          </p>
+        </div>
+
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center gap-2 text-indigo-400 font-bold text-sm mb-2">
+            <span class="w-6 h-6 rounded bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 text-xs">2</span>
+            Iterative Generation
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Direct the LLM to output clean, modular code with inline Tailwind styling, dynamic SVG arrow geometries, and stateful JavaScript simulators in a consolidated file.
+          </p>
+        </div>
+
+        <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm mb-2">
+            <span class="w-6 h-6 rounded bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-xs">3</span>
+            Human-in-the-Loop Audit
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Inspect SVG line clearances (stopping arrows 15-20px outside node containers), verify math formula engine edge cases, and test responsive layouts.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Interactive Vibe Coding Prompt Builder Tool -->
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div>
+            <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+              <span class="p-1 rounded bg-sky-500/10 text-sky-400 text-xs">🛠️ Tool</span>
+              Master Vibe Coding Prompt Builder
+            </h3>
+            <p class="text-xs text-slate-400">Configure parameters below to auto-generate a structured Master Vibe Coding Prompt for web development.</p>
+          </div>
+        </div>
+
+        <!-- Prompt Builder Selectors -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Application Scope</label>
+            <select id="prompt-scope" onchange="generatePrompt()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 focus:border-sky-500 focus:outline-none">
+              <option value="Systems Dynamics & Causal Loops">Systems Dynamics & Causal Loops</option>
+              <option value="Climate Transition Strategy">Climate Transition Strategy</option>
+              <option value="Macroeconomic Policy Simulator">Macroeconomic Policy Simulator</option>
+              <option value="Healthcare Supply Chain Resilience">Healthcare Supply Chain Resilience</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Visual Design Palette</label>
+            <select id="prompt-theme" onchange="generatePrompt()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 focus:border-sky-500 focus:outline-none">
+              <option value="Academic Dark Slate (#0f172a)">Academic Dark Slate (#0f172a)</option>
+              <option value="Cybernetic Tech Neon">Cybernetic Tech Neon</option>
+              <option value="Clean Minimalist Slate">Clean Minimalist Slate</option>
+              <option value="High-Contrast Emerald Laboratory">High-Contrast Emerald Laboratory</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tab Navigation Layout</label>
+            <select id="prompt-tabs" onchange="generatePrompt()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 focus:border-sky-500 focus:outline-none">
+              <option value="5-Part Structured Lecture Dashboard">5-Part Structured Lecture Dashboard</option>
+              <option value="3-Tab Interactive Workbench">3-Tab Interactive Workbench</option>
+              <option value="Split-Screen Canvas & Simulator">Split-Screen Canvas & Simulator</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Core Interactive Engine</label>
+            <select id="prompt-engine" onchange="generatePrompt()" class="w-full bg-slate-950 border border-slate-800 text-slate-200 text-xs rounded-xl p-2.5 focus:border-sky-500 focus:outline-none">
+              <option value="SVG Causal Loop & Polarity Calculator">SVG Causal Loop & Polarity Calculator</option>
+              <option value="Time-Series Goal-Seeking Simulator">Time-Series Goal-Seeking Simulator</option>
+              <option value="Multi-Variable Sensitivity Matrix">Multi-Variable Sensitivity Matrix</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Generated Output Box & Copy Button -->
+        <div class="relative bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono text-sky-400 font-semibold">Generated Master Vibe Coding Prompt:</span>
+            <button onclick="copyPromptToClipboard()" id="copy-btn" class="px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-md active:scale-95">
+              <span>📋</span> Copy Prompt to Clipboard
+            </button>
+          </div>
+          
+          <textarea id="generated-prompt-text" readonly class="w-full h-44 bg-transparent font-mono text-xs text-slate-300 resize-none focus:outline-none selection:bg-sky-500/30"></textarea>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container for Feedback -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-emerald-500 text-slate-950 px-4 py-3 rounded-xl font-bold text-xs shadow-2xl flex items-center gap-2">
+    <span>✓</span> Prompt successfully copied to clipboard!
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+    Systems Mapping & Vibe Coding • Master's Lecture Interactive Dashboard
+  </footer>
+
+  <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+  <script>
+    // ==================== TIMER LOGIC ====================
+    let timerTotalSeconds = 240; // 4 minutes
+    let timerRemainingSeconds = 240;
+    let timerInterval = null;
+    let isTimerRunning = false;
+
+    function toggleTimer() {
+      if (isTimerRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function startTimer() {
+      if (isTimerRunning) return;
+      isTimerRunning = true;
+      document.getElementById('timer-play-icon').innerText = '❚❚';
+      document.getElementById('timer-toggle-btn').classList.replace('bg-sky-500', 'bg-amber-500');
+      
+      timerInterval = setInterval(() => {
+        if (timerRemainingSeconds > 0) {
+          timerRemainingSeconds--;
+          updateTimerUI();
+        } else {
+          pauseTimer();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      isTimerRunning = false;
+      clearInterval(timerInterval);
+      document.getElementById('timer-play-icon').innerText = '▶';
+      document.getElementById('timer-toggle-btn').classList.replace('bg-amber-500', 'bg-sky-500');
+    }
+
+    function resetTimer() {
+      pauseTimer();
+      timerRemainingSeconds = 240;
+      updateTimerUI();
+    }
+
+    function updateTimerUI() {
+      const minutes = Math.floor(timerRemainingSeconds / 60);
+      const seconds = timerRemainingSeconds % 60;
+      const formatted = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      document.getElementById('timer-display').innerText = formatted;
+
+      // Progress bar percentage
+      const elapsed = timerTotalSeconds - timerRemainingSeconds;
+      const percent = (elapsed / timerTotalSeconds) * 100;
+      document.getElementById('timer-progress-bar').style.width = `${percent}%`;
+
+      // Update segment label based on elapsed time
+      let label = 'Part 01';
+      if (elapsed >= 192) label = 'Part 05';
+      else if (elapsed >= 144) label = 'Part 04';
+      else if (elapsed >= 96) label = 'Part 03';
+      else if (elapsed >= 48) label = 'Part 02';
+      document.getElementById('current-pace-label').innerText = label;
+    }
+
+    function jumpToTab(tabId, targetSeconds) {
+      switchTab(tabId);
+      timerRemainingSeconds = 240 - targetSeconds;
+      updateTimerUI();
+      if (!isTimerRunning) {
+        startTimer();
+      }
+    }
+
+    // ==================== TAB SWITCHING LOGIC ====================
+    function switchTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      // Remove active class from buttons
+      document.querySelectorAll('.tab-nav-btn').forEach(btn => {
+        btn.classList.remove('bg-sky-500/10', 'text-sky-400', 'border-sky-500/30');
+        btn.classList.add('text-slate-400', 'border-transparent');
+      });
+
+      // Show selected tab
+      document.getElementById(tabId).classList.remove('hidden');
+      
+      // Highlight nav button
+      const activeBtn = document.getElementById(`btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400', 'border-transparent');
+        activeBtn.classList.add('bg-sky-500/10', 'text-sky-400', 'border-sky-500/30');
+      }
+
+      // Re-trigger specific tab renders if needed
+      if (tabId === 'tab-02') updateCalcLoopUI();
+      if (tabId === 'tab-04') updateBalancingSim();
+      if (tabId === 'tab-05') generatePrompt();
+    }
+
+    // ==================== TAB 02: POLARITY CALCULATOR ENGINE ====================
+    let linkPolarities = [1, -1, -1]; // Link 1: +, Link 2: -, Link 3: - (Default: Even 2 negative = Reinforcing)
+
+    function setLinkPolarity(linkIndex, val) {
+      linkPolarities[linkIndex - 1] = (val === '+') ? 1 : -1;
+      updateCalcLoopUI();
+    }
+
+    function randomizePolarities() {
+      linkPolarities = [
+        Math.random() > 0.5 ? 1 : -1,
+        Math.random() > 0.5 ? 1 : -1,
+        Math.random() > 0.5 ? 1 : -1
+      ];
+      updateCalcLoopUI();
+    }
+
+    function updateCalcLoopUI() {
+      // Update control button styles
+      for (let i = 1; i <= 3; i++) {
+        const val = linkPolarities[i - 1];
+        const plusBtn = document.getElementById(`link-${i}-plus`);
+        const minusBtn = document.getElementById(`link-${i}-minus`);
+        
+        if (val === 1) {
+          plusBtn.className = "px-3 py-1 rounded text-xs font-bold transition-all bg-emerald-500 text-slate-950";
+          minusBtn.className = "px-3 py-1 rounded text-xs font-bold transition-all text-slate-400 hover:text-rose-400";
+        } else {
+          plusBtn.className = "px-3 py-1 rounded text-xs font-bold transition-all text-slate-400 hover:text-emerald-400";
+          minusBtn.className = "px-3 py-1 rounded text-xs font-bold transition-all bg-rose-500 text-slate-950";
+        }
+
+        // SVG Path colors & markers
+        const pathEl = document.getElementById(`svg-calc-path-${i}`);
+        const badgeBg = document.getElementById(`svg-badge-${i}-bg`);
+        const badgeTxt = document.getElementById(`svg-badge-${i}-text`);
+
+        const color = (val === 1) ? '#22c55e' : '#f43f5e';
+        const marker = (val === 1) ? 'url(#calc-arrow-green)' : 'url(#calc-arrow-rose)';
+        const symbol = (val === 1) ? '+' : '−';
+
+        if (pathEl) {
+          pathEl.setAttribute('stroke', color);
+          pathEl.setAttribute('marker-end', marker);
+        }
+        if (badgeBg) badgeBg.setAttribute('stroke', color);
+        if (badgeTxt) {
+          badgeTxt.setAttribute('fill', color);
+          badgeTxt.textContent = symbol;
+        }
+      }
+
+      // Calculate Math Formula
+      const negativeCount = linkPolarities.filter(v => v === -1).length;
+      const netProduct = linkPolarities[0] * linkPolarities[1] * linkPolarities[2];
+      const isReinforcing = (netProduct === 1);
+
+      // Formula string
+      const str1 = linkPolarities[0] === 1 ? '(+)' : '(−)';
+      const str2 = linkPolarities[1] === 1 ? '(+)' : '(−)';
+      const str3 = linkPolarities[2] === 1 ? '(+)' : '(−)';
+      const resStr = isReinforcing ? '(+)' : '(−)';
+      document.getElementById('calc-formula-display').innerText = `${str1} × ${str2} × ${str3} = ${resStr}`;
+
+      // Center Badge & Result Banner
+      const centerCircle = document.getElementById('calc-center-circle');
+      const centerType = document.getElementById('calc-center-type');
+      const centerLabel = document.getElementById('calc-center-label');
+
+      const resultBanner = document.getElementById('calc-result-banner');
+      const resultTitle = document.getElementById('calc-result-title');
+      const resultExp = document.getElementById('calc-result-explanation');
+
+      if (isReinforcing) {
+        centerCircle.setAttribute('stroke', '#38bdf8');
+        centerType.setAttribute('fill', '#38bdf8');
+        centerType.textContent = 'R';
+        centerLabel.textContent = 'Reinforcing';
+
+        resultBanner.className = "w-full mt-4 p-4 rounded-xl bg-sky-500/10 border border-sky-500/30 text-center";
+        resultTitle.className = "text-xl font-bold text-sky-300 mt-0.5";
+        resultTitle.innerText = "REINFORCING LOOP (R)";
+        resultExp.innerHTML = `Found <strong>${negativeCount} negative link(s)</strong> (Even). The feedback loop self-amplifies and reinforces disturbances.`;
+      } else {
+        centerCircle.setAttribute('stroke', '#f59e0b');
+        centerType.setAttribute('fill', '#f59e0b');
+        centerType.textContent = 'B';
+        centerLabel.textContent = 'Balancing';
+
+        resultBanner.className = "w-full mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-center";
+        resultTitle.className = "text-xl font-bold text-amber-300 mt-0.5";
+        resultTitle.innerText = "BALANCING LOOP (B)";
+        resultExp.innerHTML = `Found <strong>${negativeCount} negative link(s)</strong> (Odd). The feedback loop counteracts changes and seeks equilibrium.`;
+      }
+    }
+
+    // ==================== TAB 03: REINFORCING SIMULATOR LOGIC ====================
+    let reinforcingMode = 'virtuous'; // 'virtuous' or 'vicious'
+    let currentRStep = 1;
+
+    const rSimData = {
+      virtuous: [
+        { inv: "$10B", cap: "50 GW", cost: "$0.12 / kWh", attr: "55 / 100", bInv: 20, bCap: 15, bCost: 85, bAttr: 55, text: "Stage t=1: Initial public subsidies establish basic manufacturing scale. Unit tech cost remains at $0.12/kWh." },
+        { inv: "$25B", cap: "120 GW", cost: "$0.08 / kWh", attr: "72 / 100", bInv: 40, bCap: 30, bCost: 60, bAttr: 72, text: "Stage t=2: Higher installed capacity triggers manufacturing learning curves. Unit costs drop 33% to $0.08/kWh!" },
+        { inv: "$55B", cap: "280 GW", cost: "$0.05 / kWh", attr: "86 / 100", bInv: 65, bCap: 55, bCost: 35, bAttr: 86, text: "Stage t=3: Falling prices make renewables parity-competitive, attracting massive private infrastructure funds." },
+        { inv: "$110B", cap: "600 GW", cost: "$0.03 / kWh", attr: "94 / 100", bInv: 85, bCap: 80, bCost: 20, bAttr: 94, text: "Stage t=4: Scale dynamics accelerate. Tech cost plunges to $0.03/kWh, undercutting legacy fossil generation." },
+        { inv: "$220B", cap: "1200 GW", cost: "$0.02 / kWh", attr: "99 / 100", bInv: 100, bCap: 100, bCost: 10, bAttr: 99, text: "Stage t=5: Exponential virtuous market tipping! Renewables become the dominant global energy investment choice." }
+      ],
+      vicious: [
+        { inv: "$10B", cap: "50 GW", cost: "$0.12 / kWh", attr: "55 / 100", bInv: 20, bCap: 15, bCost: 85, bAttr: 55, text: "Stage t=1: Baseline state before policy tariffs and subsidy cancellations." },
+        { inv: "$5B", cap: "45 GW", cost: "$0.14 / kWh", attr: "42 / 100", bInv: 10, bCap: 12, bCost: 90, bAttr: 42, text: "Stage t=2: Subsidy cuts reduce capital flow. Stagnant factory production pushes unit technology costs up to $0.14/kWh." },
+        { inv: "$2B", cap: "40 GW", cost: "$0.17 / kWh", attr: "28 / 100", bInv: 5, bCap: 10, bCost: 95, bAttr: 28, text: "Stage t=3: Higher energy costs erode developer returns. Investor confidence deteriorates rapidly." },
+        { inv: "$0.8B", cap: "35 GW", cost: "$0.21 / kWh", attr: "15 / 100", bInv: 2, bCap: 8, bCost: 98, bAttr: 15, text: "Stage t=4: Vicious collapse spiral! Supply chains shutter, escalating per-unit installation overhead." },
+        { inv: "$0.2B", cap: "30 GW", cost: "$0.26 / kWh", attr: "5 / 100", bInv: 1, bCap: 5, bCost: 100, bAttr: 5, text: "Stage t=5: Complete market stagnation trap. High costs deter all private capital deployment." }
+      ]
+    };
+
+    function setReinforcingMode(mode) {
+      reinforcingMode = mode;
+      const vBtn = document.getElementById('btn-mode-virtuous');
+      const cBtn = document.getElementById('btn-mode-vicious');
+
+      if (mode === 'virtuous') {
+        vBtn.className = "px-2.5 py-1 rounded text-xs font-bold bg-emerald-500 text-slate-950 transition-all";
+        cBtn.className = "px-2.5 py-1 rounded text-xs font-bold text-slate-400 hover:text-rose-400 transition-all";
+        document.getElementById('r-sim-description').innerHTML = `Simulating <strong>Virtuous Growth Engine</strong>: Initial policy subsidy boosts investment, unlocking Wright's Law learning curves.`;
+      } else {
+        cBtn.className = "px-2.5 py-1 rounded text-xs font-bold bg-rose-500 text-slate-950 transition-all";
+        vBtn.className = "px-2.5 py-1 rounded text-xs font-bold text-slate-400 hover:text-emerald-400 transition-all";
+        document.getElementById('r-sim-description').innerHTML = `Simulating <strong>Vicious Investment Trap</strong>: Subsidy withdrawal increases unit costs, triggering capital flight.`;
+      }
+      setRStep(1);
+    }
+
+    function setRStep(step) {
+      currentRStep = step;
+      document.querySelectorAll('.r-step-btn').forEach(btn => {
+        const s = parseInt(btn.getAttribute('data-step'));
+        if (s === step) {
+          btn.className = `r-step-btn px-2 py-2 rounded-lg ${reinforcingMode === 'virtuous' ? 'bg-emerald-500' : 'bg-rose-500'} text-slate-950 font-bold text-xs shadow-md`;
+        } else {
+          btn.className = "r-step-btn px-2 py-2 rounded-lg bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700";
+        }
+      });
+
+      const d = rSimData[reinforcingMode][step - 1];
+      document.getElementById('r-val-investment').innerText = d.inv;
+      document.getElementById('r-val-capacity').innerText = d.cap;
+      document.getElementById('r-val-cost').innerText = d.cost;
+      document.getElementById('r-val-attractiveness').innerText = d.attr;
+
+      document.getElementById('r-bar-investment').style.width = `${d.bInv}%`;
+      document.getElementById('r-bar-capacity').style.width = `${d.bCap}%`;
+      document.getElementById('r-bar-cost').style.width = `${d.bCost}%`;
+      document.getElementById('r-bar-attractiveness').style.width = `${d.bAttr}%`;
+
+      document.getElementById('r-narrative-box').innerText = d.text;
+    }
+
+    // ==================== TAB 04: BALANCING SIMULATOR LOGIC ====================
+    function updateBalancingSim() {
+      const surgeVal = parseInt(document.getElementById('surge-slider').value);
+      document.getElementById('surge-slider-val').innerText = `+${surgeVal}% Surge`;
+
+      // Generate goal-seeking damped oscillation curve points
+      // Target equilibrium capacity = 100 (Y=60 on SVG canvas scale)
+      // Max Y scale: 180 = Y=20, 100 = Y=60, 40 = Y=140
+      // SVG width 480, start X=40, end X=480
+
+      const peakLoad = 100 + Math.round(surgeVal * 0.8);
+      const minSat = Math.max(15, 100 - Math.round(surgeVal * 0.75));
+      const finalSettled = 100 + Math.round(surgeVal * 0.04);
+
+      document.getElementById('b-metric-peak').innerText = peakLoad;
+      document.getElementById('b-metric-sat').innerText = `${minSat}%`;
+      document.getElementById('b-metric-final').innerText = finalSettled;
+
+      // Draw dynamic SVG path
+      const points = [];
+      const steps = 20;
+      const xStart = 40;
+      const xEnd = 480;
+      const xStep = (xEnd - xStart) / steps;
+
+      for (let i = 0; i <= steps; i++) {
+        const x = xStart + i * xStep;
+        // Dampened wave returning to target 100
+        const decay = Math.exp(-0.25 * i);
+        const wave = Math.sin(0.8 * i) * (surgeVal * 0.75) * decay;
+        const loadVal = 100 + (i === 0 ? 0 : wave);
+        
+        // Map loadVal (40 to 180) to SVG Y (140 to 20)
+        // Y = 60 - (loadVal - 100) * 0.5
+        const y = 60 - (loadVal - 100) * 0.5;
+        points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+      }
+
+      const dStr = `M ${points.join(' L ')}`;
+      const chartPath = document.getElementById('b-chart-path');
+      if (chartPath) {
+        chartPath.setAttribute('d', dStr);
+      }
+    }
+
+    // ==================== TAB 05: VIBE CODING PROMPT GENERATOR ====================
+    function generatePrompt() {
+      const scope = document.getElementById('prompt-scope').value;
+      const theme = document.getElementById('prompt-theme').value;
+      const tabs = document.getElementById('prompt-tabs').value;
+      const engine = document.getElementById('prompt-engine').value;
+
+      const promptText = 
+`Act as a Principal Software Architect and Interactive Systems Design Expert.
+
+Task: Build a complete, single-file interactive web application for lecturing on "${scope}".
+
+TECHNICAL & AESTHETIC REQUIREMENTS:
+1. Design System: Modern ${theme} color palette with crisp sans-serif typography, subtle dark borders (#334155), cyan accents (#38bdf8), positive green links (#22c55e), and negative rose links (#f43f5e).
+2. Layout Structure: ${tabs} including responsive header, lecture pace countdown timer (240 seconds with play/pause/reset), and tab switching logic.
+3. Interactive Engine: Implement a real-time ${engine} with live mathematical polarity checking (+ / − sign products).
+4. Geometry Guardrails: All SVG arrows must terminate 15-20px outside node bounding boxes. Draw path lines before node containers and define proper <marker> arrowheads.
+5. Code Integrity: Output ONLY a single, self-contained HTML file containing HTML, inline Tailwind CSS, and vanilla JS. DO NOT use LaTeX delimiters (use standard Unicode symbols →, +, −, R, B).`;
+
+      document.getElementById('generated-prompt-text').value = promptText;
+    }
+
+    function copyPromptToClipboard() {
+      const copyText = document.getElementById('generated-prompt-text');
+      copyText.select();
+      copyText.setSelectionRange(0, 99999); // Mobile compatibility
+
+      try {
+        // Fallback-friendly clipboard copy
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(copyText.value);
+        } else {
+          document.execCommand('copy');
+        }
+        
+        showToast();
+      } catch (err) {
+        document.execCommand('copy');
+        showToast();
+      }
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    // ==================== INITIALIZATION ON PAGE LOAD ====================
+    window.onload = function() {
+      updateCalcLoopUI();
+      setRStep(1);
+      updateBalancingSim();
+      generatePrompt();
+      updateTimerUI();
+    };
+  </script>
+</body>
+</html>

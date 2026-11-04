@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Georgescu-Roegen's Entropy Law & Systems Dynamics</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              850: '#131d31',
+              900: '#0f172a',
+              950: '#080d1a',
+            },
+            emerald: {
+              400: '#34d399',
+              500: '#10b981',
+              600: '#059669',
+            },
+            amber: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+            },
+            rose: {
+              400: '#fb7185',
+              500: '#f43f5e',
+              600: '#e11d48',
+            },
+            cyan: {
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+            },
+            purple: {
+              400: '#c084fc',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Pulse animation for active causal loops */
+    @keyframes pulse-path {
+      0% { stroke-dashoffset: 24; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .active-loop-path {
+      stroke-dasharray: 8 4;
+      animation: pulse-path 1s linear infinite;
+    }
+    
+    /* Range Slider Styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]:focus {
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #334155;
+      border-radius: 4px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #10b981;
+      cursor: pointer;
+      -webkit-appearance: none;
+      margin-top: -6px;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+    input[type=range].slider-amber::-webkit-slider-thumb {
+      background: #f59e0b;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+    input[type=range].slider-rose::-webkit-slider-thumb {
+      background: #f43f5e;
+      box-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+    }
+    input[type=range].slider-cyan::-webkit-slider-thumb {
+      background: #06b6d4;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-900">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <span class="inline-block p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </span>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              Georgescu-Roegen's Entropy Law & Systems Dynamics
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-400">
+              Thermodynamic Foundations of Bioeconomics, Macro-Matter Dissipation & Ecological Economics
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- BADGE OVERVIEW -->
+      <div class="flex items-center gap-2 text-xs font-mono bg-slate-900/90 border border-slate-700/60 rounded-lg p-2">
+        <span class="text-emerald-400">Low Entropy (Inputs)</span>
+        <span class="text-slate-500">→</span>
+        <span class="text-amber-400">Economic Process</span>
+        <span class="text-slate-500">→</span>
+        <span class="text-rose-400">High Entropy (Waste heat & ΔS_matter)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <div class="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 lg:px-8 pt-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap gap-2" id="tab-nav">
+      <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn active text-sm font-medium px-4 py-2.5 rounded-t-lg transition-all border-t-2 border-x border-b-0 border-emerald-500 bg-slate-800 text-emerald-400">
+        Tab 01: Entropy Theory & Process Leaks
+      </button>
+      <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn text-sm font-medium px-4 py-2.5 rounded-t-lg transition-all border-t-2 border-x border-b-0 border-transparent bg-slate-900/50 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        Tab 02: Global RECUP System Map
+      </button>
+      <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn text-sm font-medium px-4 py-2.5 rounded-t-lg transition-all border-t-2 border-x border-b-0 border-transparent bg-slate-900/50 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        Tab 03: Multi-Cycle Recycling Decay
+      </button>
+      <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn text-sm font-medium px-4 py-2.5 rounded-t-lg transition-all border-t-2 border-x border-b-0 border-transparent bg-slate-900/50 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+        Tab 04: Embodied Process Entropy Overhead
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+    <!-- ========================================== -->
+    <!-- TAB 01: ENTROPY THEORY & GENERIC PROCESS LEAKS -->
+    <!-- ========================================== -->
+    <div id="tab1" class="tab-content space-y-6">
+      
+      <!-- DUAL PANEL GRID -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- LEFT PANEL: LECTURE SLIDE FORMAT -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-xl p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+            <span class="text-xs font-mono tracking-wider text-emerald-400 uppercase font-semibold">Theoretical Foundations</span>
+            <h2 class="text-xl font-bold text-white mt-1 mb-4">What is Entropy Theory in Economics?</h2>
+            
+            <!-- SECTION A -->
+            <div class="mb-5 pb-5 border-b border-slate-700/60">
+              <div class="flex items-center gap-2 text-emerald-400 font-semibold mb-2">
+                <span class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">A</span>
+                <h3>The Second Law of Thermodynamics (ΔS &gt; 0)</h3>
+              </div>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                In closed systems, isolated energy continuously degrades from usable, highly organized state (low entropy) into dispersed, random thermal vibrations (high entropy). Thermal energy cannot be converted back into work with 100% efficiency.
+              </p>
+            </div>
+
+            <!-- SECTION B -->
+            <div class="mb-5 pb-5 border-b border-slate-700/60">
+              <div class="flex items-center gap-2 text-amber-400 font-semibold mb-2">
+                <span class="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-xs">B</span>
+                <h3>Bioeconomic Insight (Georgescu-Roegen, 1971)</h3>
+              </div>
+              <p class="text-slate-300 text-sm leading-relaxed">
+                Economic production does not create physical matter or energy; it merely transforms low-entropy terrestrial stocks (fossil energy, minerals, topsoil) and solar flows into high-entropy environmental dissipation (waste heat, micro-particulates, greenhouse gases).
+              </p>
+            </div>
+
+            <!-- SECTION C: HISTORICAL CLARIFICATION -->
+            <div class="bg-rose-950/30 border border-rose-500/30 rounded-lg p-4">
+              <div class="flex items-center gap-2 text-rose-400 font-semibold mb-2">
+                <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <h3>Historical Clarification & Circular Economy Critique</h3>
+              </div>
+              <p class="text-slate-300 text-xs leading-relaxed">
+                Nicholas Georgescu-Roegen was the premier academic <strong class="text-rose-300">critic of 100% circular economy models</strong>. He formulated the proposed <em class="text-slate-200">"4th Law of Thermodynamics"</em>, proving that macroscopic matter degrades irreversibly through wear, friction, and spatial dispersion. Thus, complete closed-loop circularity is a physical impossibility.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: GENERIC 4-NODE PROCESS LOOP (SVG) -->
+        <div class="lg:col-span-7 flex flex-col justify-between bg-slate-800/90 border border-slate-700/80 rounded-xl p-6 shadow-xl">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-lg font-bold text-white">Generic 4-Stage Economic Process Loop</h3>
+                <p class="text-xs text-slate-400">Click any process node to examine entropic dissipation mechanisms (ΔS_thermal & ΔS_matter)</p>
+              </div>
+              <span class="text-xs font-mono bg-rose-500/20 text-rose-400 border border-rose-500/40 px-2.5 py-1 rounded-full">
+                ΔS_total &gt; 0 Leaks
+              </span>
+            </div>
+
+            <!-- SVG PROCESS DIAGRAM -->
+            <div class="w-full bg-slate-900/80 rounded-lg p-4 border border-slate-700/50">
+              <svg viewBox="0 0 600 360" class="w-full h-auto">
+                <defs>
+                  <marker id="arrow-emerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+                  </marker>
+                  <marker id="arrow-rose" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#f43f5e" />
+                  </marker>
+                </defs>
+
+                <!-- CONNECTING FLOW PATHS (MAIN CYCLE) -->
+                <!-- 1 -> 2 -->
+                <path d="M 230 70 L 370 70" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#arrow-emerald)"/>
+                <!-- 2 -> 3 -->
+                <path d="M 450 120 L 450 220" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#arrow-emerald)"/>
+                <!-- 3 -> 4 -->
+                <path d="M 370 270 L 230 270" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#arrow-emerald)"/>
+                <!-- 4 -> 1 -->
+                <path d="M 150 220 L 150 120" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#arrow-emerald)"/>
+
+                <!-- NODES -->
+                <!-- NODE 1: EXTRACTION -->
+                <g class="cursor-pointer transition-transform duration-200 hover:scale-105" onclick="selectNode(1)" id="node-1">
+                  <rect x="70" y="30" width="160" height="80" rx="10" fill="#1e293b" stroke="#10b981" stroke-width="2" id="node1-rect"/>
+                  <text x="150" y="60" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">1. Resource Extraction</text>
+                  <text x="150" y="80" text-anchor="middle" fill="#94a3b8" font-size="11">Low Entropy Inputs</text>
+                  <!-- ENTROPIC LEAK BADGES -->
+                  <rect x="50" y="10" width="70" height="20" rx="10" fill="#f43f5e" />
+                  <text x="85" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ΔS_thermal</text>
+                  <rect x="180" y="10" width="70" height="20" rx="10" fill="#f59e0b" />
+                  <text x="215" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ΔS_matter</text>
+                </g>
+
+                <!-- NODE 2: MANUFACTURING -->
+                <g class="cursor-pointer transition-transform duration-200 hover:scale-105" onclick="selectNode(2)" id="node-2">
+                  <rect x="370" y="30" width="160" height="80" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2" id="node2-rect"/>
+                  <text x="450" y="60" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">2. Manufacturing</text>
+                  <text x="450" y="80" text-anchor="middle" fill="#94a3b8" font-size="11">Refinement & Form</text>
+                  <!-- ENTROPIC LEAK BADGES -->
+                  <rect x="350" y="10" width="70" height="20" rx="10" fill="#f43f5e" />
+                  <text x="385" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ΔS_thermal</text>
+                  <rect x="480" y="10" width="70" height="20" rx="10" fill="#f59e0b" />
+                  <text x="515" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ΔS_matter</text>
+                </g>
+
+                <!-- NODE 3: CONSUMPTION / USE -->
+                <g class="cursor-pointer transition-transform duration-200 hover:scale-105" onclick="selectNode(3)" id="node-3">
+                  <rect x="370" y="220" width="160" height="80" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2" id="node3-rect"/>
+                  <text x="450" y="250" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">3. Product Use & Consumption</text>
+                  <text x="450" y="270" text-anchor="middle" fill="#94a3b8" font-size="11">Exosomatic Service</text>
+                  <!-- ENTROPIC LEAK BADGES -->
+                  <rect x="350" y="310" width="70" height="20" rx="10" fill="#f43f5e" />
+                  <text x="385" y="324" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ΔS_thermal</text>
+                  <rect x="480" y="310" width="70" height="20" rx="10" fill="#f59e0b" />
+                  <text x="515" y="324" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ΔS_matter</text>
+                </g>
+
+                <!-- NODE 4: RECYCLING -->
+                <g class="cursor-pointer transition-transform duration-200 hover:scale-105" onclick="selectNode(4)" id="node-4">
+                  <rect x="70" y="220" width="160" height="80" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2" id="node4-rect"/>
+                  <text x="150" y="250" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">4. Recycling & Recovery</text>
+                  <text x="150" y="270" text-anchor="middle" fill="#94a3b8" font-size="11">Re-Processing Effort</text>
+                  <!-- ENTROPIC LEAK BADGES -->
+                  <rect x="50" y="310" width="70" height="20" rx="10" fill="#f43f5e" />
+                  <text x="85" y="324" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ΔS_thermal</text>
+                  <rect x="180" y="310" width="70" height="20" rx="10" fill="#f59e0b" />
+                  <text x="215" y="324" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">ΔS_matter</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- NODE METRICS BREAKDOWN CARD -->
+          <div id="node-detail-card" class="mt-4 bg-slate-900 border border-slate-700/80 rounded-lg p-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+              <h4 id="node-title" class="font-bold text-emerald-400 text-sm">Stage 1: Resource Extraction & Preparation</h4>
+              <span id="node-tag" class="text-xs font-mono text-slate-400">Low Entropy Consumption</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div class="bg-slate-950 p-2.5 rounded border border-rose-500/30">
+                <span class="text-rose-400 font-semibold block mb-1">ΔS_thermal (Waste Heat):</span>
+                <p id="node-thermal" class="text-slate-300">Diesel engine heat dissipation, heavy equipment friction, mining combustion inefficiencies.</p>
+              </div>
+              <div class="bg-slate-950 p-2.5 rounded border border-amber-500/30">
+                <span class="text-amber-400 font-semibold block mb-1">ΔS_matter (Material Degradation):</span>
+                <p id="node-matter" class="text-slate-300">Ore tailings dispersion, micro-particulate dust lost to wind/water, topsoil oxidation.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 02: GLOBAL RECUP SYSTEM MAP & LOOPS -->
+    <!-- ========================================== -->
+    <div id="tab2" class="tab-content hidden space-y-6">
+      <div class="bg-slate-800/90 border border-slate-700/80 rounded-xl p-6 shadow-xl">
+        
+        <!-- HEADER & FILTER BUTTONS -->
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-white">Global RECUP Reusable System Dynamics Map</h2>
+            <p class="text-xs text-slate-400">Examine causal feedback loops governing reusable container networks, upstream petro chemistry, and climate interactions.</p>
+          </div>
+
+          <!-- LOOP FILTER BUTTONS -->
+          <div class="flex flex-wrap gap-2" id="loop-buttons">
+            <button onclick="highlightLoop('all')" id="btn-loop-all" class="loop-btn text-xs font-mono px-3 py-1.5 rounded-lg border border-slate-600 bg-slate-700 text-white font-semibold">
+              Show All System
+            </button>
+            <button onclick="highlightLoop('R1')" id="btn-loop-R1" class="loop-btn text-xs font-mono px-3 py-1.5 rounded-lg border border-emerald-500/40 bg-slate-900 text-emerald-400 hover:bg-emerald-500/20">
+              R1: Network Expansion
+            </button>
+            <button onclick="highlightLoop('B1')" id="btn-loop-B1" class="loop-btn text-xs font-mono px-3 py-1.5 rounded-lg border border-amber-500/40 bg-slate-900 text-amber-400 hover:bg-amber-500/20">
+              B1: Cup Hoarding Limit
+            </button>
+            <button onclick="highlightLoop('B2')" id="btn-loop-B2" class="loop-btn text-xs font-mono px-3 py-1.5 rounded-lg border border-cyan-500/40 bg-slate-900 text-cyan-400 hover:bg-cyan-500/20">
+              B2: Petro Strain
+            </button>
+            <button onclick="highlightLoop('B3')" id="btn-loop-B3" class="loop-btn text-xs font-mono px-3 py-1.5 rounded-lg border border-purple-500/40 bg-slate-900 text-purple-400 hover:bg-purple-500/20">
+              B3: Coffee Climate Feedback
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG SYSTEM MAP CANVAS (1200x680 viewBox) -->
+        <div class="w-full bg-slate-950 rounded-xl border border-slate-700/80 p-2 overflow-x-auto">
+          <svg viewBox="0 0 1200 680" class="w-full min-w-[900px] h-auto font-sans" id="recup-svg">
+            <defs>
+              <!-- Arrowhead Markers -->
+              <marker id="arrow-emerald-map" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+              </marker>
+              <marker id="arrow-amber-map" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+              </marker>
+              <marker id="arrow-cyan-map" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#06b6d4" />
+              </marker>
+              <marker id="arrow-purple-map" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#8b5cf6" />
+              </marker>
+              <marker id="arrow-slate-map" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+              </marker>
+            </defs>
+
+            <!-- ZONE BACKGROUNDS -->
+            <!-- 1. Emerald Zone: Core RECUP Network -->
+            <rect x="30" y="30" width="550" height="290" rx="12" fill="#10b981" fill-opacity="0.05" stroke="#10b981" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <text x="45" y="55" fill="#10b981" font-size="12" font-weight="bold" font-family="monospace">ZONE 01: Internal RECUP Core Network</text>
+
+            <!-- 2. Cyan Zone: Upstream Petro Feedstock -->
+            <rect x="620" y="30" width="550" height="290" rx="12" fill="#06b6d4" fill-opacity="0.05" stroke="#06b6d4" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <text x="635" y="55" fill="#06b6d4" font-size="12" font-weight="bold" font-family="monospace">ZONE 02: Upstream Petrochemical Feedstock</text>
+
+            <!-- 3. Amber Zone: Reverse Logistics & Operations -->
+            <rect x="30" y="360" width="550" height="290" rx="12" fill="#f59e0b" fill-opacity="0.05" stroke="#f59e0b" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <text x="45" y="385" fill="#f59e0b" font-size="12" font-weight="bold" font-family="monospace">ZONE 03: Reverse Logistics & Industrial Operations</text>
+
+            <!-- 4. Purple Zone: Climate & Coffee Belt Dynamics -->
+            <rect x="620" y="360" width="550" height="290" rx="12" fill="#8b5cf6" fill-opacity="0.05" stroke="#8b5cf6" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <text x="635" y="385" fill="#8b5cf6" font-size="12" font-weight="bold" font-family="monospace">ZONE 04: Global Climate & Coffee Belt Dynamics</text>
+
+            <!-- CAUSAL PATHS / EDGES -->
+            <!-- R1 Paths (Emerald) -->
+            <!-- Partner Density -> Return Conv -->
+            <path id="path-r1-1" data-loop="R1" d="M 210 100 L 330 100" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrow-emerald-map)"/>
+            <!-- Return Conv -> Adoption Vol -->
+            <path id="path-r1-2" data-loop="R1" d="M 430 135 L 470 195" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrow-emerald-map)"/>
+            <!-- Adoption Vol -> Vendor Savings -->
+            <path id="path-r1-3" data-loop="R1" d="M 420 220 L 230 220" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrow-emerald-map)"/>
+            <!-- Vendor Savings -> Partner Density -->
+            <path id="path-r1-4" data-loop="R1" d="M 130 195 L 130 135" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrow-emerald-map)"/>
+
+            <!-- B1 Paths (Amber) -->
+            <!-- Adoption Vol -> Circulating Stock -->
+            <path id="path-b1-1" data-loop="B1" d="M 450 245 L 350 270" stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arrow-amber-map)"/>
+            <!-- Circulating Stock -> Hoarded Cups -->
+            <path id="path-b1-2" data-loop="B1" d="M 240 280 L 150 410" stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arrow-amber-map)"/>
+            <!-- Hoarded Cups -> Inventory Depletion -->
+            <path id="path-b1-3" data-loop="B1" d="M 220 440 L 330 440" stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arrow-amber-map)"/>
+            <!-- Inventory Depletion -> Adoption Vol (-) -->
+            <path id="path-b1-4" data-loop="B1" d="M 420 410 L 480 250" stroke="#f59e0b" stroke-width="2" fill="none" stroke-dasharray="4 4" marker-end="url(#arrow-amber-map)"/>
+
+            <!-- B2 Paths (Cyan) -->
+            <!-- Inventory Depletion -> Replacement Demand -->
+            <path id="path-b2-1" data-loop="B2" d="M 450 440 L 690 140" stroke="#06b6d4" stroke-width="2" fill="none" marker-end="url(#arrow-cyan-map)"/>
+            <!-- Replacement Demand -> PP Deficit -->
+            <path id="path-b2-2" data-loop="B2" d="M 800 100 L 920 100" stroke="#06b6d4" stroke-width="2" fill="none" marker-end="url(#arrow-cyan-map)"/>
+            <!-- PP Deficit -> Unit Mfg Cost -->
+            <path id="path-b2-3" data-loop="B2" d="M 1000 135 L 1000 195" stroke="#06b6d4" stroke-width="2" fill="none" marker-end="url(#arrow-cyan-map)"/>
+            <!-- Unit Mfg Cost -> Replacement Shortage (-) -->
+            <path id="path-b2-4" data-loop="B2" d="M 920 220 L 800 220" stroke="#06b6d4" stroke-width="2" fill="none" stroke-dasharray="4 4" marker-end="url(#arrow-cyan-map)"/>
+
+            <!-- B3 Paths (Purple) -->
+            <!-- Adoption Vol -> Ops Scale -->
+            <path id="path-b3-1" data-loop="B3" d="M 450 250 L 150 520" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-purple-map)"/>
+            <!-- Ops Scale -> Washing Emissions -->
+            <path id="path-b3-2" data-loop="B3" d="M 210 550 L 330 550" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-purple-map)"/>
+            <!-- Washing Emissions -> Global Warming -->
+            <path id="path-b3-3" data-loop="B3" d="M 450 550 L 670 440" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-purple-map)"/>
+            <!-- Global Warming -> Crop Loss -->
+            <path id="path-b3-4" data-loop="B3" d="M 770 420 L 910 420" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-purple-map)"/>
+            <!-- Crop Loss -> Bean Price Spike -->
+            <path id="path-b3-5" data-loop="B3" d="M 980 450 L 980 520" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-purple-map)"/>
+            <!-- Bean Price Spike -> Cafe Margin Squeeze -->
+            <path id="path-b3-6" data-loop="B3" d="M 910 550 L 790 550" stroke="#8b5cf6" stroke-width="2" fill="none" marker-end="url(#arrow-purple-map)"/>
+            <!-- Cafe Margin Squeeze -> Partner Network Contraction (-) -->
+            <path id="path-b3-7" data-loop="B3" d="M 690 550 L 210 130" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-dasharray="4 4" marker-end="url(#arrow-purple-map)"/>
+
+            <!-- NODES (rect + text) -->
+            <!-- ZONE 1 NODES -->
+            <g id="node-partner_density" data-loops="R1 B3">
+              <rect x="50" y="80" width="160" height="55" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+              <text x="130" y="105" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Partner Density (+)</text>
+              <text x="130" y="122" text-anchor="middle" fill="#94a3b8" font-size="10">Café Network Size</text>
+            </g>
+
+            <g id="node-return_convenience" data-loops="R1">
+              <rect x="330" y="80" width="160" height="55" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+              <text x="410" y="105" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Return Convenience (+)</text>
+              <text x="410" y="122" text-anchor="middle" fill="#94a3b8" font-size="10">Drop-off Proximity</text>
+            </g>
+
+            <g id="node-adoption_vol" data-loops="R1 B1 B3">
+              <rect x="410" y="195" width="160" height="55" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+              <text x="490" y="220" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Adoption Volume (+)</text>
+              <text x="490" y="237" text-anchor="middle" fill="#94a3b8" font-size="10">Active Reusable Replaces</text>
+            </g>
+
+            <g id="node-vendor_savings" data-loops="R1">
+              <rect x="50" y="195" width="160" height="55" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+              <text x="130" y="220" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Vendor Savings (+)</text>
+              <text x="130" y="237" text-anchor="middle" fill="#94a3b8" font-size="10">Avoided Disposable Cost</text>
+            </g>
+
+            <g id="node-circulating_stock" data-loops="B1">
+              <rect x="230" y="255" width="160" height="50" rx="8" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+              <text x="310" y="285" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">Circulating Stock (+)</text>
+            </g>
+
+            <!-- ZONE 2 NODES -->
+            <g id="node-replacement_demand" data-loops="B2">
+              <rect x="640" y="80" width="160" height="55" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+              <text x="720" y="105" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Replacement Demand</text>
+              <text x="720" y="122" text-anchor="middle" fill="#94a3b8" font-size="10">New Virgin PP Injection</text>
+            </g>
+
+            <g id="node-pp_deficit" data-loops="B2">
+              <rect x="920" y="80" width="160" height="55" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+              <text x="1000" y="105" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">PP Feedstock Deficit (+)</text>
+              <text x="1000" y="122" text-anchor="middle" fill="#94a3b8" font-size="10">Petrochemical Strain</text>
+            </g>
+
+            <g id="node-unit_cost" data-loops="B2">
+              <rect x="920" y="195" width="160" height="55" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+              <text x="1000" y="220" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Unit Mfg Cost (+)</text>
+              <text x="1000" y="237" text-anchor="middle" fill="#94a3b8" font-size="10">Polymer Price Escalation</text>
+            </g>
+
+            <g id="node-replacement_shortage" data-loops="B2">
+              <rect x="640" y="195" width="160" height="55" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+              <text x="720" y="220" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Replacement Shortage (−)</text>
+              <text x="720" y="237" text-anchor="middle" fill="#94a3b8" font-size="10">Cap Ex Constraint</text>
+            </g>
+
+            <!-- ZONE 3 NODES -->
+            <g id="node-hoarded_cups" data-loops="B1">
+              <rect x="50" y="410" width="160" height="55" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+              <text x="130" y="435" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Unreturned Cups (+)</text>
+              <text x="130" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">Consumer Hoarding</text>
+            </g>
+
+            <g id="node-inventory_depletion" data-loops="B1 B2">
+              <rect x="330" y="410" width="160" height="55" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+              <text x="410" y="435" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Inventory Depletion (−)</text>
+              <text x="410" y="452" text-anchor="middle" fill="#94a3b8" font-size="10">Stockout at Cafés</text>
+            </g>
+
+            <g id="node-ops_scale" data-loops="B3">
+              <rect x="50" y="520" width="160" height="55" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+              <text x="130" y="545" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Operations Scale (+)</text>
+              <text x="130" y="562" text-anchor="middle" fill="#94a3b8" font-size="10">Logistics & Sanitization</text>
+            </g>
+
+            <g id="node-washing_emissions" data-loops="B3">
+              <rect x="330" y="520" width="160" height="55" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+              <text x="410" y="545" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Washing & Transport (+)</text>
+              <text x="410" y="562" text-anchor="middle" fill="#94a3b8" font-size="10">Thermal & Fossil Leakage</text>
+            </g>
+
+            <!-- ZONE 4 NODES -->
+            <g id="node-global_warming" data-loops="B3">
+              <rect x="640" y="395" width="160" height="55" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="720" y="420" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Global Warming (+)</text>
+              <text x="720" y="437" text-anchor="middle" fill="#94a3b8" font-size="10">Atmospheric GHG Loading</text>
+            </g>
+
+            <g id="node-crop_loss" data-loops="B3">
+              <rect x="910" y="395" width="160" height="55" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="990" y="420" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Coffee Crop Loss (−)</text>
+              <text x="990" y="437" text-anchor="middle" fill="#94a3b8" font-size="10">Yield Failure in Tropics</text>
+            </g>
+
+            <g id="node-bean_price_spike" data-loops="B3">
+              <rect x="910" y="520" width="160" height="55" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="990" y="545" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Bean Price Spike (+)</text>
+              <text x="990" y="562" text-anchor="middle" fill="#94a3b8" font-size="10">Raw Material Inflation</text>
+            </g>
+
+            <g id="node-cafe_squeeze" data-loops="B3">
+              <rect x="640" y="520" width="160" height="55" rx="8" fill="#1e293b" stroke="#8b5cf6" stroke-width="2"/>
+              <text x="720" y="545" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Café Margin Squeeze (−)</text>
+              <text x="720" y="562" text-anchor="middle" fill="#94a3b8" font-size="10">Operating Insolvency</text>
+            </g>
+
+          </svg>
+        </div>
+
+        <!-- ACADEMIC EXPLANATION CARD BELOW CANVAS -->
+        <div id="loop-explanation" class="mt-6 bg-slate-900 border border-slate-700/80 rounded-lg p-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+            <h3 id="loop-title" class="font-bold text-base text-emerald-400">R1: Network Expansion Loop (Reinforcing Engine)</h3>
+            <span id="loop-type" class="text-xs font-mono bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded">
+              Polarity: Positive Feedback (+ / Reinforcing)
+            </span>
+          </div>
+          <p id="loop-desc" class="text-slate-300 text-sm leading-relaxed mb-3">
+            As more partner cafés join the RECUP network, return drop-off locations become dense and convenient. Convenience drives higher customer adoption, displacing disposable cup purchases and creating procurement savings for vendors, which entices further café expansion.
+          </p>
+          <div class="bg-slate-950 p-3 rounded border border-slate-800 text-xs font-mono text-slate-400">
+            <strong class="text-slate-200">System Dynamic Equation:</strong>
+            <span id="loop-math" class="text-emerald-400 block mt-1">
+              d(PartnerDensity)/dt = α × VendorSavings − β × OperatingOverhead
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 03: MULTI-CYCLE RECYCLING DECAY SIMULATOR -->
+    <!-- ========================================== -->
+    <div id="tab3" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- CONTROLS & METRICS PANEL -->
+        <div class="lg:col-span-4 space-y-6">
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-xl p-6 shadow-xl space-y-5">
+            <div>
+              <h3 class="text-lg font-bold text-white">Recycling Decay Parameters</h3>
+              <p class="text-xs text-slate-400">Simulate physical mass & quality degradation across 30 re-processing cycles.</p>
+            </div>
+
+            <!-- SLIDER 1: MATERIAL DISSIPATION -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs font-medium">
+                <label for="slider-dissipation" class="text-slate-300">Material Dissipation per Cycle</label>
+                <span id="val-dissipation" class="text-rose-400 font-mono font-bold">8%</span>
+              </div>
+              <input type="range" id="slider-dissipation" min="1" max="25" value="8" step="0.5" class="slider-rose w-full" oninput="updateSimulation()">
+              <p class="text-[11px] text-slate-500">Physical wear, micro-particulates, non-recoverable trim loss.</p>
+            </div>
+
+            <!-- SLIDER 2: QUALITY DECAY -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs font-medium">
+                <label for="slider-quality" class="text-slate-300">Structural Quality Decay per Cycle</label>
+                <span id="val-quality" class="text-amber-400 font-mono font-bold">12%</span>
+              </div>
+              <input type="range" id="slider-quality" min="2" max="30" value="12" step="1" class="slider-amber w-full" oninput="updateSimulation()">
+              <p class="text-[11px] text-slate-500">Polymer chain scission, structural fatigue, thermal oxidation.</p>
+            </div>
+
+            <!-- SLIDER 3: RE-PROCESSING ENERGY -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs font-medium">
+                <label for="slider-energy" class="text-slate-300">Re-Processing Energy Input</label>
+                <span id="val-energy" class="text-cyan-400 font-mono font-bold">5 kWh / kg</span>
+              </div>
+              <input type="range" id="slider-energy" min="1" max="15" value="5" step="0.5" class="slider-cyan w-full" oninput="updateSimulation()">
+              <p class="text-[11px] text-slate-500">Thermal remelting, transport, chemical purification overhead.</p>
+            </div>
+          </div>
+
+          <!-- DYNAMIC METRIC DISPLAY CARDS -->
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-xl p-6 shadow-xl space-y-4">
+            <h4 class="text-xs font-mono tracking-wider text-slate-400 uppercase font-semibold">Thermodynamic Simulation Yield</h4>
+            
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-slate-900 border border-slate-700/60 rounded-lg p-3">
+                <span class="text-[11px] text-slate-400 block">Material Half-Life</span>
+                <span id="metric-halflife" class="text-xl font-bold font-mono text-emerald-400">8.3 Cycles</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-700/60 rounded-lg p-3">
+                <span class="text-[11px] text-slate-400 block">30-Cycle Yield</span>
+                <span id="metric-yield" class="text-xl font-bold font-mono text-amber-400">8.2 kg</span>
+              </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-700/60 rounded-lg p-3">
+              <span class="text-[11px] text-slate-400 block">Cumulative Energy Consumed</span>
+              <span id="metric-energy" class="text-xl font-bold font-mono text-cyan-400">2,415 kWh</span>
+              <span class="text-[10px] text-slate-500 block mt-0.5">Energy spent attempting to recycle degraded stock</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIMULATOR GRAPH CANVAS & GEORGESCU-ROEGEN 4TH LAW CALLOUT -->
+        <div class="lg:col-span-8 flex flex-col justify-between space-y-6">
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-xl p-6 shadow-xl">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-lg font-bold text-white">30-Cycle Degradation Tracking Canvas</h3>
+                <p class="text-xs text-slate-400">Tracking Mass Retention (kg) vs. Structural Quality (%) over consecutive iterations</p>
+              </div>
+              <div class="flex items-center gap-4 text-xs font-mono">
+                <span class="flex items-center gap-1 text-emerald-400">
+                  <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Mass (kg)
+                </span>
+                <span class="flex items-center gap-1 text-amber-400">
+                  <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Quality (%)
+                </span>
+              </div>
+            </div>
+
+            <!-- CANVAS PLOT -->
+            <div class="w-full bg-slate-950 rounded-lg border border-slate-700/60 p-2">
+              <canvas id="decayCanvas" width="700" height="340" class="w-full h-auto block"></canvas>
+            </div>
+          </div>
+
+          <!-- CALLOUT BANNER: GEORGESCU-ROEGEN 4TH LAW -->
+          <div class="bg-gradient-to-r from-rose-950/40 to-slate-900 border border-rose-500/30 rounded-xl p-5 shadow-xl">
+            <div class="flex items-start gap-3">
+              <div class="p-2 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 shrink-0">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="space-y-1">
+                <h4 class="text-sm font-bold text-rose-300">Georgescu-Roegen's 4th Law of Thermodynamics</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                  "Complete recycling of material closed systems is physically impossible at macroscopic scales." Because friction, wear, micro-diffusion, and chemical degradation continuously scatter matter, recovering 100% of dispersed matter requires infinite energy and generates exponential entropic thermal leaks elsewhere in the environment.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 04: EMBODIED PROCESS ENTROPY OVERHEAD -->
+    <!-- ========================================== -->
+    <div id="tab4" class="tab-content hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- SYSTEM PRESETS & INPUT CONTROLS -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-xl p-6 shadow-xl space-y-5">
+            <div>
+              <h3 class="text-lg font-bold text-white">Green Technology Embodied Entropy Sandbox</h3>
+              <p class="text-xs text-slate-400">Evaluate whether clean-tech infrastructure generates net thermodynamic savings over its full life-cycle.</p>
+            </div>
+
+            <!-- PRESET SELECTOR BUTTONS -->
+            <div>
+              <label class="text-xs font-mono text-slate-300 block mb-2">Select Infrastructure System Preset:</label>
+              <div class="grid grid-cols-1 gap-2">
+                <button onclick="loadPreset('washing')" id="btn-preset-washing" class="preset-btn text-left p-2.5 rounded-lg border border-emerald-500/50 bg-emerald-500/10 text-white text-xs font-medium transition-all">
+                  1. Industrial Reusable Cup Washing Line
+                  <span class="block text-[10px] text-slate-400">Upstream: 15,000 kWh | Op Savings: 3,200 kWh/yr | Lifespan: 8 yrs</span>
+                </button>
+                <button onclick="loadPreset('fleet')" id="btn-preset-fleet" class="preset-btn text-left p-2.5 rounded-lg border border-slate-700 bg-slate-900/50 text-slate-300 hover:bg-slate-800 text-xs font-medium transition-all">
+                  2. Fleet Electrification & EV Logistics
+                  <span class="block text-[10px] text-slate-400">Upstream: 45,000 kWh | Op Savings: 7,500 kWh/yr | Lifespan: 10 yrs</span>
+                </button>
+                <button onclick="loadPreset('solar')" id="btn-preset-solar" class="preset-btn text-left p-2.5 rounded-lg border border-slate-700 bg-slate-900/50 text-slate-300 hover:bg-slate-800 text-xs font-medium transition-all">
+                  3. Solar PV & Energy Storage Array
+                  <span class="block text-[10px] text-slate-400">Upstream: 28,000 kWh | Op Savings: 5,100 kWh/yr | Lifespan: 15 yrs</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- CUSTOM SLIDERS -->
+            <div class="space-y-4 pt-3 border-t border-slate-700/60">
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs">
+                  <label for="slider-embodied" class="text-slate-300">Upstream Embodied Energy (Manufacturing Debt)</label>
+                  <span id="val-embodied" class="text-rose-400 font-mono font-bold">15,000 kWh</span>
+                </div>
+                <input type="range" id="slider-embodied" min="1000" max="100000" value="15000" step="1000" class="slider-rose w-full" oninput="updateOverhead()">
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs">
+                  <label for="slider-savings" class="text-slate-300">Operational Energy Savings per Year</label>
+                  <span id="val-savings" class="text-emerald-400 font-mono font-bold">3,200 kWh / yr</span>
+                </div>
+                <input type="range" id="slider-savings" min="500" max="20000" value="3200" step="100" class="slider-emerald w-full" oninput="updateOverhead()">
+              </div>
+
+              <div class="space-y-1">
+                <div class="flex justify-between text-xs">
+                  <label for="slider-lifespan" class="text-slate-300">System Operational Lifespan</label>
+                  <span id="val-lifespan" class="text-amber-400 font-mono font-bold">8 Years</span>
+                </div>
+                <input type="range" id="slider-lifespan" min="1" max="25" value="8" step="1" class="slider-amber w-full" oninput="updateOverhead()">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- VISUAL PAYBACK DISPLAY & CALCULATION METRICS -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-xl p-6 shadow-xl space-y-6">
+            <div>
+              <h3 class="text-lg font-bold text-white">Entropic Payback & Life-Cycle Thermodynamics</h3>
+              <p class="text-xs text-slate-400">Comparing manufacturing energy debt against lifetime operational offset.</p>
+            </div>
+
+            <!-- METRIC CARDS -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="bg-slate-900 border border-slate-700/60 rounded-lg p-3">
+                <span class="text-[11px] text-slate-400 block">Entropic Payback Period</span>
+                <span id="calc-payback" class="text-xl font-bold font-mono text-amber-400">4.7 Years</span>
+                <span class="text-[10px] text-slate-500 block mt-0.5">Time to break even</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-700/60 rounded-lg p-3">
+                <span class="text-[11px] text-slate-400 block">Net Lifetime Benefit</span>
+                <span id="calc-netbenefit" class="text-xl font-bold font-mono text-emerald-400">+10,600 kWh</span>
+                <span class="text-[10px] text-slate-500 block mt-0.5">Total net energy saved</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-700/60 rounded-lg p-3">
+                <span class="text-[11px] text-slate-400 block">Entropic ROI Ratio</span>
+                <span id="calc-roi" class="text-xl font-bold font-mono text-cyan-400">1.71 x</span>
+                <span class="text-[10px] text-slate-500 block mt-0.5">Lifetime yield ratio</span>
+              </div>
+            </div>
+
+            <!-- VISUAL PAYBACK BAR CHART -->
+            <div class="space-y-4 bg-slate-950 p-4 rounded-xl border border-slate-700/60">
+              <h4 class="text-xs font-mono text-slate-300">Thermodynamic Debt vs. Lifetime Savings Progress</h4>
+              
+              <!-- BAR 1: MANUFACTURING DEBT -->
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-rose-400 font-medium">Upstream Manufacturing Energy Debt</span>
+                  <span id="bar-debt-val" class="font-mono text-rose-400">15,000 kWh</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-4 overflow-hidden border border-slate-700">
+                  <div id="bar-debt" class="bg-rose-500 h-full rounded-full transition-all duration-300" style="width: 50%;"></div>
+                </div>
+              </div>
+
+              <!-- BAR 2: LIFETIME SAVINGS WITH PAYBACK MARKER -->
+              <div>
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-emerald-400 font-medium">Total Lifetime Operational Savings</span>
+                  <span id="bar-saved-val" class="font-mono text-emerald-400">25,600 kWh</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-4 overflow-hidden border border-slate-700 relative">
+                  <div id="bar-saved" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 85%;"></div>
+                </div>
+              </div>
+
+              <!-- STATUS SUMMARY CALLOUT -->
+              <div id="status-callout" class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span id="status-text">
+                  This system successfully pays back its upstream embodied entropy in <strong>4.7 years</strong>, generating net thermodynamic savings over its 8-year operational lifetime.
+                </span>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-4 px-4 text-center text-xs text-slate-500">
+    <p>Educational Dashboard based on Nicholas Georgescu-Roegen's Bioeconomic Entropy Theory (1971) & Systems Dynamics Methodology.</p>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT CORE LOGIC -->
+  <!-- ========================================== -->
+  <script>
+    // TAB SWITCHING LOGIC
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-emerald-500', 'bg-slate-800', 'text-emerald-400');
+        btn.classList.add('border-transparent', 'bg-slate-900/50', 'text-slate-400');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.classList.remove('border-transparent', 'bg-slate-900/50', 'text-slate-400');
+      activeBtn.classList.add('border-emerald-500', 'bg-slate-800', 'text-emerald-400');
+
+      if (tabId === 'tab3') {
+        renderCanvas();
+      }
+    }
+
+    // ==========================================
+    // TAB 01 LOGIC: PROCESS NODE SELECTION
+    // ==========================================
+    const nodeData = {
+      1: {
+        title: "Stage 1: Resource Extraction & Preparation",
+        tag: "Low Entropy Terrestrial Inputs",
+        thermal: "Diesel combustion in heavy equipment, mining energy losses, ore smelting heat dissipation.",
+        matter: "Tailings dispersion, overburden dust loss, micro-particulate airborne contamination."
+      },
+      2: {
+        title: "Stage 2: Manufacturing & Processing",
+        tag: "Structure & Refinement Energy",
+        thermal: "High-temperature polymer extruders, molding friction heat, industrial boiler dissipation.",
+        matter: "Plastic scrap micro-trimming, toxic catalyst degradation, volatile organic emissions."
+      },
+      3: {
+        title: "Stage 3: Product Use & Consumption",
+        tag: "Exosomatic Service Delivery",
+        thermal: "Hot water washing heat loss, transportation logistics fuel burn, refrigeration heat.",
+        matter: "Surface abrasive scuffing, micro-plastic shedding into dishwashers, container warping."
+      },
+      4: {
+        title: "Stage 4: Recycling & Material Recovery",
+        tag: "Re-Processing Entropy Effort",
+        thermal: "High remelting temperatures, mechanical shredder friction, sortation sensor power.",
+        matter: "Polymer chain scission, filler additive degradation, non-recoverable sorting residue."
+      }
+    };
+
+    function selectNode(nodeNum) {
+      for (let i = 1; i <= 4; i++) {
+        const rect = document.getElementById(`node${i}-rect`);
+        if (rect) {
+          rect.setAttribute('stroke', i === nodeNum ? '#10b981' : '#334155');
+          rect.setAttribute('stroke-width', i === nodeNum ? '3' : '2');
+        }
+      }
+
+      const data = nodeData[nodeNum];
+      document.getElementById('node-title').innerText = data.title;
+      document.getElementById('node-tag').innerText = data.tag;
+      document.getElementById('node-thermal').innerText = data.thermal;
+      document.getElementById('node-matter').innerText = data.matter;
+    }
+
+
+    // ==========================================
+    // TAB 02 LOGIC: SYSTEM MAP LOOP HIGHLIGHTING
+    // ==========================================
+    const loopInfo = {
+      all: {
+        title: "All RECUP Subsystem Loops Displayed",
+        type: "Full System View (Reinforcing & Balancing Interactions)",
+        desc: "Overview of the complete integrated bioeconomic map showing relationships between customer adoption, petro chemistry, reverse logistics, and climate feedbacks.",
+        math: "d(System_Entropy)/dt = ∑ (Inputs_Low_Entropy − Outputs_High_Entropy) > 0"
+      },
+      R1: {
+        title: "R1: Network Expansion Loop (Reinforcing Engine)",
+        type: "Polarity: Positive Feedback (+ / Reinforcing)",
+        desc: "As more partner cafés join the RECUP network, return drop-off locations become dense and convenient. Convenience drives higher customer adoption, displacing disposable cup purchases and creating procurement savings for vendors, which entices further café expansion.",
+        math: "d(PartnerDensity)/dt = α × VendorSavings − β × OperatingOverhead"
+      },
+      B1: {
+        title: "B1: Cup Hoarding Limit (Balancing Constraint)",
+        type: "Polarity: Negative Feedback (− / Balancing)",
+        desc: "High adoption volume increases circulating stock of cups in consumer hands. When consumers hoard unreturned cups at offices or homes, inventory depletes at cafés, causing stockouts and constraining future adoption volume.",
+        math: "d(CirculatingStock)/dt = AdoptionVolume − ReturnRate × HoardedCups"
+      },
+      B2: {
+        title: "B2: Petro Material Strain (Balancing Cost Limit)",
+        type: "Polarity: Negative Feedback (− / Balancing)",
+        desc: "Replacing lost or degraded cups triggers fresh demand for virgin polypropylene (PP) feedstock. Upstream petrochemical deficits inflate unit manufacturing costs, creating replacement shortages that throttle network maintenance.",
+        math: "d(UnitMfgCost)/dt = γ × (PP_Deficit) + Upstream_Energy_Index"
+      },
+      B3: {
+        title: "B3: Coffee Climate Feedback (Macro Ecological Loop)",
+        type: "Polarity: Negative Feedback (− / Macro Climate)",
+        desc: "Large-scale washing and transport generate GHG emissions, contributing to global warming. Rising temperatures induce coffee crop losses in tropical belts, causing bean price spikes that squeeze café profit margins and contract the partner network.",
+        math: "d(Climate_Temp)/dt = δ × Emissions − Global_Heat_Dissipation"
+      }
+    };
+
+    function highlightLoop(loopId) {
+      // Update buttons
+      document.querySelectorAll('.loop-btn').forEach(btn => {
+        btn.classList.remove('bg-slate-700', 'text-white', 'font-semibold');
+        btn.classList.add('bg-slate-900', 'text-slate-400');
+      });
+      const activeBtn = document.getElementById('btn-loop-' + loopId);
+      activeBtn.classList.remove('bg-slate-900', 'text-slate-400');
+      activeBtn.classList.add('bg-slate-700', 'text-white', 'font-semibold');
+
+      // Highlight paths & nodes
+      const allPaths = document.querySelectorAll('#recup-svg path[id^="path-"]');
+      const allNodes = document.querySelectorAll('#recup-svg g[id^="node-"]');
+
+      if (loopId === 'all') {
+        allPaths.forEach(p => {
+          p.style.opacity = '1';
+          p.classList.remove('active-loop-path');
+        });
+        allNodes.forEach(n => n.style.opacity = '1');
+      } else {
+        allPaths.forEach(p => {
+          if (p.getAttribute('data-loop') === loopId) {
+            p.style.opacity = '1';
+            p.classList.add('active-loop-path');
+          } else {
+            p.style.opacity = '0.15';
+            p.classList.remove('active-loop-path');
+          }
+        });
+
+        allNodes.forEach(n => {
+          const loops = n.getAttribute('data-loops') || '';
+          if (loops.includes(loopId)) {
+            n.style.opacity = '1';
+          } else {
+            n.style.opacity = '0.2';
+          }
+        });
+      }
+
+      // Update Explanation Card
+      const info = loopInfo[loopId];
+      document.getElementById('loop-title').innerText = info.title;
+      document.getElementById('loop-type').innerText = info.type;
+      document.getElementById('loop-desc').innerText = info.desc;
+      document.getElementById('loop-math').innerText = info.math;
+    }
+
+
+    // ==========================================
+    // TAB 03 LOGIC: SIMULATOR CANVAS & MATH
+    // ==========================================
+    function updateSimulation() {
+      const dissipation = parseFloat(document.getElementById('slider-dissipation').value);
+      const qualityDecay = parseFloat(document.getElementById('slider-quality').value);
+      const energyPerKg = parseFloat(document.getElementById('slider-energy').value);
+
+      document.getElementById('val-dissipation').innerText = dissipation + '%';
+      document.getElementById('val-quality').innerText = qualityDecay + '%';
+      document.getElementById('val-energy').innerText = energyPerKg + ' kWh / kg';
+
+      renderCanvas();
+    }
+
+    function renderCanvas() {
+      const canvas = document.getElementById('decayCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+
+      const dissipation = parseFloat(document.getElementById('slider-dissipation').value) / 100;
+      const qualityDecay = parseFloat(document.getElementById('slider-quality').value) / 100;
+      const energyPerKg = parseFloat(document.getElementById('slider-energy').value);
+
+      // Data arrays over 30 cycles
+      let mass = 100; // start 100 kg
+      let quality = 100; // start 100%
+      let totalEnergy = 0;
+
+      const massData = [100];
+      const qualityData = [100];
+
+      let halfLifeCycle = -1;
+
+      for (let c = 1; c <= 30; c++) {
+        mass = mass * (1 - dissipation);
+        quality = quality * (1 - qualityDecay);
+        totalEnergy += mass * energyPerKg;
+
+        massData.push(mass);
+        qualityData.push(quality);
+
+        if (halfLifeCycle === -1 && mass <= 50) {
+          halfLifeCycle = c;
+        }
+      }
+
+      // Update metrics
+      document.getElementById('metric-halflife').innerText = halfLifeCycle > 0 ? halfLifeCycle + ' Cycles' : '> 30 Cycles';
+      document.getElementById('metric-yield').innerText = massData[30].toFixed(1) + ' kg';
+      document.getElementById('metric-energy').innerText = Math.round(totalEnergy).toLocaleString() + ' kWh';
+
+      // Drawing Chart
+      const width = canvas.width;
+      const height = canvas.height;
+      const padding = 45;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Grid lines
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+      ctx.font = '10px monospace';
+      ctx.fillStyle = '#64748b';
+
+      // Horizontal Y-grid (0 to 100)
+      for (let yVal = 0; yVal <= 100; yVal += 25) {
+        const yPos = height - padding - (yVal / 100) * (height - 2 * padding);
+        ctx.beginPath();
+        ctx.moveTo(padding, yPos);
+        ctx.lineTo(width - padding, yPos);
+        ctx.stroke();
+
+        ctx.fillText(yVal + '% / kg', 8, yPos + 3);
+      }
+
+      // X-grid (Cycles 0 to 30)
+      for (let c = 0; c <= 30; c += 5) {
+        const xPos = padding + (c / 30) * (width - 2 * padding);
+        ctx.beginPath();
+        ctx.moveTo(xPos, padding);
+        ctx.lineTo(xPos, height - padding);
+        ctx.stroke();
+
+        ctx.fillText('C' + c, xPos - 8, height - padding + 15);
+      }
+
+      // Helper function to plot lines
+      function plotLine(data, color) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        data.forEach((val, i) => {
+          const x = padding + (i / 30) * (width - 2 * padding);
+          const y = height - padding - (val / 100) * (height - 2 * padding);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        // Draw points
+        data.forEach((val, i) => {
+          if (i % 5 === 0) {
+            const x = padding + (i / 30) * (width - 2 * padding);
+            const y = height - padding - (val / 100) * (height - 2 * padding);
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, 4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+      }
+
+      // Plot Mass (Emerald) & Quality (Amber)
+      plotLine(massData, '#10b981');
+      plotLine(qualityData, '#f59e0b');
+    }
+
+
+    // ==========================================
+    // TAB 04 LOGIC: EMBODIED ENTROPY OVERHEAD
+    // ==========================================
+    const presets = {
+      washing: { embodied: 15000, savings: 3200, lifespan: 8 },
+      fleet: { embodied: 45000, savings: 7500, lifespan: 10 },
+      solar: { embodied: 28000, savings: 5100, lifespan: 15 }
+    };
+
+    function loadPreset(presetKey) {
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.classList.remove('border-emerald-500/50', 'bg-emerald-500/10', 'text-white');
+        btn.classList.add('border-slate-700', 'bg-slate-900/50', 'text-slate-300');
+      });
+      const activeBtn = document.getElementById('btn-preset-' + presetKey);
+      activeBtn.classList.remove('border-slate-700', 'bg-slate-900/50', 'text-slate-300');
+      activeBtn.classList.add('border-emerald-500/50', 'bg-emerald-500/10', 'text-white');
+
+      const p = presets[presetKey];
+      document.getElementById('slider-embodied').value = p.embodied;
+      document.getElementById('slider-savings').value = p.savings;
+      document.getElementById('slider-lifespan').value = p.lifespan;
+
+      updateOverhead();
+    }
+
+    function updateOverhead() {
+      const embodied = parseFloat(document.getElementById('slider-embodied').value);
+      const savings = parseFloat(document.getElementById('slider-savings').value);
+      const lifespan = parseFloat(document.getElementById('slider-lifespan').value);
+
+      document.getElementById('val-embodied').innerText = embodied.toLocaleString() + ' kWh';
+      document.getElementById('val-savings').innerText = savings.toLocaleString() + ' kWh / yr';
+      document.getElementById('val-lifespan').innerText = lifespan + ' Years';
+
+      const paybackYears = embodied / savings;
+      const totalSavings = savings * lifespan;
+      const netBenefit = totalSavings - embodied;
+      const roi = totalSavings / embodied;
+
+      document.getElementById('calc-payback').innerText = paybackYears.toFixed(1) + ' Years';
+      document.getElementById('calc-netbenefit').innerText = (netBenefit >= 0 ? '+' : '') + Math.round(netBenefit).toLocaleString() + ' kWh';
+      document.getElementById('calc-netbenefit').className = `text-xl font-bold font-mono ${netBenefit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+      document.getElementById('calc-roi').innerText = roi.toFixed(2) + ' x';
+
+      // Visual Bars
+      const maxScale = Math.max(embodied, totalSavings) * 1.1;
+      const debtPct = Math.min(100, (embodied / maxScale) * 100);
+      const savedPct = Math.min(100, (totalSavings / maxScale) * 100);
+
+      document.getElementById('bar-debt').style.width = debtPct + '%';
+      document.getElementById('bar-saved').style.width = savedPct + '%';
+
+      document.getElementById('bar-debt-val').innerText = Math.round(embodied).toLocaleString() + ' kWh';
+      document.getElementById('bar-saved-val').innerText = Math.round(totalSavings).toLocaleString() + ' kWh';
+
+      // Callout Status
+      const callout = document.getElementById('status-callout');
+      const text = document.getElementById('status-text');
+
+      if (paybackYears <= lifespan) {
+        callout.className = "p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 flex items-center gap-2";
+        text.innerHTML = `This system successfully pays back its upstream embodied entropy in <strong>${paybackYears.toFixed(1)} years</strong>, generating <strong>+${Math.round(netBenefit).toLocaleString()} kWh</strong> net thermodynamic savings over its ${lifespan}-year lifespan.`;
+      } else {
+        callout.className = "p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2";
+        text.innerHTML = `<strong>Thermodynamic Deficit Warning:</strong> This system requires <strong>${paybackYears.toFixed(1)} years</strong> to achieve entropic break-even, exceeding its total ${lifespan}-year operational lifespan. It consumes more upstream energy than it saves!`;
+      }
+    }
+
+    // INITIALIZATION ON LOAD
+    window.onload = function() {
+      selectNode(1);
+      highlightLoop('all');
+      renderCanvas();
+      updateOverhead();
+    };
+  </script>
+</body>
+</html>

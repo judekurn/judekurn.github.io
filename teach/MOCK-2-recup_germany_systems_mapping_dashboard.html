@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RECUP Germany: Global Systems Mapping & SSP Climate Stress-Tests</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: {
+              850: '#0f172a',
+              900: '#0b0f19',
+              950: '#070a11',
+            },
+            recup: {
+              emerald: '#10b981',
+              teal: '#14b8a6',
+              cyan: '#06b6d4',
+              sky: '#38bdf8',
+              amber: '#f59e0b',
+              gold: '#eab308',
+              purple: '#c084fc',
+              rose: '#fb7185',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Custom Glassmorphism Cards */
+    .glass-card {
+      background: rgba(21, 29, 48, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 0.75rem;
+    }
+
+    .glass-card-hover {
+      transition: all 0.25s ease;
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Tab active glow */
+    .tab-btn.active-tab {
+      background-color: rgba(30, 41, 59, 0.9);
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    /* SVG CLD Specific Styling */
+    .cld-node {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .cld-node:hover {
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6));
+    }
+    .cld-path {
+      transition: opacity 0.4s ease, stroke-width 0.3s ease, stroke 0.3s ease;
+    }
+    .cld-path.dimmed {
+      opacity: 0.1 !important;
+    }
+    .cld-node.dimmed {
+      opacity: 0.2 !important;
+    }
+    .cld-node.highlighted rect {
+      stroke-width: 2.5px;
+      filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.8));
+    }
+
+    /* Custom Range Sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: #1e293b;
+      border-radius: 6px;
+      height: 8px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #38bdf8;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+      transition: transform 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    /* CSS Switch */
+    .switch-checkbox:checked + .switch-label {
+      background-color: #10b981;
+    }
+    .switch-checkbox:checked + .switch-label .switch-ball {
+      transform: translateX(1.25rem);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-50 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-4 lg:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="h-9 w-9 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-xl shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+        R
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-lg lg:text-xl font-bold tracking-tight text-white">RECUP Germany: Systems Mapping &amp; Climate Stress-Tests</h1>
+          <span class="hidden sm:inline-block px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full">Educational Engine v3.2</span>
+        </div>
+        <p class="text-xs text-slate-400">Integrated Causal Loop Dynamics &amp; Shared Socioeconomic Pathways (SSP) Simulator</p>
+      </div>
+    </div>
+
+    <!-- Student Sandbox Toggle Button -->
+    <button id="toggle-sandbox-btn" onclick="toggleSandbox()" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition shadow-sm">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+      </span>
+      <span>Student Rules Sandbox</span>
+      <span id="active-rules-count" class="ml-1 px-1.5 py-0.2 text-[10px] bg-amber-500/20 text-amber-300 rounded font-mono">0 Rules Active</span>
+      <svg id="sandbox-arrow" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+    </button>
+  </header>
+
+  <!-- STUDENT EDITABLE CUSTOM RULES DRAWER -->
+  <div id="student-sandbox-drawer" class="hidden border-b border-slate-800 bg-slate-950/95 px-4 lg:px-8 py-4 transition-all">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Student Policy &amp; Custom Rules Engine</span>
+          <span class="text-xs text-slate-400">(Toggles apply real-time stress test parameters across Tab 02 &amp; Tab 03)</span>
+        </div>
+        <button onclick="resetRules()" class="text-xs text-slate-400 hover:text-white underline">Reset Rules to Default</button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Rule 1 -->
+        <div class="glass-card p-3 border-l-4 border-l-emerald-500 flex items-start space-x-3">
+          <div class="pt-0.5">
+            <input type="checkbox" id="rule-1-toggle" onchange="updateSystemState()" class="hidden switch-checkbox">
+            <label for="rule-1-toggle" class="switch-label relative inline-block w-9 h-5 bg-slate-700 rounded-full cursor-pointer transition-colors">
+              <span class="switch-ball absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform"></span>
+            </label>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-white">Rule 1: Deposit Sensitivity</span>
+              <span id="rule-1-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">€1 Base</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-1">
+              Increase deposit value from €1 to €2. Increases return speed by <strong>+30%</strong>, but reduces impulse takeaway adoption by <strong>-15%</strong>.
+            </p>
+          </div>
+        </div>
+
+        <!-- Rule 2 -->
+        <div class="glass-card p-3 border-l-4 border-l-amber-500 flex items-start space-x-3">
+          <div class="pt-0.5">
+            <input type="checkbox" id="rule-2-toggle" onchange="updateSystemState()" class="hidden switch-checkbox">
+            <label for="rule-2-toggle" class="switch-label relative inline-block w-9 h-5 bg-slate-700 rounded-full cursor-pointer transition-colors">
+              <span class="switch-ball absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform"></span>
+            </label>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-white">Rule 2: Bakery Commuter Priority</span>
+              <span id="rule-2-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">Disabled</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-1">
+              Prioritize morning bakery chain drop-offs (+50% bakery node density). Reduces return friction <strong>2x faster</strong> than sit-down cafés.
+            </p>
+          </div>
+        </div>
+
+        <!-- Rule 3 -->
+        <div class="glass-card p-3 border-l-4 border-l-cyan-500 flex items-start space-x-3">
+          <div class="pt-0.5">
+            <input type="checkbox" id="rule-3-toggle" onchange="updateSystemState()" class="hidden switch-checkbox">
+            <label for="rule-3-toggle" class="switch-label relative inline-block w-9 h-5 bg-slate-700 rounded-full cursor-pointer transition-colors">
+              <span class="switch-ball absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform"></span>
+            </label>
+          </div>
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-white">Rule 3: 100% German Recycled PP</span>
+              <span id="rule-3-badge" class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">Global Virgin</span>
+            </div>
+            <p class="text-[11px] text-slate-300 mt-1">
+              Source 100% recycled Polypropylene within Germany. Increases manufacturing cost by <strong>+25%</strong>, but cuts embodied supply chain carbon by <strong>-40%</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION TABS BAR -->
+  <nav class="bg-slate-900 border-b border-slate-800 px-4 lg:px-8 py-2">
+    <div class="max-w-7xl mx-auto flex space-x-2 overflow-x-auto py-1">
+      <button onclick="switchTab('tab-cld')" id="tab-btn-cld" class="tab-btn active-tab flex items-center space-x-2 px-4 py-2 rounded-lg border border-slate-700 text-xs font-medium text-slate-300 hover:text-white transition whitespace-nowrap">
+        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+        <span>Tab 01: Global Integrated System Map (CLD)</span>
+      </button>
+
+      <button onclick="switchTab('tab-ssp1')" id="tab-btn-ssp1" class="tab-btn flex items-center space-x-2 px-4 py-2 rounded-lg border border-slate-800 text-xs font-medium text-slate-400 hover:text-white transition whitespace-nowrap">
+        <span class="h-2 w-2 rounded-full bg-cyan-400"></span>
+        <span>Tab 02: SSP1-2.5 Resin Scarcity Loop</span>
+      </button>
+
+      <button onclick="switchTab('tab-ssp3')" id="tab-btn-ssp3" class="tab-btn flex items-center space-x-2 px-4 py-2 rounded-lg border border-slate-800 text-xs font-medium text-slate-400 hover:text-white transition whitespace-nowrap">
+        <span class="h-2 w-2 rounded-full bg-purple-400"></span>
+        <span>Tab 03: SSP3-7.0 GHG &amp; Coffee Climate Loop</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN DASHBOARD CONTENT AREA -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 space-y-6">
+
+    <!-- =================================================================== -->
+    <!-- TAB 01: GLOBAL INTEGRATED SYSTEM MAP (CLD) -->
+    <!-- =================================================================== -->
+    <section id="tab-cld" class="space-y-4">
+      
+      <!-- Interactive Loop Filters Header -->
+      <div class="glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+            <span>Causal Loop Diagram (CLD) Filter Controls</span>
+          </h2>
+          <p class="text-xs text-slate-400">Filter macro feedback dynamics to isolate systemic feedback mechanisms</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="filterLoop('all')" id="filter-all" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-slate-700 text-white border border-slate-600 hover:bg-slate-600 transition">Show All Connections</button>
+          <button onclick="filterLoop('R1')" id="filter-R1" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-900/80 transition">R1: Network Expansion</button>
+          <button onclick="filterLoop('B1')" id="filter-B1" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-amber-950/80 text-amber-400 border border-amber-500/40 hover:bg-amber-900/80 transition">B1: Cup Hoarding</button>
+          <button onclick="filterLoop('B2')" id="filter-B2" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-500/40 hover:bg-cyan-900/80 transition">B2: Petro Material Strain</button>
+          <button onclick="filterLoop('B3')" id="filter-B3" class="px-3 py-1.5 rounded-md text-xs font-semibold bg-purple-950/80 text-purple-400 border border-purple-500/40 hover:bg-purple-900/80 transition">B3: Coffee Supply Climate Feedback</button>
+        </div>
+      </div>
+
+      <!-- Main SVG System Map Container -->
+      <div class="glass-card p-3 relative overflow-hidden rounded-xl border border-slate-800">
+        
+        <!-- Legend Overlay -->
+        <div class="absolute top-5 right-5 z-10 bg-slate-900/90 border border-slate-700/70 backdrop-blur-md rounded-lg p-2.5 text-[11px] space-y-1.5 shadow-lg">
+          <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 mb-1">Diagram Legend</div>
+          <div class="flex items-center space-x-2">
+            <span class="w-6 h-0.5 bg-emerald-400 inline-block"></span>
+            <span class="text-slate-300">Positive Relationship (+)</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="w-6 h-0.5 border-b-2 border-dashed border-rose-400 inline-block"></span>
+            <span class="text-slate-300">Negative Relationship (−)</span>
+          </div>
+          <div class="flex items-center space-x-2 pt-1">
+            <span class="px-1 py-0.2 bg-emerald-500/20 text-emerald-400 text-[9px] rounded border border-emerald-500/40">R</span>
+            <span class="text-slate-400">Reinforcing Feedback</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="px-1 py-0.2 bg-amber-500/20 text-amber-400 text-[9px] rounded border border-amber-500/40">B</span>
+            <span class="text-slate-400">Balancing Feedback</span>
+          </div>
+        </div>
+
+        <div class="w-full overflow-x-auto">
+          <svg viewBox="0 0 1250 780" class="w-full h-auto min-w-[900px] select-none" id="cld-svg">
+            <defs>
+              <!-- Arrowhead Markers -->
+              <marker id="arrow-plus" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+              </marker>
+              <marker id="arrow-minus" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#fb7185" />
+              </marker>
+              <marker id="arrow-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+              </marker>
+              <marker id="arrow-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b" />
+              </marker>
+              <marker id="arrow-purple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#c084fc" />
+              </marker>
+            </defs>
+
+            <!-- ZONE BACKGROUNDS -->
+            <!-- Zone 1: Internal RECUP Core Network (Emerald) -->
+            <rect x="15" y="15" width="595" height="360" rx="16" fill="#064e3b" fill-opacity="0.15" stroke="#10b981" stroke-opacity="0.3" stroke-width="1.5" />
+            <text x="35" y="42" fill="#34d399" font-size="13" font-weight="700" letter-spacing="1">ZONE 1: INTERNAL RECUP CORE NETWORK</text>
+
+            <!-- Zone 2: Upstream Petrochemical & Feedstock (Cyan) -->
+            <rect x="640" y="15" width="595" height="360" rx="16" fill="#083344" fill-opacity="0.15" stroke="#06b6d4" stroke-opacity="0.3" stroke-width="1.5" />
+            <text x="660" y="42" fill="#38bdf8" font-size="13" font-weight="700" letter-spacing="1">ZONE 2: UPSTREAM PETROCHEMICAL &amp; FEEDSTOCK</text>
+
+            <!-- Zone 3: Reverse Logistics & Industrial Operations (Amber) -->
+            <rect x="15" y="400" width="595" height="365" rx="16" fill="#451a03" fill-opacity="0.15" stroke="#f59e0b" stroke-opacity="0.3" stroke-width="1.5" />
+            <text x="35" y="427" fill="#fbbf24" font-size="13" font-weight="700" letter-spacing="1">ZONE 3: REVERSE LOGISTICS &amp; INDUSTRIAL OPERATIONS</text>
+
+            <!-- Zone 4: Global Climate & Coffee Belt Dynamics (Purple) -->
+            <rect x="640" y="400" width="595" height="365" rx="16" fill="#3b0764" fill-opacity="0.15" stroke="#c084fc" stroke-opacity="0.3" stroke-width="1.5" />
+            <text x="660" y="427" fill="#e879f9" font-size="13" font-weight="700" letter-spacing="1">ZONE 4: GLOBAL CLIMATE &amp; COFFEE BELT DYNAMICS</text>
+
+            <!-- CONNECTIONS (BEZIER PATHS WITH 18px EDGE CLEARANCE) -->
+            <g id="cld-paths-group">
+              <!-- LOOP R1 PATHS (Network Expansion) -->
+              <!-- N1 Partner Density -> N2 Return Convenience -->
+              <path id="path-n1-n2" data-loops="R1" class="cld-path" d="M 265 107.5 C 290 107.5, 305 107.5, 337 107.5" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-plus)" />
+              <!-- N2 Return Convenience -> N3 Adoption Volume -->
+              <path id="path-n2-n3" data-loops="R1" class="cld-path" d="M 465 140 C 465 160, 465 170, 465 187" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-plus)" />
+              <!-- N3 Adoption Volume -> N4 Vendor Savings -->
+              <path id="path-n3-n4" data-loops="R1" class="cld-path" d="M 355 237.5 C 330 237.5, 310 237.5, 283 237.5" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-plus)" />
+              <!-- N4 Vendor Savings -> N1 Partner Density -->
+              <path id="path-n4-n1" data-loops="R1" class="cld-path" d="M 155 205 C 155 180, 155 165, 155 158" fill="none" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrow-plus)" />
+
+              <!-- LOOP B1 PATHS (Cup Hoarding Constraint) -->
+              <!-- N3 Adoption Volume -> N5 Unreturned Hoarded Cups -->
+              <path id="path-n3-n5" data-loops="B1" class="cld-path" d="M 375 270 C 350 300, 340 315, 312 320" fill="none" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
+              <!-- N5 Hoarded Cups -> N3 Adoption Volume (Negative constraint) -->
+              <path id="path-n5-n3" data-loops="B1" class="cld-path" d="M 250 300 C 260 270, 290 260, 337 255" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow-minus)" />
+
+              <!-- LOOP B2 PATHS (Petro Material Strain) -->
+              <!-- N6 Crude Caps -> N7 PP Deficit -->
+              <path id="path-n6-n7" data-loops="B2" class="cld-path" d="M 910 107.5 C 930 107.5, 940 107.5, 947 107.5" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-cyan)" />
+              <!-- N7 PP Deficit -> N8 Manufacturing Cost -->
+              <path id="path-n7-n8" data-loops="B2" class="cld-path" d="M 1085 140 C 1085 160, 1085 175, 1085 187" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow-cyan)" />
+              <!-- N8 Manufacturing Cost -> N9 Replacement Supply -->
+              <path id="path-n8-n9" data-loops="B2" class="cld-path" d="M 965 237.5 C 940 237.5, 925 237.5, 928 237.5" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow-minus)" />
+              <!-- N9 Replacement Supply -> N7 PP Deficit -->
+              <path id="path-n9-n7" data-loops="B2" class="cld-path" d="M 790 205 C 810 170, 850 140, 947 120" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow-minus)" />
+              <!-- N8 Manufacturing Cost -> N4 Vendor Savings -->
+              <path id="path-n8-n4" class="cld-path" d="M 965 250 C 700 320, 500 280, 283 250" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow-minus)" />
+
+              <!-- LOOP B3 PATHS (Coffee Climate Spillover) -->
+              <!-- N3 Adoption Volume -> N10 Reuse Volume -->
+              <path id="path-n3-n10" data-loops="B3" class="cld-path" d="M 465 270 C 465 350, 200 380, 155 437" fill="none" stroke="#10b981" stroke-width="2" marker-end="url(#arrow-plus)" />
+              <!-- N10 Reuse Volume -> N11 Industrial Washing Energy -->
+              <path id="path-n10-n11" data-loops="B3" class="cld-path" d="M 265 487.5 C 290 487.5, 310 487.5, 337 487.5" fill="none" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
+              <!-- N10 Reuse Volume -> N12 Diesel Redistribution -->
+              <path id="path-n10-n12" data-loops="B3" class="cld-path" d="M 155 520 C 155 560, 250 617.5, 337 617.5" fill="none" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrow-amber)" />
+              <!-- N11 Washing Energy -> N14 Reverse Logistics GHG -->
+              <path id="path-n11-n14" data-loops="B3" class="cld-path" d="M 575 487.5 C 600 487.5, 630 487.5, 652 487.5" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#arrow-purple)" />
+              <!-- N12 Diesel Redistribution -> N14 Reverse Logistics GHG -->
+              <path id="path-n12-n14" data-loops="B3" class="cld-path" d="M 575 617.5 C 620 617.5, 650 560, 750 538" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#arrow-purple)" />
+              <!-- N14 Reverse Logistics GHG -> N15 Global Climate Warming -->
+              <path id="path-n14-n15" data-loops="B3" class="cld-path" d="M 910 487.5 C 930 487.5, 940 487.5, 947 487.5" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#arrow-purple)" />
+              <!-- N15 Global Climate Warming -> N16 Extreme Weather in Coffee Belt -->
+              <path id="path-n15-n16" data-loops="B3" class="cld-path" d="M 1085 520 C 1085 540, 1085 550, 1085 567" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#arrow-purple)" />
+              <!-- N16 Extreme Weather -> N17 Coffee Crop Yield Loss -->
+              <path id="path-n16-n17" data-loops="B3" class="cld-path" d="M 965 595 C 940 595, 925 595, 928 595" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow-minus)" />
+              <!-- N17 Coffee Yield Loss -> N18 Coffee Bean Price Spike -->
+              <path id="path-n17-n18" data-loops="B3" class="cld-path" d="M 790 625 C 790 645, 790 655, 790 675" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow-minus)" />
+              <!-- N18 Bean Price Spike -> N19 Café Operating Margin Squeeze -->
+              <path id="path-n18-n19" data-loops="B3" class="cld-path" d="M 910 702.5 C 930 702.5, 940 702.5, 947 702.5" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#arrow-minus)" />
+              <!-- N19 Café Margin Squeeze -> N1 Partner Density (Balancing Feedback) -->
+              <path id="path-n19-n1" data-loops="B3" class="cld-path" d="M 1085 675 C 1150 550, 1150 250, 265 125" fill="none" stroke="#fb7185" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrow-minus)" />
+            </g>
+
+            <!-- NODES RENDERED AS STYLIZED SVG CARDS -->
+            <g id="cld-nodes-group">
+              <!-- ZONE 1 NODES -->
+              <!-- N1: Partner Density -->
+              <g id="node-n1" onclick="selectNode('N1')" class="cld-node" transform="translate(45, 75)" data-loops="R1,B3">
+                <rect width="220" height="65" rx="8" fill="#151d30" stroke="#10b981" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#10b981" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Partner Density</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Cafés &amp; Bakeries in Network</text>
+
+              </g>
+
+              <!-- N2: Return Convenience -->
+              <g id="node-n2" onclick="selectNode('N2')" class="cld-node" transform="translate(355, 75)" data-loops="R1">
+                <rect width="220" height="65" rx="8" fill="#151d30" stroke="#10b981" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#10b981" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Return Convenience</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Proximity &amp; Drop-off Ease</text>
+              </g>
+
+              <!-- N3: Adoption Volume -->
+              <g id="node-n3" onclick="selectNode('N3')" class="cld-node" transform="translate(355, 205)" data-loops="R1,B1,B3">
+                <rect width="220" height="65" rx="8" fill="#151d30" stroke="#10b981" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#10b981" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Adoption Volume</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Daily Cup Circulation Rate</text>
+              </g>
+
+              <!-- N4: Vendor Financial Savings -->
+              <g id="node-n4" onclick="selectNode('N4')" class="cld-node" transform="translate(45, 205)" data-loops="R1">
+                <rect width="220" height="65" rx="8" fill="#151d30" stroke="#10b981" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#10b981" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Vendor Savings</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Avoided Disposable Costs</text>
+              </g>
+
+              <!-- N5: Unreturned / Hoarded Cups -->
+              <g id="node-n5" onclick="selectNode('N5')" class="cld-node" transform="translate(180, 300)" data-loops="B1">
+                <rect width="220" height="55" rx="8" fill="#151d30" stroke="#f59e0b" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="55" rx="2" fill="#f59e0b" />
+                <text x="18" y="24" fill="#ffffff" font-size="12" font-weight="700">Hoarded Cup Stock</text>
+                <text x="18" y="40" fill="#94a3b8" font-size="10">Unreturned Inventory Leakage</text>
+              </g>
+
+              <!-- ZONE 2 NODES -->
+              <!-- N6: Global Crude Oil / Resin Caps -->
+              <g id="node-n6" onclick="selectNode('N6')" class="cld-node" transform="translate(670, 75)" data-loops="B2">
+                <rect width="240" height="65" rx="8" fill="#151d30" stroke="#06b6d4" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#06b6d4" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Petrochemical Feedstock</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Fossil Resin Caps &amp; Availability</text>
+              </g>
+
+              <!-- N7: PP Feedstock Deficit -->
+              <g id="node-n7" onclick="selectNode('N7')" class="cld-node" transform="translate(965, 75)" data-loops="B2">
+                <rect width="240" height="65" rx="8" fill="#151d30" stroke="#06b6d4" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#06b6d4" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">PP Resin Deficit</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Material Supply Shortage</text>
+              </g>
+
+              <!-- N8: Cup Manufacturing Cost -->
+              <g id="node-n8" onclick="selectNode('N8')" class="cld-node" transform="translate(965, 205)" data-loops="B2">
+                <rect width="240" height="65" rx="8" fill="#151d30" stroke="#06b6d4" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#06b6d4" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Cup Unit Cost Spike</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Manufacturing &amp; Raw Material</text>
+              </g>
+
+              <!-- N9: Replacement Cup Supply -->
+              <g id="node-n9" onclick="selectNode('N9')" class="cld-node" transform="translate(670, 205)" data-loops="B2">
+                <rect width="240" height="65" rx="8" fill="#151d30" stroke="#06b6d4" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#06b6d4" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Replacement Cup Supply</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Inventory Refill Availability</text>
+              </g>
+
+              <!-- ZONE 3 NODES -->
+              <!-- N10: Total Reuse Volume -->
+              <g id="node-n10" onclick="selectNode('N10')" class="cld-node" transform="translate(45, 455)" data-loops="B3">
+                <rect width="220" height="65" rx="8" fill="#151d30" stroke="#f59e0b" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#f59e0b" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Total Reuse Volume</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Active Washed &amp; Reused Cups</text>
+              </g>
+
+              <!-- N11: Industrial Washing Energy -->
+              <g id="node-n11" onclick="selectNode('N11')" class="cld-node" transform="translate(355, 455)" data-loops="B3">
+                <rect width="220" height="65" rx="8" fill="#151d30" stroke="#f59e0b" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#f59e0b" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Dishwashing Energy</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">High-Temp Thermal Power</text>
+              </g>
+
+              <!-- N12: Diesel Redistribution -->
+              <g id="node-n12" onclick="selectNode('N12')" class="cld-node" transform="translate(355, 585)" data-loops="B3">
+                <rect width="220" height="65" rx="8" fill="#151d30" stroke="#f59e0b" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#f59e0b" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Logistics Transport</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Diesel Truck Redistribution</text>
+              </g>
+
+              <!-- N13: Water & Grid Footprint -->
+              <g id="node-n13" onclick="selectNode('N13')" class="cld-node" transform="translate(45, 585)">
+                <rect width="220" height="65" rx="8" fill="#151d30" stroke="#f59e0b" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#f59e0b" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Water &amp; Utility Draw</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Freshwater &amp; Chemical Load</text>
+              </g>
+
+              <!-- ZONE 4 NODES -->
+              <!-- N14: Reverse Logistics GHG -->
+              <g id="node-n14" onclick="selectNode('N14')" class="cld-node" transform="translate(670, 455)" data-loops="B3">
+                <rect width="240" height="65" rx="8" fill="#151d30" stroke="#c084fc" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#c084fc" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Total System GHG</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Grid Emissions &amp; Transport</text>
+              </g>
+
+              <!-- N15: Global Climate Warming -->
+              <g id="node-n15" onclick="selectNode('N15')" class="cld-node" transform="translate(965, 455)" data-loops="B3">
+                <rect width="240" height="65" rx="8" fill="#151d30" stroke="#c084fc" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="65" rx="2" fill="#c084fc" />
+                <text x="18" y="26" fill="#ffffff" font-size="12" font-weight="700">Global Warming Spillover</text>
+                <text x="18" y="44" fill="#94a3b8" font-size="10">Cumulative Radiative Forcing</text>
+              </g>
+
+              <!-- N16: Extreme Weather in Coffee Belt -->
+              <g id="node-n16" onclick="selectNode('N16')" class="cld-node" transform="translate(965, 565)" data-loops="B3">
+                <rect width="240" height="60" rx="8" fill="#151d30" stroke="#c084fc" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="60" rx="2" fill="#c084fc" />
+                <text x="18" y="24" fill="#ffffff" font-size="12" font-weight="700">Coffee Belt Climate Stress</text>
+                <text x="18" y="40" fill="#94a3b8" font-size="10">Droughts, Frost &amp; Rust Fungus</text>
+              </g>
+
+              <!-- N17: Coffee Crop Yield Loss -->
+              <g id="node-n17" onclick="selectNode('N17')" class="cld-node" transform="translate(670, 565)" data-loops="B3">
+                <rect width="240" height="60" rx="8" fill="#151d30" stroke="#c084fc" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="60" rx="2" fill="#c084fc" />
+                <text x="18" y="24" fill="#ffffff" font-size="12" font-weight="700">Coffee Bean Yield Loss</text>
+                <text x="18" y="40" fill="#94a3b8" font-size="10">Harvest Contraction (-40%)</text>
+              </g>
+
+              <!-- N18: Coffee Bean Price Spike -->
+              <g id="node-n18" onclick="selectNode('N18')" class="cld-node" transform="translate(670, 675)" data-loops="B3">
+                <rect width="240" height="55" rx="8" fill="#151d30" stroke="#fb7185" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="55" rx="2" fill="#fb7185" />
+                <text x="18" y="24" fill="#ffffff" font-size="12" font-weight="700">Coffee Bean Price Spike</text>
+                <text x="18" y="40" fill="#94a3b8" font-size="10">Commodity Market Deficit</text>
+              </g>
+
+              <!-- N19: Café Margin Squeeze -->
+              <g id="node-n19" onclick="selectNode('N19')" class="cld-node" transform="translate(965, 675)" data-loops="B3">
+                <rect width="240" height="55" rx="8" fill="#151d30" stroke="#fb7185" stroke-width="1.5" />
+                <rect x="0" y="0" width="6" height="55" rx="2" fill="#fb7185" />
+                <text x="18" y="24" fill="#ffffff" font-size="12" font-weight="700">Café Margin Squeeze</text>
+                <text x="18" y="40" fill="#94a3b8" font-size="10">Input Cost Pressure</text>
+              </g>
+            </g>
+
+            <!-- LOOP BADGES OVERLAY IN SVG -->
+            <g id="loop-badges">
+              <g transform="translate(240, 160)">
+                <circle cx="20" cy="20" r="18" fill="#064e3b" stroke="#10b981" stroke-width="2" />
+                <text x="20" y="25" text-anchor="middle" fill="#34d399" font-size="14" font-weight="800">R1</text>
+              </g>
+              <g transform="translate(290, 270)">
+                <circle cx="20" cy="20" r="18" fill="#451a03" stroke="#f59e0b" stroke-width="2" />
+                <text x="20" y="25" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="800">B1</text>
+              </g>
+              <g transform="translate(850, 130)">
+                <circle cx="20" cy="20" r="18" fill="#083344" stroke="#06b6d4" stroke-width="2" />
+                <text x="20" y="25" text-anchor="middle" fill="#38bdf8" font-size="14" font-weight="800">B2</text>
+              </g>
+              <g transform="translate(850, 510)">
+                <circle cx="20" cy="20" r="18" fill="#3b0764" stroke="#c084fc" stroke-width="2" />
+                <text x="20" y="25" text-anchor="middle" fill="#e879f9" font-size="14" font-weight="800">B3</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Loop Dynamics Explanation Drawer -->
+      <div id="cld-info-panel" class="glass-card p-4 border-l-4 border-l-emerald-500">
+        <div class="flex items-start justify-between">
+          <div>
+            <span id="info-loop-type" class="px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">Reinforcing Loop (R1)</span>
+            <h3 id="info-loop-title" class="text-base font-bold text-white mt-1">Network Expansion Loop (R1)</h3>
+          </div>
+          <span class="text-xs text-slate-400 font-mono" id="info-loop-id">R1-SYSTEM-MECHANISM</span>
+        </div>
+        <p id="info-loop-desc" class="text-xs text-slate-300 mt-2 leading-relaxed">
+          As café and bakery partner density increases across German urban hubs, return convenience improves significantly for daily commuters. Higher convenience drives adoption volume, which allows participating vendors to eliminate single-use disposable cup costs. Financial savings incentivize additional cafes to join the network, creating a positive self-reinforcing expansion loop.
+        </p>
+        <div class="mt-3 flex items-center space-x-2 text-[11px] font-mono text-slate-400">
+          <span class="text-slate-500">System Formula:</span>
+          <span id="info-loop-formula" class="text-emerald-300">Partner Density (+) &rarr; Return Convenience (+) &rarr; Adoption Volume (+) &rarr; Vendor Savings (+) &rarr; Partner Density (+)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 02: SSP1-2.5 RESIN SCARCITY & MATERIAL LOOP SIMULATOR -->
+    <!-- =================================================================== -->
+    <section id="tab-ssp1" class="hidden space-y-6">
+      
+      <!-- Narrative Header -->
+      <div class="glass-card p-5 border-l-4 border-l-cyan-500">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">SSP1-2.5 Scenario</span>
+              <span class="text-xs text-slate-400">"Taking the Green Road" — Aggressive Petrochemical Phase-Out</span>
+            </div>
+            <h2 class="text-lg font-bold text-white mt-1">Polypropylene Resin Scarcity &amp; Circular Material Stress</h2>
+            <p class="text-xs text-slate-300 mt-1 max-w-3xl">
+              Under aggressive climate policies (SSP1-2.5), global virgin plastic production is severely capped. Because polypropylene (PP) is a direct byproduct of crude oil refining, fossil fuel production caps induce acute resin deficits, spiking replacement cup costs and forcing operators to stretch cup lifespans past 1,000 washes.
+            </p>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800 text-right min-w-[180px]">
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Virgin PP Availability</div>
+            <div id="stat-ssp1-avail" class="text-xl font-bold font-mono text-cyan-400">55% Base</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Global Cap Strictness Active</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-Loop Causal Diagram -->
+      <div class="glass-card p-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">SSP1-2.5 Resin Scarcity Sub-Loop Mechanics</h3>
+        <div class="overflow-x-auto">
+          <svg viewBox="0 0 1000 110" class="w-full min-w-[800px] h-auto">
+            <!-- Process Cards -->
+            <g transform="translate(10, 25)">
+              <rect width="125" height="50" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5"/>
+              <text x="62.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Fossil Resin Caps</text>
+              <text x="62.5" y="38" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="600">(+ Cap Level)</text>
+            </g>
+            <path d="M 135 50 L 157 50" stroke="#06b6d4" stroke-width="2" marker-end="url(#arrow-cyan)" />
+
+            <g transform="translate(170, 25)">
+              <rect width="135" height="50" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5"/>
+              <text x="67.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Recycled PP Deficit</text>
+              <text x="67.5" y="38" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="600">(+ Feedstock Deficit)</text>
+            </g>
+            <path d="M 305 50 L 327 50" stroke="#06b6d4" stroke-width="2" marker-end="url(#arrow-cyan)" />
+
+            <g transform="translate(340, 25)">
+              <rect width="135" height="50" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5"/>
+              <text x="67.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Cup Unit Cost Spike</text>
+              <text x="67.5" y="38" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="600">(+ Replacement Cost)</text>
+            </g>
+            <path d="M 475 50 L 497 50" stroke="#06b6d4" stroke-width="2" marker-end="url(#arrow-cyan)" />
+
+            <g transform="translate(510, 25)">
+              <rect width="145" height="50" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5"/>
+              <text x="72.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Extended Cup Washing</text>
+              <text x="72.5" y="38" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="600">(+ Washes Past 1000)</text>
+            </g>
+            <path d="M 655 50 L 677 50" stroke="#06b6d4" stroke-width="2" marker-end="url(#arrow-cyan)" />
+
+            <g transform="translate(690, 25)">
+              <rect width="140" height="50" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+              <text x="70" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Micro-Degradation</text>
+              <text x="70" y="38" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">(+ Surface Scratches)</text>
+            </g>
+            <path d="M 830 50 L 852 50" stroke="#fb7185" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-minus)" />
+
+            <g transform="translate(865, 25)">
+              <rect width="125" height="50" rx="6" fill="#1e293b" stroke="#fb7185" stroke-width="1.5"/>
+              <text x="62.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Adoption Drop</text>
+              <text x="62.5" y="38" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="600">(− Hygiene Fear)</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Controls & Dynamic Metric Cards Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Controls Panel (4 Cols) -->
+        <div class="lg:col-span-4 glass-card p-5 space-y-5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2">Simulation Control Parameters</h3>
+
+          <!-- Slider 1 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-slate-200">Fossil Plastic Production Cap</label>
+              <span id="val-cap-strictness" class="text-xs font-mono font-bold text-cyan-400">45%</span>
+            </div>
+            <input type="range" id="slider-cap-strictness" min="0" max="90" value="45" oninput="updateSSP1Sim()" class="w-full">
+            <p class="text-[10px] text-slate-400">Higher cap restricts virgin resin output as petroleum byproduct decreases.</p>
+          </div>
+
+          <!-- Slider 2 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-slate-200">Target Cup Washing Lifespan</label>
+              <span id="val-target-washes" class="text-xs font-mono font-bold text-cyan-400">1,200 washes</span>
+            </div>
+            <input type="range" id="slider-target-washes" min="500" max="2500" step="50" value="1200" oninput="updateSSP1Sim()" class="w-full">
+            <p class="text-[10px] text-slate-400">Standard RECUP rating is 1,000 washes. Extended use increases surface wear.</p>
+          </div>
+
+          <!-- Active Rules Impact Notice -->
+          <div class="p-3 bg-slate-900/90 rounded-lg border border-slate-800 text-[11px] space-y-1">
+            <span class="font-bold text-amber-400">Active Rule Modifiers:</span>
+            <ul class="list-disc list-inside text-slate-300 space-y-0.5" id="ssp1-active-rules-list">
+              <li>Default base rules active</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Metric Output Cards & Visual Chart (8 Cols) -->
+        <div class="lg:col-span-8 space-y-6">
+          
+          <!-- 4 Metric Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="glass-card p-3 border-t-2 border-t-cyan-400">
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">PP Resin Deficit</div>
+              <div id="m-resin-deficit" class="text-lg font-bold font-mono text-cyan-300 mt-1">49.5%</div>
+              <div id="m-resin-tons" class="text-[10px] text-slate-400">~222.8 t/yr deficit</div>
+            </div>
+
+            <div class="glass-card p-3 border-t-2 border-t-amber-400">
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Replacement Cup Cost</div>
+              <div id="m-unit-cost" class="text-lg font-bold font-mono text-amber-300 mt-1">€1.85 / cup</div>
+              <div id="m-unit-cost-change" class="text-[10px] text-amber-400">+54.2% vs baseline</div>
+            </div>
+
+            <div class="glass-card p-3 border-t-2 border-t-emerald-400">
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Net Circulation Cap.</div>
+              <div id="m-circ-cap" class="text-lg font-bold font-[#10b981] text-emerald-300 mt-1">11.8M cups</div>
+              <div id="m-circ-status" class="text-[10px] text-emerald-400">Stable Pool</div>
+            </div>
+
+            <div class="glass-card p-3 border-t-2 border-t-rose-400">
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Micro-Wear &amp; Hygiene Risk</div>
+              <div id="m-hygiene-risk" class="text-lg font-bold font-mono text-rose-400 mt-1">28.2%</div>
+              <div id="m-hygiene-status" class="text-[10px] text-rose-400">Acceptable Surface</div>
+            </div>
+          </div>
+
+          <!-- Dynamic HTML5 Canvas Chart: Cup Cost & Adoption vs Cap Level -->
+          <div class="glass-card p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-bold text-white uppercase tracking-wider">Unit Cup Cost (€) &amp; Adoption Capacity vs Plastic Production Cap (%)</h4>
+              <span class="text-[10px] font-mono text-slate-400">Live Mathematical Simulation</span>
+            </div>
+            <div class="h-56 relative w-full">
+              <canvas id="chart-ssp1" class="w-full h-full"></canvas>
+            </div>
+          </div>
+
+          <!-- Insights Commentary Box -->
+          <div class="glass-card p-4 border-l-4 border-l-cyan-400">
+            <h4 class="text-xs font-bold text-cyan-300 uppercase">Systems Insights Commentary</h4>
+            <p id="ssp1-commentary" class="text-xs text-slate-300 mt-1 leading-relaxed">
+              At a 45% plastic production cap, resin supply contracts significantly. Extended wash cycles up to 1,200 washes maintain circulation capacity but initiate surface micro-scratches that slightly increase consumer hygiene hesitation.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 03: SSP3-7.0 GHG EMISSIONS & COFFEE SUPPLY LOOP SIMULATOR -->
+    <!-- =================================================================== -->
+    <section id="tab-ssp3" class="hidden space-y-6">
+      
+      <!-- Narrative Header -->
+      <div class="glass-card p-5 border-l-4 border-l-purple-500">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">SSP3-7.0 Scenario</span>
+              <span class="text-xs text-slate-400">"Regional Rivalry" — Fragmented High-Carbon Energy Grid</span>
+            </div>
+            <h2 class="text-lg font-bold text-white mt-1">Industrial Washing GHG &amp; Coffee Belt Climate Feedback Loop</h2>
+            <p class="text-xs text-slate-300 mt-1 max-w-3xl">
+              When scaling takeaway cup reuse on a carbon-heavy energy grid with diesel logistics, reverse logistics emissions accumulate. The macro spillover feeds global radiative forcing, triggering severe droughts in the Coffee Belt, driving up bean prices, squeezing café margins, and causing network contraction.
+            </p>
+          </div>
+          <div class="bg-slate-900/80 p-3 rounded-lg border border-slate-800 text-right min-w-[180px]">
+            <div class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Grid Carbon Intensity</div>
+            <div id="stat-ssp3-grid" class="text-xl font-bold font-mono text-purple-400">380 g/kWh</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">Coal/Gas Heavy Baseline</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-Loop Causal Diagram -->
+      <div class="glass-card p-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">SSP3-7.0 Macro Climate Spillover Loop Mechanics</h3>
+        <div class="overflow-x-auto">
+          <svg viewBox="0 0 1000 110" class="w-full min-w-[800px] h-auto">
+            <g transform="translate(10, 25)">
+              <rect width="125" height="50" rx="6" fill="#1e293b" stroke="#c084fc" stroke-width="1.5"/>
+              <text x="62.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Takeaway Reuse Scale</text>
+              <text x="62.5" y="38" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="600">(+ Volume)</text>
+            </g>
+            <path d="M 135 50 L 157 50" stroke="#c084fc" stroke-width="2" marker-end="url(#arrow-purple)" />
+
+            <g transform="translate(170, 25)">
+              <rect width="135" height="50" rx="6" fill="#1e293b" stroke="#c084fc" stroke-width="1.5"/>
+              <text x="67.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Washing &amp; Logistics</text>
+              <text x="67.5" y="38" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="600">(+ Thermal &amp; Diesel)</text>
+            </g>
+            <path d="M 305 50 L 327 50" stroke="#c084fc" stroke-width="2" marker-end="url(#arrow-purple)" />
+
+            <g transform="translate(340, 25)">
+              <rect width="135" height="50" rx="6" fill="#1e293b" stroke="#c084fc" stroke-width="1.5"/>
+              <text x="67.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Fossil Grid GHG</text>
+              <text x="67.5" y="38" text-anchor="middle" fill="#c084fc" font-size="10" font-weight="600">(+ CO2 Emissions)</text>
+            </g>
+            <path d="M 475 50 L 497 50" stroke="#c084fc" stroke-width="2" marker-end="url(#arrow-purple)" />
+
+            <g transform="translate(510, 25)">
+              <rect width="135" height="50" rx="6" fill="#1e293b" stroke="#fb7185" stroke-width="1.5"/>
+              <text x="67.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Coffee Belt Droughts</text>
+              <text x="67.5" y="38" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="600">(− Yield Deficit)</text>
+            </g>
+            <path d="M 645 50 L 667 50" stroke="#fb7185" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-minus)" />
+
+            <g transform="translate(680, 25)">
+              <rect width="140" height="50" rx="6" fill="#1e293b" stroke="#fb7185" stroke-width="1.5"/>
+              <text x="70" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Coffee Bean Price</text>
+              <text x="70" y="38" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="600">(+ Spike +45%)</text>
+            </g>
+            <path d="M 820 50 L 842 50" stroke="#fb7185" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-minus)" />
+
+            <g transform="translate(855, 25)">
+              <rect width="135" height="50" rx="6" fill="#1e293b" stroke="#fb7185" stroke-width="1.5"/>
+              <text x="67.5" y="24" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">Café Network Drops</text>
+              <text x="67.5" y="38" text-anchor="middle" fill="#fb7185" font-size="10" font-weight="600">(− Margin Squeeze)</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Controls & Dynamic Metric Cards Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Controls Panel (4 Cols) -->
+        <div class="lg:col-span-4 glass-card p-5 space-y-5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 border-b border-slate-800 pb-2">Infrastructure &amp; Volume Controls</h3>
+
+          <!-- Slider 1 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-slate-200">Energy Grid Carbon Intensity</label>
+              <span id="val-grid-intensity" class="text-xs font-mono font-bold text-purple-400">380 gCO2/kWh</span>
+            </div>
+            <input type="range" id="slider-grid-intensity" min="50" max="800" step="10" value="380" oninput="updateSSP3Sim()" class="w-full">
+            <p class="text-[10px] text-slate-400">German grid average ~380g. 50g = Clean Hydro/Solar; 800g = Lignite Coal.</p>
+          </div>
+
+          <!-- Slider 2 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-slate-200">Diesel Redistribution Share</label>
+              <span id="val-diesel-share" class="text-xs font-mono font-bold text-amber-400">60% Diesel</span>
+            </div>
+            <input type="range" id="slider-diesel-share" min="0" max="100" value="60" oninput="updateSSP3Sim()" class="w-full">
+            <p class="text-[10px] text-slate-400">0% = 100% Electric Redistribution Van Fleet; 100% = Diesel Vans.</p>
+          </div>
+
+          <!-- Slider 3 -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-semibold text-slate-200">Daily RECUP Volume</label>
+              <span id="val-daily-volume" class="text-xs font-mono font-bold text-emerald-400">1.0 M cups/day</span>
+            </div>
+            <input type="range" id="slider-daily-volume" min="100000" max="5000000" step="100000" value="1000000" oninput="updateSSP3Sim()" class="w-full">
+            <p class="text-[10px] text-slate-400">National daily takeaway volume scale across partner networks.</p>
+          </div>
+
+          <!-- Active Rules Notice -->
+          <div class="p-3 bg-slate-900/90 rounded-lg border border-slate-800 text-[11px] space-y-1">
+            <span class="font-bold text-purple-400">Active Rule Modifiers:</span>
+            <ul class="list-disc list-inside text-slate-300 space-y-0.5" id="ssp3-active-rules-list">
+              <li>Default base parameters active</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Metric Output Cards & Break-Even Chart (8 Cols) -->
+        <div class="lg:col-span-8 space-y-6">
+          
+          <!-- 4 Metric Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="glass-card p-3 border-t-2 border-t-purple-400">
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Annual Washing GHG</div>
+              <div id="m-annual-ghg" class="text-lg font-bold font-mono text-purple-300 mt-1">8,833 tCO2e</div>
+              <div id="m-ghg-per-cup" class="text-[10px] text-slate-400">~24.2g CO2e / wash</div>
+            </div>
+
+            <div class="glass-card p-3 border-t-2 border-t-emerald-400">
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Break-Even vs Single-Use</div>
+              <div id="m-breakeven-washes" class="text-lg font-bold font-mono text-emerald-300 mt-1">11 Washes</div>
+              <div id="m-breakeven-status" class="text-[10px] text-emerald-400">Beats Paper Cup</div>
+            </div>
+
+            <div class="glass-card p-3 border-t-2 border-t-rose-400">
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Coffee Bean Price Impact</div>
+              <div id="m-bean-price-impact" class="text-lg font-bold font-mono text-rose-400 mt-1">+14.2%</div>
+              <div class="text-[10px] text-rose-400">Drought Crop Deficit</div>
+            </div>
+
+            <div class="glass-card p-3 border-t-2 border-t-amber-400">
+              <div class="text-[10px] text-slate-400 uppercase font-semibold">Café Network Vulnerability</div>
+              <div id="m-vulnerability-score" class="text-lg font-bold font-mono text-amber-300 mt-1">42 / 100</div>
+              <div id="m-vulnerability-status" class="text-[10px] text-amber-400">Moderate Strain</div>
+            </div>
+          </div>
+
+          <!-- Break-Even Comparison Canvas Chart -->
+          <div class="glass-card p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h4 class="text-xs font-bold text-white uppercase tracking-wider">Lifecycle Carbon Emissions: RECUP vs. Disposable PE-Lined Paper Cup</h4>
+              <span class="text-[10px] font-mono text-slate-400">Embodied + Washing &amp; Logistics per use</span>
+            </div>
+            <div class="h-56 relative w-full">
+              <canvas id="chart-ssp3" class="w-full h-full"></canvas>
+            </div>
+          </div>
+
+          <!-- Insights Commentary Box -->
+          <div class="glass-card p-4 border-l-4 border-l-purple-400">
+            <h4 class="text-xs font-bold text-purple-300 uppercase">Lifecycle &amp; Climate Feedback Commentary</h4>
+            <p id="ssp3-commentary" class="text-xs text-slate-300 mt-1 leading-relaxed">
+              At a grid intensity of 380 gCO2/kWh and 60% diesel logistics, a RECUP container reaches climate break-even against single-use paper cups after 11 washes. Decarbonizing the energy grid lowers this break-even threshold to just 4 washes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-800 bg-slate-900/50 py-4 px-4 lg:px-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>RECUP Germany Systems Mapping &amp; Climate Stress-Test Educational Module</div>
+      <div class="font-mono text-[11px]">System Dynamics • Shared Socioeconomic Pathways (SSP1-2.5 / SSP3-7.0)</div>
+    </div>
+  </footer>
+
+  <!-- DYNAMIC JAVASCRIPT LOGIC ENGINE -->
+  <script>
+    // Global System State
+    const state = {
+      activeTab: 'tab-cld',
+      activeLoop: 'all',
+      selectedNode: null,
+      rules: {
+        rule1Deposit: false, // €2 deposit: return speed +30%, impulse volume -15%
+        rule2Bakery: false,  // Bakery commuter priority: return friction 2x faster
+        rule3GermanPP: false // 100% Recycled German PP: cost +25%, embodied carbon -40%
+      },
+      ssp1: {
+        capStrictness: 45,
+        targetWashes: 1200
+      },
+      ssp3: {
+        gridIntensity: 380,
+        dieselShare: 60,
+        dailyVolume: 1000000
+      }
+    };
+
+    // Node details dataset
+    const nodeDetails = {
+      'N1': { title: 'Partner Density', zone: 'Zone 1 (Internal Core)', loops: 'R1, B3', text: 'Number of participating cafés, bakeries, and gas stations. High density increases return access for consumers.' },
+      'N2': { title: 'Return Convenience', zone: 'Zone 1 (Internal Core)', loops: 'R1', text: 'Proximity and frequency of drop-off points. Higher convenience directly boosts consumer adoption.' },
+      'N3': { title: 'Adoption Volume', zone: 'Zone 1 (Internal Core)', loops: 'R1, B1, B3', text: 'Daily volume of takeaway drinks served in RECUP cups instead of single-use disposable packaging.' },
+      'N4': { title: 'Vendor Financial Savings', zone: 'Zone 1 (Internal Core)', loops: 'R1', text: 'Net financial savings for vendors by avoiding purchase of single-use disposable paper/plastic cups.' },
+      'N5': { title: 'Hoarded Cup Stock', zone: 'Zone 1 (Internal Core)', loops: 'B1', text: 'Unreturned cups stored in consumer homes or offices, depleting active circulation inventory.' },
+      'N6': { title: 'Petrochemical Feedstock', zone: 'Zone 2 (Upstream Petro)', loops: 'B2', text: 'Global crude oil refining output yielding virgin Polypropylene (PP) resin.' },
+      'N7': { title: 'PP Resin Deficit', zone: 'Zone 2 (Upstream Petro)', loops: 'B2', text: 'Gap between global resin demand and available supply caused by fossil production caps.' },
+      'N8': { title: 'Cup Manufacturing Cost Spike', zone: 'Zone 2 (Upstream Petro)', loops: 'B2', text: 'Cost to mold new or replacement RECUP containers from virgin or recycled resin.' },
+      'N9': { title: 'Replacement Cup Supply', zone: 'Zone 2 (Upstream Petro)', loops: 'B2', text: 'Availability of new inventory to replace lost, damaged, or retired cups in the pool.' },
+      'N10': { title: 'Total Reuse Volume', zone: 'Zone 3 (Reverse Logistics)', loops: 'B3', text: 'Scale of cup collection, washing, and redistribution cycles operated daily.' },
+      'N11': { title: 'Dishwashing Energy', zone: 'Zone 3 (Reverse Logistics)', loops: 'B3', text: 'Electricity and thermal energy needed for commercial high-temperature sanitization.' },
+      'N12': { title: 'Logistics Transport', zone: 'Zone 3 (Reverse Logistics)', loops: 'B3', text: 'Diesel or electric van redistribution transport between partner locations.' },
+      'N13': { title: 'Water & Utility Draw', zone: 'Zone 3 (Reverse Logistics)', loops: 'B3', text: 'Freshwater consumption and chemical detergent load for dishwashing operations.' },
+      'N14': { title: 'Total System GHG', zone: 'Zone 3 / Zone 4', loops: 'B3', text: 'Cumulative greenhouse gas emissions generated by grid electricity and diesel transport.' },
+      'N15': { title: 'Global Warming Spillover', zone: 'Zone 4 (Global Climate)', loops: 'B3', text: 'Atmospheric heat trapping contributing to long-term global climate instability.' },
+      'N16': { title: 'Coffee Belt Climate Stress', zone: 'Zone 4 (Global Climate)', loops: 'B3', text: 'Extreme weather events, droughts, and rust fungus in tropical coffee-growing regions.' },
+      'N17': { title: 'Coffee Bean Yield Loss', zone: 'Zone 4 (Global Climate)', loops: 'B3', text: 'Contraction in global coffee bean harvests, reducing raw supply.' },
+      'N18': { title: 'Coffee Bean Price Spike', zone: 'Zone 4 (Global Climate)', loops: 'B3', text: 'Commodity market price increases for raw Arabica and Robusta coffee beans.' },
+      'N19': { title: 'Café Margin Squeeze', zone: 'Zone 4 (Global Climate)', loops: 'B3', text: 'Reduction in café operating margins due to high coffee bean purchasing costs.' }
+    };
+
+    // Loop details dataset
+    const loopDetails = {
+      'all': {
+        type: 'Integrated Macro View',
+        badge: 'ALL-SYSTEMS',
+        title: 'Global RECUP Integrated Causal Loop Diagram (CLD)',
+        formula: 'Internal Core (Emerald) + Upstream Petro (Cyan) + Reverse Logistics (Amber) + Global Climate (Purple)',
+        desc: 'This macro CLD maps the complete systemic ecosystem of RECUP Germany. Click individual loop filter buttons above to isolate specific reinforcing (R) or balancing (B) feedback pathways, or click any node card to inspect its localized cause-and-effect relationships.'
+      },
+      'R1': {
+        type: 'Reinforcing Feedback Loop (R1)',
+        badge: 'R1-EXPANSION',
+        title: 'Network Expansion Loop (R1)',
+        formula: 'Partner Density (+) → Return Convenience (+) → Adoption Volume (+) → Vendor Savings (+) → Partner Density (+)',
+        desc: 'As participating café and bakery density increases across German cities, consumer return convenience improves. This boosts daily adoption, generating financial savings for vendors by avoiding single-use cup purchases, which attracts even more cafes into the network.'
+      },
+      'B1': {
+        type: 'Balancing Feedback Loop (B1)',
+        badge: 'B1-HOARDING',
+        title: 'Cup Hoarding Constraint Loop (B1)',
+        formula: 'Adoption Volume (+) → Hoarded Cup Stock (+) → Active Inventory Depletion (−) → Adoption Volume (−)',
+        desc: 'High adoption volume leads to a larger volume of cups being taken home or to offices. When consumers delay returning cups, inventory is temporarily hoarded, causing localized stock shortages at high-volume bakery nodes.'
+      },
+      'B2': {
+        type: 'Balancing Feedback Loop (B2)',
+        badge: 'B2-PETRO-STRAIN',
+        title: 'Petrochemical Material Strain Loop (B2)',
+        formula: 'Replacement Demand (+) → PP Feedstock Deficit (+) → Manufacturing Cost (+) → Replacement Cup Shortage (−)',
+        desc: 'As replacement cup demand grows, restrictions on fossil crude oil and polypropylene (PP) feedstock create material deficits. Spiking resin costs make cup manufacturing expensive, limiting pool replacement capacity.'
+      },
+      'B3': {
+        type: 'Balancing Feedback Loop (B3)',
+        badge: 'B3-COFFEE-CLIMATE',
+        title: 'Coffee Supply Climate Feedback Loop (B3)',
+        formula: 'Reuse Scale (+) → Logistics GHG (+) → Global Warming (+) → Coffee Crop Deficit (−) → Bean Price (+) → Margin Squeeze (−) → Partner Density (−)',
+        desc: 'Scaling takeaway reuse on a fossil-heavy grid increases reverse logistics GHG emissions. Over long horizons, macro emissions contribute to climate warming, damaging coffee belt crop yields, driving up coffee bean prices, squeezing café operating margins, and reducing partner density.'
+      }
+    };
+
+    // TAB SWITCHING LOGIC
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      ['tab-cld', 'tab-ssp1', 'tab-ssp3'].forEach(id => {
+        const el = document.getElementById(id);
+        const btn = document.getElementById('tab-btn-' + id.replace('tab-', ''));
+        if (id === tabId) {
+          el.classList.remove('hidden');
+          btn.classList.add('active-tab');
+        } else {
+          el.classList.add('hidden');
+          btn.classList.remove('active-tab');
+        }
+      });
+
+      if (tabId === 'tab-ssp1') {
+        renderSSP1Chart();
+      } else if (tabId === 'tab-ssp3') {
+        renderSSP3Chart();
+      }
+    }
+
+    // SANDBOX DRAWER TOGGLE
+    function toggleSandbox() {
+      const drawer = document.getElementById('student-sandbox-drawer');
+      const arrow = document.getElementById('sandbox-arrow');
+      if (drawer.classList.contains('hidden')) {
+        drawer.classList.remove('hidden');
+        arrow.style.transform = 'rotate(180deg)';
+      } else {
+        drawer.classList.add('hidden');
+        arrow.style.transform = 'rotate(0deg)';
+      }
+    }
+
+    // RESET RULES
+    function resetRules() {
+      document.getElementById('rule-1-toggle').checked = false;
+      document.getElementById('rule-2-toggle').checked = false;
+      document.getElementById('rule-3-toggle').checked = false;
+      updateSystemState();
+    }
+
+    // UPDATE SYSTEM STATE FROM RULES AND SLIDERS
+    function updateSystemState() {
+      state.rules.rule1Deposit = document.getElementById('rule-1-toggle').checked;
+      state.rules.rule2Bakery = document.getElementById('rule-2-toggle').checked;
+      state.rules.rule3GermanPP = document.getElementById('rule-3-toggle').checked;
+
+      // Update badges in rule drawer
+      document.getElementById('rule-1-badge').innerText = state.rules.rule1Deposit ? '€2 Active' : '€1 Base';
+      document.getElementById('rule-1-badge').className = state.rules.rule1Deposit ? 'text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40' : 'text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400';
+
+      document.getElementById('rule-2-badge').innerText = state.rules.rule2Bakery ? 'Bakery Priority' : 'Disabled';
+      document.getElementById('rule-2-badge').className = state.rules.rule2Bakery ? 'text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40' : 'text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400';
+
+      document.getElementById('rule-3-badge').innerText = state.rules.rule3GermanPP ? '100% German Recycled' : 'Global Virgin';
+      document.getElementById('rule-3-badge').className = state.rules.rule3GermanPP ? 'text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40' : 'text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400';
+
+      // Active rules count
+      const activeCount = (state.rules.rule1Deposit ? 1 : 0) + (state.rules.rule2Bakery ? 1 : 0) + (state.rules.rule3GermanPP ? 1 : 0);
+      document.getElementById('active-rules-count').innerText = `${activeCount} Rule${activeCount !== 1 ? 's' : ''} Active`;
+
+      // Update simulators
+      updateSSP1Sim();
+      updateSSP3Sim();
+    }
+
+    // CLD LOOP FILTERING
+    function filterLoop(loopId) {
+      state.activeLoop = loopId;
+      
+      // Update filter button styling
+      ['all', 'R1', 'B1', 'B2', 'B3'].forEach(id => {
+        const btn = document.getElementById('filter-' + id);
+        if (id === loopId) {
+          btn.classList.add('ring-2', 'ring-white', 'ring-offset-2', 'ring-offset-slate-900');
+        } else {
+          btn.classList.remove('ring-2', 'ring-white', 'ring-offset-2', 'ring-offset-slate-900');
+        }
+      });
+
+      // Dim / Highlight paths and nodes
+      const paths = document.querySelectorAll('.cld-path');
+      const nodes = document.querySelectorAll('.cld-node');
+
+      paths.forEach(p => {
+        const pathLoops = p.getAttribute('data-loops') ? p.getAttribute('data-loops').split(',') : [];
+        if (loopId === 'all' || pathLoops.includes(loopId)) {
+          p.classList.remove('dimmed');
+        } else {
+          p.classList.add('dimmed');
+        }
+      });
+
+      nodes.forEach(n => {
+        const nodeLoops = n.getAttribute('data-loops') ? n.getAttribute('data-loops').split(',') : [];
+        if (loopId === 'all' || nodeLoops.includes(loopId)) {
+          n.classList.remove('dimmed');
+        } else {
+          n.classList.add('dimmed');
+        }
+      });
+
+      // Update Info Panel
+      const info = loopDetails[loopId];
+      document.getElementById('info-loop-type').innerText = info.type;
+      document.getElementById('info-loop-id').innerText = info.badge;
+      document.getElementById('info-loop-title').innerText = info.title;
+      document.getElementById('info-loop-formula').innerText = info.formula;
+      document.getElementById('info-loop-desc').innerText = info.desc;
+    }
+
+    // SELECT NODE IN CLD
+    function selectNode(nodeId) {
+      state.selectedNode = nodeId;
+      const node = nodeDetails[nodeId];
+      if (!node) return;
+
+      document.getElementById('info-loop-type').innerText = `Node Inspector: ${node.zone}`;
+      document.getElementById('info-loop-id').innerText = nodeId;
+      document.getElementById('info-loop-title').innerText = node.title;
+      document.getElementById('info-loop-formula').innerText = `Participating Loops: ${node.loops}`;
+      document.getElementById('info-loop-desc').innerText = node.text;
+
+      // Highlight clicked node
+      document.querySelectorAll('.cld-node').forEach(n => {
+        if (n.id === 'node-' + nodeId.toLowerCase()) {
+          n.classList.add('highlighted');
+        } else {
+          n.classList.remove('highlighted');
+        }
+      });
+    }
+
+    // ===================================================================
+    // MATH ENGINE & CALCULATIONS FOR TAB 02 (SSP1-2.5)
+    // ===================================================================
+    function updateSSP1Sim() {
+      state.ssp1.capStrictness = parseFloat(document.getElementById('slider-cap-strictness').value);
+      state.ssp1.targetWashes = parseFloat(document.getElementById('slider-target-washes').value);
+
+      document.getElementById('val-cap-strictness').innerText = state.ssp1.capStrictness + '%';
+      document.getElementById('val-target-washes').innerText = state.ssp1.targetWashes.toLocaleString() + ' washes';
+
+      const cap = state.ssp1.capStrictness;
+      const washes = state.ssp1.targetWashes;
+
+      // Rule modifiers
+      const costRuleMult = state.rules.rule3GermanPP ? 1.25 : 1.0;
+      const adoptionRuleMult = state.rules.rule1Deposit ? 0.85 : 1.0;
+
+      // Math calculations
+      const resinDeficit = cap * 1.1; // %
+      const resinTons = resinDeficit * 4.5; // tons/yr
+
+      let baseCost = 1.20 * (1 + Math.pow(cap / 100, 1.5) * 1.8) * costRuleMult;
+      const costChange = ((baseCost - 1.20) / 1.20) * 100;
+
+      // Circulation capacity (Millions of cups)
+      let circCap = 15.0 * (1 - (cap / 100) * 0.5) * Math.pow(washes / 1000, 0.4) * adoptionRuleMult;
+
+      // Micro-wear & Hygiene risk (0-100%)
+      let wearRisk = Math.max(0, (washes - 800) / 1700 * 100) * (1 + cap / 200);
+      wearRisk = Math.min(100, wearRisk);
+
+      // DOM Updates
+      document.getElementById('stat-ssp1-avail').innerText = (100 - resinDeficit).toFixed(1) + '%';
+      document.getElementById('m-resin-deficit').innerText = resinDeficit.toFixed(1) + '%';
+      document.getElementById('m-resin-tons').innerText = `~${resinTons.toFixed(1)} t/yr deficit`;
+
+      document.getElementById('m-unit-cost').innerText = `€${baseCost.toFixed(2)} / cup`;
+      document.getElementById('m-unit-cost-change').innerText = `${costChange >= 0 ? '+' : ''}${costChange.toFixed(1)}% vs baseline`;
+
+      document.getElementById('m-circ-cap').innerText = `${circCap.toFixed(1)}M cups`;
+      document.getElementById('m-circ-status').innerText = circCap > 12 ? 'Healthy System Stock' : 'Depleted Pool Stock';
+
+      document.getElementById('m-hygiene-risk').innerText = `${wearRisk.toFixed(1)}%`;
+      document.getElementById('m-hygiene-status').innerText = wearRisk > 50 ? 'Micro-scratches Present' : 'Acceptable Surface';
+
+      // Rule list update
+      const ruleList = document.getElementById('ssp1-active-rules-list');
+      ruleList.innerHTML = '';
+      if (state.rules.rule1Deposit) ruleList.innerHTML += `<li>Rule 1: €2 deposit (-15% impulse volume)</li>`;
+      if (state.rules.rule2Bakery) ruleList.innerHTML += `<li>Rule 2: Bakery priority (faster return velocity)</li>`;
+      if (state.rules.rule3GermanPP) ruleList.innerHTML += `<li>Rule 3: German recycled PP (+25% unit cost)</li>`;
+      if (!state.rules.rule1Deposit && !state.rules.rule2Bakery && !state.rules.rule3GermanPP) {
+        ruleList.innerHTML = `<li>Default baseline parameters active</li>`;
+      }
+
+      // Dynamic commentary update
+      let comment = `At a ${cap}% plastic production cap and target lifespan of ${washes} washes, replacement cup costs reach €${baseCost.toFixed(2)}. `;
+      if (washes > 1500) {
+        comment += `Stretching cup lifespans above 1,500 washes severely increases micro-wear and hygiene concerns, accelerating adoption drops. `;
+      } else {
+        comment += `Maintaining target washes around 1,000-1,200 protects consumer trust while mitigating resin deficits. `;
+      }
+      if (state.rules.rule3GermanPP) {
+        comment += `Sourcing 100% German recycled PP adds a +25% cost premium but decouples the pool from global fossil supply shocks.`;
+      }
+      document.getElementById('ssp1-commentary').innerText = comment;
+
+      renderSSP1Chart();
+    }
+
+    // SSP1 CANVAS CHART RENDERER
+    function renderSSP1Chart() {
+      const canvas = document.getElementById('chart-ssp1');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      const width = rect.width;
+      const height = rect.height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Draw Grid Lines
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = 20 + (height - 50) * (i / 4);
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(width - 20, y);
+        ctx.stroke();
+      }
+
+      // Generate Data points across 0% to 90% cap strictness
+      const pointsCost = [];
+      const pointsAdoption = [];
+      const costRuleMult = state.rules.rule3GermanPP ? 1.25 : 1.0;
+      const adoptionRuleMult = state.rules.rule1Deposit ? 0.85 : 1.0;
+
+      for (let c = 0; c <= 90; c += 5) {
+        const x = 40 + (width - 60) * (c / 90);
+        const cost = 1.20 * (1 + Math.pow(c / 100, 1.5) * 1.8) * costRuleMult;
+        const adoption = 100 * (1 - (c / 100) * 0.45) * adoptionRuleMult;
+
+        const yCost = (height - 30) - ((cost - 1.0) / 3.0) * (height - 50);
+        const yAdoption = (height - 30) - (adoption / 100) * (height - 50);
+
+        pointsCost.push({ x, y: Math.max(20, yCost) });
+        pointsAdoption.push({ x, y: Math.max(20, yAdoption) });
+      }
+
+      // Draw Cost Line (Amber)
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      pointsCost.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      // Draw Adoption Line (Cyan)
+      ctx.strokeStyle = '#06b6d4';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      pointsAdoption.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      // Active Value Indicator Vertical Bar
+      const currentCap = state.ssp1.capStrictness;
+      const currentX = 40 + (width - 60) * (currentCap / 90);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(currentX, 10);
+      ctx.lineTo(currentX, height - 30);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Axis Labels
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px Inter';
+      ctx.fillText('0% Cap', 35, height - 12);
+      ctx.fillText('45% Cap', width / 2 - 15, height - 12);
+      ctx.fillText('90% Cap', width - 45, height - 12);
+
+      // Chart Legend
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(width - 210, 10, 10, 10);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('Replacement Cup Cost (€)', width - 195, 18);
+
+      ctx.fillStyle = '#06b6d4';
+      ctx.fillRect(width - 210, 26, 10, 10);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('System Adoption Capacity (%)', width - 195, 34);
+    }
+
+    // ===================================================================
+    // MATH ENGINE & CALCULATIONS FOR TAB 03 (SSP3-7.0)
+    // ===================================================================
+    function updateSSP3Sim() {
+      state.ssp3.gridIntensity = parseFloat(document.getElementById('slider-grid-intensity').value);
+      state.ssp3.dieselShare = parseFloat(document.getElementById('slider-diesel-share').value);
+      state.ssp3.dailyVolume = parseFloat(document.getElementById('slider-daily-volume').value);
+
+      document.getElementById('val-grid-intensity').innerText = state.ssp3.gridIntensity + ' gCO2/kWh';
+      document.getElementById('val-diesel-share').innerText = state.ssp3.dieselShare + '% Diesel';
+      document.getElementById('val-daily-volume').innerText = (state.ssp3.dailyVolume / 1000000).toFixed(1) + ' M cups/day';
+
+      const grid = state.ssp3.gridIntensity;
+      const diesel = state.ssp3.dieselShare;
+      const volume = state.ssp3.dailyVolume * (state.rules.rule1Deposit ? 0.85 : 1.0);
+
+      // Washing energy = 0.04 kWh per wash
+      const washEnergykWh = 0.04;
+      const washGHGkg = (washEnergykWh * grid) / 1000.0; // kg CO2e
+
+      // Transport GHG per cup = diesel fraction * 0.015kg + (1-diesel)*0.003kg
+      const transportGHGkg = (diesel / 100.0) * 0.015 + (1 - diesel / 100.0) * 0.003;
+
+      // Embodied cup manufacturing GHG per wash (assuming 1000 washes lifespan)
+      let embodiedCupGHG = (0.18 / 1000.0);
+      if (state.rules.rule3GermanPP) embodiedCupGHG *= 0.60; // 40% reduction
+
+      const totalGHGperWashkg = washGHGkg + transportGHGkg + embodiedCupGHG;
+      const annualGHGt = (volume * 365 * totalGHGperWashkg) / 1000.0;
+
+      // Disposable Single-Use Paper Cup (PE-lined) carbon footprint ~ 0.045 kg CO2e
+      const disposablePaperGHGkg = 0.045;
+
+      // Break-Even Wash Count calculation
+      // Single-use emissions per drink = 0.045
+      // RECUP total per wash = (Embodied_Total / N) + (Washing + Transport)
+      // Break-Even N: Embodied_Total / N + Wash + Trans = 0.045 -> N = Embodied_Total / (0.045 - (Wash + Trans))
+      const embodiedTotalCup = state.rules.rule3GermanPP ? 0.108 : 0.18;
+      const operationalPerWash = washGHGkg + transportGHGkg;
+      
+      let breakEvenWashes = 1;
+      if (disposablePaperGHGkg > operationalPerWash) {
+        breakEvenWashes = Math.ceil(embodiedTotalCup / (disposablePaperGHGkg - operationalPerWash));
+      } else {
+        breakEvenWashes = 999; // Never breaks even if grid + diesel is dirtier than paper cup
+      }
+
+      // Coffee Bean Price Index Impact (% increase)
+      const beanPriceImpact = (grid / 400.0) * (1 + diesel / 100.0 * 0.5) * (volume / 1000000.0 * 0.8) * 1.5;
+
+      // Partner Network Vulnerability Score (0-100)
+      let vulnerability = (beanPriceImpact * 1.8) + (grid / 800.0 * 30) + (diesel / 100.0 * 20);
+      if (state.rules.rule2Bakery) vulnerability *= 0.75; // Bakery commuter density buffers friction
+      vulnerability = Math.min(100, Math.max(0, vulnerability));
+
+      // DOM Updates
+      document.getElementById('stat-ssp3-grid').innerText = `${grid} g/kWh`;
+      document.getElementById('m-annual-ghg').innerText = `${Math.round(annualGHGt).toLocaleString()} tCO2e`;
+      document.getElementById('m-ghg-per-cup').innerText = `~${(totalGHGperWashkg * 1000).toFixed(1)}g CO2e / wash`;
+
+      document.getElementById('m-breakeven-washes').innerText = breakEvenWashes > 100 ? '>100 Washes' : `${breakEvenWashes} Washes`;
+      document.getElementById('m-breakeven-status').innerText = breakEvenWashes <= 15 ? 'Outperforms Disposable' : 'High Infrastructure Burden';
+
+      document.getElementById('m-bean-price-impact').innerText = `+${beanPriceImpact.toFixed(1)}%`;
+
+      document.getElementById('m-vulnerability-score').innerText = `${Math.round(vulnerability)} / 100`;
+      document.getElementById('m-vulnerability-status').innerText = vulnerability > 60 ? 'Severe Margin Squeeze' : 'Moderate Resilience';
+
+      // Rule list update
+      const ruleList = document.getElementById('ssp3-active-rules-list');
+      ruleList.innerHTML = '';
+      if (state.rules.rule1Deposit) ruleList.innerHTML += `<li>Rule 1: €2 deposit (-15% daily takeaway volume)</li>`;
+      if (state.rules.rule2Bakery) ruleList.innerHTML += `<li>Rule 2: Bakery priority (-25% network vulnerability)</li>`;
+      if (state.rules.rule3GermanPP) ruleList.innerHTML += `<li>Rule 3: German recycled PP (-40% embodied carbon)</li>`;
+      if (!state.rules.rule1Deposit && !state.rules.rule2Bakery && !state.rules.rule3GermanPP) {
+        ruleList.innerHTML = `<li>Default baseline parameters active</li>`;
+      }
+
+      // Dynamic commentary update
+      let comment = `At a grid carbon intensity of ${grid} gCO2/kWh and ${diesel}% diesel transport, RECUP reaches environmental break-even vs paper cups after ${breakEvenWashes} washes. `;
+      if (breakEvenWashes > 20) {
+        comment += `The high carbon grid significantly delays climate payback. Transitioning logistics to 100% electric vans or switching to a green grid drastically lowers emissions. `;
+      } else {
+        comment += `Efficient industrial washing and low transport emissions allow RECUP to rapidly outperform single-use paper cups. `;
+      }
+      if (state.rules.rule2Bakery) {
+        comment += `Bakery commuter priority reduces drop-off friction, lowering logistical redistribution frequency.`;
+      }
+      document.getElementById('ssp3-commentary').innerText = comment;
+
+      renderSSP3Chart();
+    }
+
+    // SSP3 CANVAS CHART RENDERER
+    function renderSSP3Chart() {
+      const canvas = document.getElementById('chart-ssp3');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      const width = rect.width;
+      const height = rect.height;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Grid lines
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = 20 + (height - 50) * (i / 4);
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(width - 20, y);
+        ctx.stroke();
+      }
+
+      // Parameters
+      const grid = state.ssp3.gridIntensity;
+      const diesel = state.ssp3.dieselShare;
+
+      const washGHGg = (0.04 * grid); // g CO2e
+      const transportGHGg = ((diesel / 100.0) * 0.015 + (1 - diesel / 100.0) * 0.003) * 1000; // g CO2e
+      const embodiedTotalg = state.rules.rule3GermanPP ? 108 : 180; // g CO2e total initial
+
+      const singleUsePaperg = 45; // g CO2e per single-use cup
+
+      const maxWashes = 40;
+      const pointsRecup = [];
+      const pointsPaper = [];
+
+      for (let w = 1; w <= maxWashes; w++) {
+        const x = 40 + (width - 60) * ((w - 1) / (maxWashes - 1));
+
+        // Cumulative per use
+        const recupCumulative = (embodiedTotalg / w) + washGHGg + transportGHGg;
+        const paperCumulative = singleUsePaperg;
+
+        const maxVal = 150; // Y scale max in g CO2e
+        const yRecup = (height - 30) - (recupCumulative / maxVal) * (height - 50);
+        const yPaper = (height - 30) - (paperCumulative / maxVal) * (height - 50);
+
+        pointsRecup.push({ x, y: Math.max(15, yRecup) });
+        pointsPaper.push({ x, y: Math.max(15, yPaper) });
+      }
+
+      // Draw Single-Use Paper Line (Rose Dashed)
+      ctx.strokeStyle = '#fb7185';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      pointsPaper.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Draw RECUP Line (Purple Solid)
+      ctx.strokeStyle = '#c084fc';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      pointsRecup.forEach((p, idx) => {
+        if (idx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      });
+      ctx.stroke();
+
+      // Find Break-Even point and draw vertical line
+      const operationalPerWashg = washGHGg + transportGHGg;
+      if (singleUsePaperg > operationalPerWashg) {
+        const breakEven = Math.ceil(embodiedTotalg / (singleUsePaperg - operationalPerWashg));
+        if (breakEven <= maxWashes) {
+          const beX = 40 + (width - 60) * ((breakEven - 1) / (maxWashes - 1));
+          ctx.strokeStyle = '#10b981';
+          ctx.lineWidth = 2;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.moveTo(beX, 10);
+          ctx.lineTo(beX, height - 30);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // Draw Break-Even Circle Dot
+          const beY = (height - 30) - (singleUsePaperg / 150) * (height - 50);
+          ctx.fillStyle = '#10b981';
+          ctx.beginPath();
+          ctx.arc(beX, beY, 5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#34d399';
+          ctx.font = '10px Inter';
+          ctx.fillText(`Break-Even: ${breakEven} washes`, beX + 8, beY - 8);
+        }
+      }
+
+      // Axis Labels
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px Inter';
+      ctx.fillText('1 Wash', 35, height - 12);
+      ctx.fillText('20 Washes', width / 2 - 18, height - 12);
+      ctx.fillText('40 Washes', width - 50, height - 12);
+
+      // Legend
+      ctx.fillStyle = '#c084fc';
+      ctx.fillRect(width - 240, 10, 10, 10);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('RECUP Lifecycle (g CO2e / use)', width - 225, 18);
+
+      ctx.fillStyle = '#fb7185';
+      ctx.fillRect(width - 240, 26, 10, 10);
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText('Disposable Paper Cup (45g CO2e)', width - 225, 34);
+    }
+
+    // INITIALIZATION ON WINDOW LOAD
+    window.onload = function() {
+      // Default loop filter
+      filterLoop('all');
+      
+      // Update math engines
+      updateSystemState();
+
+      // Window resize chart re-render
+      window.addEventListener('resize', () => {
+        if (state.activeTab === 'tab-ssp1') renderSSP1Chart();
+        if (state.activeTab === 'tab-ssp3') renderSSP3Chart();
+      });
+    };
+  </script>
+</body>
+</html>
