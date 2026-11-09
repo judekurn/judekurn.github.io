@@ -163,7 +163,7 @@
         Tab 03: Multi-Cycle Recycling Decay
       </button>
       <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn text-sm font-medium px-4 py-2.5 rounded-t-lg transition-all border-t-2 border-x border-b-0 border-transparent bg-slate-900/50 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
-        Tab 04: Embodied Process Entropy Overhead
+        Tab 04: Embodied Energy & Life-Cycle Payback
       </button>
     </div>
   </div>
@@ -699,7 +699,7 @@
 
 
     <!-- ========================================== -->
-    <!-- TAB 04: EMBODIED PROCESS ENTROPY OVERHEAD -->
+    <!-- TAB 04: Embodied Energy & Life-Cycle Payback -->
     <!-- ========================================== -->
     <div id="tab4" class="tab-content hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1115,7 +1115,7 @@
 
 
     // ==========================================
-    // TAB 04 LOGIC: EMBODIED ENTROPY OVERHEAD
+    // TAB 04 LOGIC: Embodied Energy & Life-Cycle Payback
     // ==========================================
     const presets = {
       washing: { embodied: 15000, savings: 3200, lifespan: 8 },
@@ -1176,10 +1176,10 @@
 
       if (paybackYears <= lifespan) {
         callout.className = "p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-300 flex items-center gap-2";
-        text.innerHTML = `This system successfully pays back its upstream embodied entropy in <strong>${paybackYears.toFixed(1)} years</strong>, generating <strong>+${Math.round(netBenefit).toLocaleString()} kWh</strong> net thermodynamic savings over its ${lifespan}-year lifespan.`;
+        text.innerHTML = `This system successfully pays back its upstream embodied energy investments in <strong>${paybackYears.toFixed(1)} years</strong>, generating <strong>+${Math.round(netBenefit).toLocaleString()} kWh</strong> net energy savings over its ${lifespan}-year lifespan.`;
       } else {
         callout.className = "p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2";
-        text.innerHTML = `<strong>Thermodynamic Deficit Warning:</strong> This system requires <strong>${paybackYears.toFixed(1)} years</strong> to achieve entropic break-even, exceeding its total ${lifespan}-year operational lifespan. It consumes more upstream energy than it saves!`;
+        text.innerHTML = `<strong>Energy Deficit Warning:</strong> This system requires <strong>${paybackYears.toFixed(1)} years</strong> to recover its embodied energy investment, exceeding its total ${lifespan}-year operational lifespan. It consumes more upstream energy than it saves!`;
       }
     }
 
