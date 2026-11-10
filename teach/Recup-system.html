@@ -1,0 +1,3091 @@
+<!DOCTYPE html>
+<html class="">
+    <head>
+        <meta charset="utf-8">
+        <style>
+            .error-boundary {
+                border: 2px dashed rgba(255, 0, 0, 0.3);
+                position: relative;
+            }
+            .error-boundary::after {
+                content: "⚠️";
+                position: absolute;
+                top: 0;
+                right: 0;
+                background: rgba(255, 0, 0, 0.1);
+                color: red;
+                font-size: 14px;
+                padding: 2px 6px;
+                border-radius: 0 0 0 4px;
+                pointer-events: none;
+            }
+            .loading-spinner {
+                @apply flex items-center justify-center;
+                @apply min-h-[200px];
+                @apply bg-gradient-to-br from-white/5 to-white/10;
+                @apply rounded-xl;
+                @apply backdrop-blur-sm;
+            }
+            .loading-spinner::after {
+                content: '';
+                @apply w-12 h-12;
+                @apply border-4 border-primary/20;
+                @apply border-t-primary;
+                @apply rounded-full;
+                @apply animate-spin;
+                @apply shadow-lg;
+            }
+
+            /* Base text and background colors for all elements */
+            body {
+                @apply bg-background text-foreground;
+            }
+
+            /* Form elements styling */
+            input, textarea, select {
+                @apply bg-background text-foreground border-input;
+                @apply placeholder:text-muted-foreground;
+                @apply focus:outline-none focus:ring-2 focus:ring-ring;
+            }
+
+            /* Handle filled state */
+            input:not(:placeholder-shown),
+            textarea:not(:placeholder-shown),
+            select:not(:placeholder-shown) {
+                @apply bg-background;
+            }
+
+            /* Ensure proper contrast in both modes */
+            .dark input, .dark textarea, .dark select {
+                @apply bg-background/95;
+            }
+
+            input, textarea, select {
+                @apply bg-background/95;
+            }
+
+            /* Handle disabled state */
+            input:disabled,
+            textarea:disabled,
+            select:disabled {
+                @apply opacity-50 cursor-not-allowed;
+            }
+
+            /* Button styling */
+            button {
+                @apply bg-primary text-primary-foreground hover:bg-primary/90;
+                @apply disabled:opacity-50 disabled:cursor-not-allowed;
+                @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+            }
+
+            /* Secondary button variant */
+            button.secondary {
+                @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+            }
+
+            /* Card styling */
+            .card {
+                @apply bg-card text-card-foreground;
+                @apply border border-border;
+                @apply rounded-lg shadow-sm;
+            }
+
+            /* Popover and dropdown styling */
+            .popover {
+                @apply bg-popover text-popover-foreground;
+                @apply border border-border;
+                @apply shadow-md rounded-md;
+            }
+
+            /* Link styling */
+            a {
+                @apply text-primary hover:text-primary/80;
+                @apply focus:outline-none focus:ring-2 focus:ring-ring;
+            }
+
+            /* Muted text */
+            .text-muted {
+                @apply text-muted-foreground;
+            }
+
+            /* Accent backgrounds */
+            .bg-accent {
+                @apply bg-accent text-accent-foreground;
+            }
+
+            /* Destructive elements */
+            .destructive {
+                @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
+            }
+
+            /* Code blocks and pre elements */
+            pre, code {
+                @apply bg-muted text-muted-foreground;
+                @apply rounded px-[0.3em] py-[0.2em];
+            }
+
+            /* Table styling */
+            table {
+                @apply border-collapse w-full;
+            }
+
+            th, td {
+                @apply border border-border;
+                @apply p-2 text-left;
+            }
+
+            th {
+                @apply bg-muted font-semibold;
+            }
+
+            /* Badge/tag styling */
+            .badge {
+                @apply inline-flex items-center rounded-full;
+                @apply px-2.5 py-0.5 text-xs font-semibold;
+                @apply bg-primary/10 text-primary-foreground;
+            }
+
+            /* Focus outline for accessibility */
+            :focus-visible {
+                @apply outline-none ring-2 ring-ring ring-offset-2;
+            }
+
+            /* Selection styling */
+            ::selection {
+                @apply bg-primary/20 text-foreground;
+            }
+        </style>
+
+        <!-- Styles -->
+        <style>
+            :root {
+                --background: 0 0% 100%;
+                --foreground: 222.2 84% 4.9%;
+                --card: 0 0% 100%;
+                --card-foreground: 222.2 84% 4.9%;
+                --popover: 0 0% 100%;
+                --popover-foreground: 222.2 84% 4.9%;
+                --primary: 222.2 47.4% 11.2%;
+                --primary-foreground: 210 40% 98%;
+                --secondary: 210 40% 96.1%;
+                --secondary-foreground: 222.2 47.4% 11.2%;
+                --muted: 210 40% 96.1%;
+                --muted-foreground: 215.4 16.3% 46.9%;
+                --accent: 210 40% 96.1%;
+                --accent-foreground: 222.2 47.4% 11.2%;
+                --destructive: 0 84.2% 60.2%;
+                --destructive-foreground: 210 40% 98%;
+                --border: 214.3 31.8% 91.4%;
+                --input: 214.3 31.8% 91.4%;
+                --ring: 222.2 84% 4.9%;
+                --radius: 0.5rem;
+            }
+            .dark {
+                --background: 222.2 84% 4.9%;
+                --foreground: 210 40% 98%;
+                --card: 222.2 84% 4.9%;
+                --card-foreground: 210 40% 98%;
+                --popover: 222.2 84% 4.9%;
+                --popover-foreground: 210 40% 98%;
+                --primary: 210 40% 98%;
+                --primary-foreground: 222.2 47.4% 11.2%;
+                --secondary: 217.2 32.6% 17.5%;
+                --secondary-foreground: 210 40% 98%;
+                --muted: 217.2 32.6% 17.5%;
+                --muted-foreground: 215 20.2% 65.1%;
+                --accent: 217.2 32.6% 17.5%;
+                --accent-foreground: 210 40% 98%;
+                --destructive: 0 62.8% 30.6%;
+                --destructive-foreground: 210 40% 98%;
+                --border: 217.2 32.6% 17.5%;
+                --input: 217.2 32.6% 17.5%;
+                --ring: 212.7 26.8% 83.9%;
+            }
+        </style>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                darkMode: ["class"],
+                theme: {
+                    container: {
+                        center: true,
+                        padding: "2rem",
+                        screens: {
+                            "2xl": "1400px",
+                        },
+                    },
+                    extend: {
+                        colors: {
+                            border: "hsl(var(--border))",
+                            input: "hsl(var(--input))",
+                            ring: "hsl(var(--ring))",
+                            background: "hsl(var(--background))",
+                            foreground: "hsl(var(--foreground))",
+                            primary: {
+                                DEFAULT: "hsl(var(--primary))",
+                                foreground: "hsl(var(--primary-foreground))",
+                            },
+                            secondary: {
+                                DEFAULT: "hsl(var(--secondary))",
+                                foreground: "hsl(var(--secondary-foreground))",
+                            },
+                            destructive: {
+                                DEFAULT: "hsl(var(--destructive))",
+                                foreground: "hsl(var(--destructive-foreground))",
+                            },
+                            muted: {
+                                DEFAULT: "hsl(var(--muted))",
+                                foreground: "hsl(var(--muted-foreground))",
+                            },
+                            accent: {
+                                DEFAULT: "hsl(var(--accent))",
+                                foreground: "hsl(var(--accent-foreground))",
+                            },
+                            popover: {
+                                DEFAULT: "hsl(var(--popover))",
+                                foreground: "hsl(var(--popover-foreground))",
+                            },
+                            card: {
+                                DEFAULT: "hsl(var(--card))",
+                                foreground: "hsl(var(--card-foreground))",
+                            },
+                        },
+                        borderRadius: {
+                            lg: "var(--radius)",
+                            md: "calc(var(--radius) - 2px)",
+                            sm: "calc(var(--radius) - 4px)",
+                        },
+                    },
+                },
+            }
+        </script>
+
+        <!-- Load React only -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+        <script>
+            // Ensure React and ReactDOM are globally available
+            if (!window.React || !window.ReactDOM) {
+               throw new Error('React or ReactDOM not loaded');
+            }
+
+            window.React = React;
+            window.ReactDOM = ReactDOM;
+            window.createPortal = ReactDOM.createPortal;
+        </script>
+    </head>
+    <body class="bg-background text-foreground">
+        <div id="root"></div>
+        <script>
+            var App = (() => {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __defProps = Object.defineProperties;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+  var __objRest = (source, exclude) => {
+    var target = {};
+    for (var prop in source)
+      if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+        target[prop] = source[prop];
+    if (source != null && __getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(source)) {
+        if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+          target[prop] = source[prop];
+      }
+    return target;
+  };
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+  var __export = (target, all) => {
+    for (var name in all)
+      __defProp(target, name, { get: all[name], enumerable: true });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    // If the importer is in node compatibility mode or this is not an ESM
+    // file that has been converted to a CommonJS file using a Babel-
+    // compatible transform (i.e. "__esModule" has not been set), then set
+    // "default" to the CommonJS "module.exports" for node compatibility.
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    mod
+  ));
+  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+  // react-globals:react
+  var require_react = __commonJS({
+    "react-globals:react"(exports, module) {
+      module.exports = window.React;
+    }
+  });
+
+  // <stdin>
+  var stdin_exports = {};
+  __export(stdin_exports, {
+    default: () => App
+  });
+  var import_react3 = __toESM(require_react());
+
+  // node_modules/lucide-react/dist/esm/createLucideIcon.js
+  var import_react2 = __toESM(require_react());
+
+  // node_modules/lucide-react/dist/esm/shared/src/utils.js
+  var toKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  var toCamelCase = (string) => string.replace(
+    /^([A-Z])|[\s-_]+(\w)/g,
+    (match, p1, p2) => p2 ? p2.toUpperCase() : p1.toLowerCase()
+  );
+  var toPascalCase = (string) => {
+    const camelCase = toCamelCase(string);
+    return camelCase.charAt(0).toUpperCase() + camelCase.slice(1);
+  };
+  var mergeClasses = (...classes) => classes.filter((className, index, array) => {
+    return Boolean(className) && className.trim() !== "" && array.indexOf(className) === index;
+  }).join(" ").trim();
+  var hasA11yProp = (props) => {
+    for (const prop in props) {
+      if (prop.startsWith("aria-") || prop === "role" || prop === "title") {
+        return true;
+      }
+    }
+  };
+
+  // node_modules/lucide-react/dist/esm/Icon.js
+  var import_react = __toESM(require_react());
+
+  // node_modules/lucide-react/dist/esm/defaultAttributes.js
+  var defaultAttributes = {
+    xmlns: "http://www.w3.org/2000/svg",
+    width: 24,
+    height: 24,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 2,
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  };
+
+  // node_modules/lucide-react/dist/esm/Icon.js
+  var Icon = (0, import_react.forwardRef)(
+    (_a, ref) => {
+      var _b = _a, {
+        color = "currentColor",
+        size = 24,
+        strokeWidth = 2,
+        absoluteStrokeWidth,
+        className = "",
+        children,
+        iconNode
+      } = _b, rest = __objRest(_b, [
+        "color",
+        "size",
+        "strokeWidth",
+        "absoluteStrokeWidth",
+        "className",
+        "children",
+        "iconNode"
+      ]);
+      return (0, import_react.createElement)(
+        "svg",
+        __spreadValues(__spreadValues(__spreadProps(__spreadValues({
+          ref
+        }, defaultAttributes), {
+          width: size,
+          height: size,
+          stroke: color,
+          strokeWidth: absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
+          className: mergeClasses("lucide", className)
+        }), !children && !hasA11yProp(rest) && { "aria-hidden": "true" }), rest),
+        [
+          ...iconNode.map(([tag, attrs]) => (0, import_react.createElement)(tag, attrs)),
+          ...Array.isArray(children) ? children : [children]
+        ]
+      );
+    }
+  );
+
+  // node_modules/lucide-react/dist/esm/createLucideIcon.js
+  var createLucideIcon = (iconName, iconNode) => {
+    const Component = (0, import_react2.forwardRef)(
+      (_a, ref) => {
+        var _b = _a, { className } = _b, props = __objRest(_b, ["className"]);
+        return (0, import_react2.createElement)(Icon, __spreadValues({
+          ref,
+          iconNode,
+          className: mergeClasses(
+            `lucide-${toKebabCase(toPascalCase(iconName))}`,
+            `lucide-${iconName}`,
+            className
+          )
+        }, props));
+      }
+    );
+    Component.displayName = toPascalCase(iconName);
+    return Component;
+  };
+
+  // node_modules/lucide-react/dist/esm/icons/activity.js
+  var __iconNode = [
+    [
+      "path",
+      {
+        d: "M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2",
+        key: "169zse"
+      }
+    ]
+  ];
+  var Activity = createLucideIcon("activity", __iconNode);
+
+  // node_modules/lucide-react/dist/esm/icons/arrow-right.js
+  var __iconNode2 = [
+    ["path", { d: "M5 12h14", key: "1ays0h" }],
+    ["path", { d: "m12 5 7 7-7 7", key: "xquz4c" }]
+  ];
+  var ArrowRight = createLucideIcon("arrow-right", __iconNode2);
+
+  // node_modules/lucide-react/dist/esm/icons/check.js
+  var __iconNode3 = [["path", { d: "M20 6 9 17l-5-5", key: "1gmf2c" }]];
+  var Check = createLucideIcon("check", __iconNode3);
+
+  // node_modules/lucide-react/dist/esm/icons/chevron-right.js
+  var __iconNode4 = [["path", { d: "m9 18 6-6-6-6", key: "mthhwq" }]];
+  var ChevronRight = createLucideIcon("chevron-right", __iconNode4);
+
+  // node_modules/lucide-react/dist/esm/icons/file-text.js
+  var __iconNode5 = [
+    ["path", { d: "M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z", key: "1rqfz7" }],
+    ["path", { d: "M14 2v4a2 2 0 0 0 2 2h4", key: "tnqrlb" }],
+    ["path", { d: "M10 9H8", key: "b1mrlr" }],
+    ["path", { d: "M16 13H8", key: "t4e002" }],
+    ["path", { d: "M16 17H8", key: "z1uh3a" }]
+  ];
+  var FileText = createLucideIcon("file-text", __iconNode5);
+
+  // node_modules/lucide-react/dist/esm/icons/funnel.js
+  var __iconNode6 = [
+    [
+      "path",
+      {
+        d: "M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z",
+        key: "sc7q7i"
+      }
+    ]
+  ];
+  var Funnel = createLucideIcon("funnel", __iconNode6);
+
+  // node_modules/lucide-react/dist/esm/icons/info.js
+  var __iconNode7 = [
+    ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
+    ["path", { d: "M12 16v-4", key: "1dtifu" }],
+    ["path", { d: "M12 8h.01", key: "e9boi3" }]
+  ];
+  var Info = createLucideIcon("info", __iconNode7);
+
+  // node_modules/lucide-react/dist/esm/icons/layers.js
+  var __iconNode8 = [
+    [
+      "path",
+      {
+        d: "M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z",
+        key: "zw3jo"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12",
+        key: "1wduqc"
+      }
+    ],
+    [
+      "path",
+      {
+        d: "M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17",
+        key: "kqbvx6"
+      }
+    ]
+  ];
+  var Layers = createLucideIcon("layers", __iconNode8);
+
+  // node_modules/lucide-react/dist/esm/icons/lock-open.js
+  var __iconNode9 = [
+    ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
+    ["path", { d: "M7 11V7a5 5 0 0 1 9.9-1", key: "1mm8w8" }]
+  ];
+  var LockOpen = createLucideIcon("lock-open", __iconNode9);
+
+  // node_modules/lucide-react/dist/esm/icons/lock.js
+  var __iconNode10 = [
+    ["rect", { width: "18", height: "11", x: "3", y: "11", rx: "2", ry: "2", key: "1w4ew1" }],
+    ["path", { d: "M7 11V7a5 5 0 0 1 10 0v4", key: "fwvmzm" }]
+  ];
+  var Lock = createLucideIcon("lock", __iconNode10);
+
+  // node_modules/lucide-react/dist/esm/icons/pen-line.js
+  var __iconNode11 = [
+    ["path", { d: "M12 20h9", key: "t2du7b" }],
+    [
+      "path",
+      {
+        d: "M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z",
+        key: "1ykcvy"
+      }
+    ]
+  ];
+  var PenLine = createLucideIcon("pen-line", __iconNode11);
+
+  // node_modules/lucide-react/dist/esm/icons/plus.js
+  var __iconNode12 = [
+    ["path", { d: "M5 12h14", key: "1ays0h" }],
+    ["path", { d: "M12 5v14", key: "s699le" }]
+  ];
+  var Plus = createLucideIcon("plus", __iconNode12);
+
+  // node_modules/lucide-react/dist/esm/icons/refresh-cw.js
+  var __iconNode13 = [
+    ["path", { d: "M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8", key: "v9h5vc" }],
+    ["path", { d: "M21 3v5h-5", key: "1q7to0" }],
+    ["path", { d: "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16", key: "3uifl3" }],
+    ["path", { d: "M8 16H3v5", key: "1cv678" }]
+  ];
+  var RefreshCw = createLucideIcon("refresh-cw", __iconNode13);
+
+  // node_modules/lucide-react/dist/esm/icons/rotate-ccw.js
+  var __iconNode14 = [
+    ["path", { d: "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8", key: "1357e3" }],
+    ["path", { d: "M3 3v5h5", key: "1xhq8a" }]
+  ];
+  var RotateCcw = createLucideIcon("rotate-ccw", __iconNode14);
+
+  // node_modules/lucide-react/dist/esm/icons/search.js
+  var __iconNode15 = [
+    ["path", { d: "m21 21-4.34-4.34", key: "14j7rj" }],
+    ["circle", { cx: "11", cy: "11", r: "8", key: "4ej97u" }]
+  ];
+  var Search = createLucideIcon("search", __iconNode15);
+
+  // node_modules/lucide-react/dist/esm/icons/sliders-vertical.js
+  var __iconNode16 = [
+    ["line", { x1: "4", x2: "4", y1: "21", y2: "14", key: "1p332r" }],
+    ["line", { x1: "4", x2: "4", y1: "10", y2: "3", key: "gb41h5" }],
+    ["line", { x1: "12", x2: "12", y1: "21", y2: "12", key: "hf2csr" }],
+    ["line", { x1: "12", x2: "12", y1: "8", y2: "3", key: "1kfi7u" }],
+    ["line", { x1: "20", x2: "20", y1: "21", y2: "16", key: "1lhrwl" }],
+    ["line", { x1: "20", x2: "20", y1: "12", y2: "3", key: "16vvfq" }],
+    ["line", { x1: "2", x2: "6", y1: "14", y2: "14", key: "1uebub" }],
+    ["line", { x1: "10", x2: "14", y1: "8", y2: "8", key: "1yglbp" }],
+    ["line", { x1: "18", x2: "22", y1: "16", y2: "16", key: "1jxqpz" }]
+  ];
+  var SlidersVertical = createLucideIcon("sliders-vertical", __iconNode16);
+
+  // node_modules/lucide-react/dist/esm/icons/sparkles.js
+  var __iconNode17 = [
+    [
+      "path",
+      {
+        d: "M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z",
+        key: "4pj2yx"
+      }
+    ],
+    ["path", { d: "M20 3v4", key: "1olli1" }],
+    ["path", { d: "M22 5h-4", key: "1gvqau" }],
+    ["path", { d: "M4 17v2", key: "vumght" }],
+    ["path", { d: "M5 18H3", key: "zchphs" }]
+  ];
+  var Sparkles = createLucideIcon("sparkles", __iconNode17);
+
+  // node_modules/lucide-react/dist/esm/icons/trash-2.js
+  var __iconNode18 = [
+    ["path", { d: "M3 6h18", key: "d0wm0j" }],
+    ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
+    ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
+    ["line", { x1: "10", x2: "10", y1: "11", y2: "17", key: "1uufr5" }],
+    ["line", { x1: "14", x2: "14", y1: "11", y2: "17", key: "xtxkd" }]
+  ];
+  var Trash2 = createLucideIcon("trash-2", __iconNode18);
+
+  // node_modules/lucide-react/dist/esm/icons/trending-down.js
+  var __iconNode19 = [
+    ["path", { d: "M16 17h6v-6", key: "t6n2it" }],
+    ["path", { d: "m22 17-8.5-8.5-5 5L2 7", key: "x473p" }]
+  ];
+  var TrendingDown = createLucideIcon("trending-down", __iconNode19);
+
+  // node_modules/lucide-react/dist/esm/icons/trending-up.js
+  var __iconNode20 = [
+    ["path", { d: "M16 7h6v6", key: "box55l" }],
+    ["path", { d: "m22 7-8.5 8.5-5-5L2 17", key: "1t1m79" }]
+  ];
+  var TrendingUp = createLucideIcon("trending-up", __iconNode20);
+
+  // node_modules/lucide-react/dist/esm/icons/triangle-alert.js
+  var __iconNode21 = [
+    [
+      "path",
+      {
+        d: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3",
+        key: "wmoenq"
+      }
+    ],
+    ["path", { d: "M12 9v4", key: "juzpu7" }],
+    ["path", { d: "M12 17h.01", key: "p32p05" }]
+  ];
+  var TriangleAlert = createLucideIcon("triangle-alert", __iconNode21);
+
+  // node_modules/lucide-react/dist/esm/icons/x.js
+  var __iconNode22 = [
+    ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
+    ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
+  ];
+  var X = createLucideIcon("x", __iconNode22);
+
+  // node_modules/lucide-react/dist/esm/icons/zap.js
+  var __iconNode23 = [
+    [
+      "path",
+      {
+        d: "M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z",
+        key: "1xq2db"
+      }
+    ]
+  ];
+  var Zap = createLucideIcon("zap", __iconNode23);
+
+  // <stdin>
+  var CATEGORIES = {
+    "Network & Economics": { color: "#10B981", bg: "bg-emerald-500/10", border: "border-emerald-500/30", text: "text-emerald-400" },
+    "Consumer Operations": { color: "#3B82F6", bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400" },
+    "Supply Chain & Stock": { color: "#F59E0B", bg: "bg-amber-500/10", border: "border-amber-500/30", text: "text-amber-400" },
+    "Material & Quality": { color: "#8B5CF6", bg: "bg-purple-500/10", border: "border-purple-500/30", text: "text-purple-400" },
+    "Environment & Climate": { color: "#06B6D4", bg: "bg-cyan-500/10", border: "border-cyan-500/30", text: "text-cyan-400" }
+  };
+  var INITIAL_NODES = [
+    { id: "N1", label: "Partner Density", category: "Network & Economics", desc: "Density of participating caf\xE9s, bakeries, and return locations in the urban network." },
+    { id: "N2", label: "Return Convenience", category: "Consumer Operations", desc: "Proximity and simplicity for consumers returning used RECUP cups." },
+    { id: "N3", label: "Adoption Volume", category: "Consumer Operations", desc: "Total daily volume of reusable RECUP cups actively chosen by consumers." },
+    { id: "N4", label: "Vendor Financial Savings", category: "Network & Economics", desc: "Cumulative operational savings from avoided single-use paper/plastic cup costs." },
+    { id: "N5", label: "Available Circulating Inventory", category: "Supply Chain & Stock", desc: "Volume of clean, ready-to-use cups present in partner store stock." },
+    { id: "N6", label: "Hoarded Cup Stock", category: "Consumer Operations", desc: "Cups retained by consumers in offices/homes, temporarily removed from circulation." },
+    { id: "N7", label: "Cup Wear", category: "Material & Quality", desc: "Accumulated structural and visual wear from repeated commercial dishwashing cycles." },
+    { id: "N8", label: "Replacement Demand", category: "Supply Chain & Stock", desc: "Volume of new cups needed to substitute worn or unreturned stock." },
+    { id: "N9", label: "PP Feedstock Deficit", category: "Material & Quality", desc: "Gap between raw Polypropylene resin demand and available recycled/virgin material supply." },
+    { id: "N10", label: "Manufacturing Cost", category: "Network & Economics", desc: "Per-unit manufacturing cost of new Polypropylene cups." },
+    { id: "N11", label: "Replacement Cup Supply", category: "Supply Chain & Stock", desc: "Actual volume of newly manufactured replacement cups delivered to the system." },
+    { id: "N12", label: "Washing & Logistics Energy", category: "Environment & Climate", desc: "Energy and fuel consumed by transport vehicles and thermal dishwashers." },
+    { id: "N13", label: "System GHG Emissions", category: "Environment & Climate", desc: "Total greenhouse gas emissions generated across cup collection, washing, and production." },
+    { id: "N14", label: "Average Global Temp", category: "Environment & Climate", desc: "Global climate warming state driven by cumulative atmospheric GHG concentration." },
+    { id: "N15", label: "Coffee Yield Loss", category: "Environment & Climate", desc: "Reduction in global coffee bean crop yields due to heat waves and altered rainfall." },
+    { id: "N16", label: "Coffee Bean Price", category: "Network & Economics", desc: "Commodity price per pound of raw Arabica and Robusta coffee beans." },
+    { id: "N17", label: "Caf\xE9 Operating Margin", category: "Network & Economics", desc: "Average net profit margin of partner coffee shops and food outlets." },
+    { id: "N18", label: "Extending Cup EoL Past 1,000 Washes", category: "Material & Quality", desc: "Operational tactic of retaining cups in active service beyond 1,000 wash thresholds." },
+    { id: "N19", label: "Surface Micro-Degradation", category: "Material & Quality", desc: "Micro-scratches, staining, and surface roughness on cup interior walls." },
+    { id: "N20", label: "Consumer Hygiene Concerns", category: "Consumer Operations", desc: "Consumer hesitation to accept reusable cups due to perceived cleanliness risks." }
+  ];
+  var EDGES = [
+    { source: "N1", target: "N2", polarity: "+" },
+    { source: "N2", target: "N3", polarity: "+" },
+    { source: "N3", target: "N4", polarity: "+" },
+    { source: "N4", target: "N1", polarity: "+" },
+    { source: "N3", target: "N6", polarity: "+" },
+    { source: "N6", target: "N5", polarity: "-" },
+    { source: "N5", target: "N2", polarity: "+" },
+    { source: "N3", target: "N7", polarity: "+" },
+    { source: "N7", target: "N8", polarity: "+" },
+    { source: "N7", target: "N18", polarity: "+" },
+    { source: "N8", target: "N9", polarity: "+" },
+    { source: "N9", target: "N10", polarity: "+" },
+    { source: "N10", target: "N11", polarity: "-" },
+    { source: "N11", target: "N5", polarity: "+" },
+    { source: "N3", target: "N12", polarity: "+" },
+    { source: "N12", target: "N13", polarity: "+" },
+    { source: "N13", target: "N14", polarity: "+" },
+    { source: "N14", target: "N15", polarity: "-" },
+    { source: "N15", target: "N16", polarity: "-" },
+    { source: "N16", target: "N17", polarity: "-" },
+    { source: "N17", target: "N1", polarity: "+" },
+    { source: "N9", target: "N18", polarity: "+" },
+    { source: "N18", target: "N19", polarity: "+" },
+    { source: "N18", target: "N12", polarity: "+" },
+    { source: "N19", target: "N20", polarity: "+" },
+    { source: "N20", target: "N3", polarity: "-" },
+    { source: "N19", target: "N7", polarity: "+" },
+    { source: "N11", target: "N18", polarity: "-" },
+    { source: "N8", target: "N18", polarity: "+" },
+    { source: "N17", target: "N18", polarity: "-" },
+    { source: "N18", target: "N17", polarity: "-" }
+  ];
+  var LOOPS = [
+    {
+      id: "R1",
+      name: "Network Expansion Loop",
+      type: "Reinforcing",
+      code: "R1",
+      description: "Higher partner density improves return convenience, driving adoption volume and vendor savings, which incentivizes more partners to join.",
+      nodes: ["N1", "N2", "N3", "N4", "N1"]
+    },
+    {
+      id: "B1",
+      name: "Cup Hoarding Constraint",
+      type: "Balancing",
+      code: "B1",
+      description: "Increased adoption leads to cup hoarding, which reduces circulating stock, lowers return convenience, and dampens overall adoption.",
+      nodes: ["N3", "N6", "N5", "N2", "N3"]
+    },
+    {
+      id: "B2",
+      name: "PP Material Scarcity Constraint",
+      type: "Balancing",
+      code: "B2",
+      description: "High adoption wears cups out, creating replacement demand and PP feedstock deficits, raising manufacturing costs and constraining supply.",
+      nodes: ["N3", "N7", "N8", "N9", "N10", "N11", "N5", "N2", "N3"]
+    },
+    {
+      id: "B3",
+      name: "Coffee-Climate Feedback",
+      type: "Balancing",
+      code: "B3",
+      description: "Logistics energy drives GHG emissions and climate change, impacting coffee yields and bean prices, which squeezes caf\xE9 margins and network density.",
+      nodes: ["N3", "N12", "N13", "N14", "N15", "N16", "N17", "N1", "N2", "N3"]
+    },
+    {
+      id: "B4",
+      name: "Hygiene Degradation",
+      type: "Balancing",
+      code: "B4",
+      description: "Over-extending cup lifespans causes surface micro-degradation, raising consumer hygiene concerns and reducing adoption volume.",
+      nodes: ["N3", "N7", "N18", "N19", "N20", "N3"]
+    }
+  ];
+  var DEFAULT_STUDENT_RULES = [
+    {
+      id: "RULE-1",
+      name: "Cup Hoarding Modifier",
+      assumption: "Some customers retain RECUP cups as personal souvenirs, reducing return velocity.",
+      formula: "Effective Return Rate = Base Return Rate \xD7 (1 - Hoarding Rate)",
+      impact: "Reduces Available Circulating Inventory (N5) by 15%",
+      active: true,
+      type: "Consumer Behavior"
+    },
+    {
+      id: "RULE-2",
+      name: "Industrial Thermal Wash Constraint",
+      assumption: "Extreme summer heatwaves reduce industrial washing facility throughput capacity.",
+      formula: "Washing Capacity = Nominal Capacity \xD7 0.75 (at >35\xB0C ambient temp)",
+      impact: "Increases Washing & Logistics Energy (N12) by 20%",
+      active: true,
+      type: "Supply Chain"
+    },
+    {
+      id: "RULE-3",
+      name: "Coffee Harvest Climate Shock",
+      assumption: "El Ni\xF1o extreme weather events cause localized yield losses in key Arabica belts.",
+      formula: "Coffee Price Increase = Base Price \xD7 1.40 (when Yield Loss > 15%)",
+      impact: "Squeezes Caf\xE9 Margins (N17) by -20%",
+      active: false,
+      type: "Macro Climate"
+    }
+  ];
+  var DEFAULT_NODE_POSITIONS = {
+    N1: { x: 220, y: 180 },
+    N2: { x: 380, y: 140 },
+    N3: { x: 540, y: 200 },
+    N4: { x: 380, y: 300 },
+    N5: { x: 320, y: 440 },
+    N6: { x: 500, y: 380 },
+    N7: { x: 680, y: 220 },
+    N8: { x: 780, y: 320 },
+    N9: { x: 740, y: 480 },
+    N10: { x: 620, y: 560 },
+    N11: { x: 460, y: 560 },
+    N12: { x: 580, y: 80 },
+    N13: { x: 740, y: 90 },
+    N14: { x: 880, y: 140 },
+    N15: { x: 920, y: 280 },
+    N16: { x: 860, y: 420 },
+    N17: { x: 180, y: 340 },
+    N18: { x: 660, y: 340 },
+    N19: { x: 620, y: 450 },
+    N20: { x: 520, y: 290 }
+  };
+  function App() {
+    var _a, _b, _c;
+    const [activeTab, setActiveTab] = (0, import_react3.useState)("P1");
+    const [nodes, setNodes] = (0, import_react3.useState)(
+      () => INITIAL_NODES.map((n) => {
+        var _a2, _b2;
+        return __spreadProps(__spreadValues({}, n), {
+          x: ((_a2 = DEFAULT_NODE_POSITIONS[n.id]) == null ? void 0 : _a2.x) || Math.random() * 800 + 100,
+          y: ((_b2 = DEFAULT_NODE_POSITIONS[n.id]) == null ? void 0 : _b2.y) || Math.random() * 500 + 100,
+          vx: 0,
+          vy: 0
+        });
+      })
+    );
+    const [selectedCategory, setSelectedCategory] = (0, import_react3.useState)("All");
+    const [selectedLoopId, setSelectedLoopId] = (0, import_react3.useState)("All");
+    const [searchQuery, setSearchQuery] = (0, import_react3.useState)("");
+    const [selectedNodeId, setSelectedNodeId] = (0, import_react3.useState)(null);
+    const [isLocked, setIsLocked] = (0, import_react3.useState)(false);
+    const [zoomScale, setZoomScale] = (0, import_react3.useState)(1);
+    const [panOffset, setPanOffset] = (0, import_react3.useState)({ x: 0, y: 0 });
+    const [isDraggingCanvas, setIsDraggingCanvas] = (0, import_react3.useState)(false);
+    const [dragStart, setDragStart] = (0, import_react3.useState)({ x: 0, y: 0 });
+    const [draggedNodeId, setDraggedNodeId] = (0, import_react3.useState)(null);
+    const [rippleState, setRippleState] = (0, import_react3.useState)({ active: false, sourceId: null, polarity: null, affectedIds: [] });
+    const [rippleAlerts, setRippleAlerts] = (0, import_react3.useState)([]);
+    const [ssp1FossilCap, setSsp1FossilCap] = (0, import_react3.useState)(55);
+    const [ssp1CupLifespan, setSsp1CupLifespan] = (0, import_react3.useState)(1e3);
+    const [ssp3CoffeePrice, setSsp3CoffeePrice] = (0, import_react3.useState)(80);
+    const [ssp3EolPush, setSsp3EolPush] = (0, import_react3.useState)(45);
+    const [studentRules, setStudentRules] = (0, import_react3.useState)(DEFAULT_STUDENT_RULES);
+    const [isRuleModalOpen, setIsRuleModalOpen] = (0, import_react3.useState)(false);
+    const [newRuleForm, setNewRuleForm] = (0, import_react3.useState)({ name: "", assumption: "", formula: "", impact: "", type: "General" });
+    const canvasRef = (0, import_react3.useRef)(null);
+    (0, import_react3.useEffect)(() => {
+      if (isLocked)
+        return;
+      let animId;
+      const tick = () => {
+        setNodes((prevNodes) => {
+          const nextNodes = prevNodes.map((n) => __spreadValues({}, n));
+          const kRepulsion = 12e3;
+          const kAttraction = 0.04;
+          const centerGravity = 0.015;
+          const centerX = 550;
+          const centerY = 320;
+          const minDistance = 110;
+          for (let i = 0; i < nextNodes.length; i++) {
+            for (let j = i + 1; j < nextNodes.length; j++) {
+              const n1 = nextNodes[i];
+              const n2 = nextNodes[j];
+              let dx = n2.x - n1.x;
+              let dy = n2.y - n1.y;
+              let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+              if (dist < minDistance * 2.5) {
+                let force = kRepulsion / (dist * dist);
+                let fx = dx / dist * force;
+                let fy = dy / dist * force;
+                if (n1.id !== draggedNodeId) {
+                  n1.vx -= fx;
+                  n1.vy -= fy;
+                }
+                if (n2.id !== draggedNodeId) {
+                  n2.vx += fx;
+                  n2.vy += fy;
+                }
+              }
+            }
+          }
+          EDGES.forEach((edge) => {
+            const s = nextNodes.find((n) => n.id === edge.source);
+            const t = nextNodes.find((n) => n.id === edge.target);
+            if (s && t) {
+              let dx = t.x - s.x;
+              let dy = t.y - s.y;
+              let dist = Math.sqrt(dx * dx + dy * dy) || 1;
+              let force = (dist - 140) * kAttraction;
+              let fx = dx / dist * force;
+              let fy = dy / dist * force;
+              if (s.id !== draggedNodeId) {
+                s.vx += fx;
+                s.vy += fy;
+              }
+              if (t.id !== draggedNodeId) {
+                t.vx -= fx;
+                t.vy -= fy;
+              }
+            }
+          });
+          nextNodes.forEach((n) => {
+            if (n.id === draggedNodeId)
+              return;
+            n.vx += (centerX - n.x) * centerGravity;
+            n.vy += (centerY - n.y) * centerGravity;
+            n.vx *= 0.82;
+            n.vy *= 0.82;
+            n.x += n.vx;
+            n.y += n.vy;
+            n.x = Math.max(80, Math.min(1020, n.x));
+            n.y = Math.max(60, Math.min(620, n.y));
+          });
+          return nextNodes;
+        });
+        animId = requestAnimationFrame(tick);
+      };
+      animId = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(animId);
+    }, [isLocked, draggedNodeId]);
+    (0, import_react3.useEffect)(() => {
+      if (searchQuery.trim() !== "") {
+        const match = nodes.find(
+          (n) => n.label.toLowerCase().includes(searchQuery.toLowerCase()) || n.id.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        if (match) {
+          setSelectedNodeId(match.id);
+        }
+      }
+    }, [searchQuery]);
+    const activeLoop = (0, import_react3.useMemo)(() => {
+      return LOOPS.find((l) => l.id === selectedLoopId) || null;
+    }, [selectedLoopId]);
+    const p2Metrics = (0, import_react3.useMemo)(() => {
+      const activeRulesCount = studentRules.filter((r) => r.active).length;
+      const virginSupplyRed = ssp1FossilCap * 1.1;
+      const feedstockDeficit = Math.min(100, Math.round(ssp1FossilCap * 1.15 + (activeRulesCount > 1 ? 5 : 0)));
+      const replacementCost = (0.45 * (1 + feedstockDeficit / 100 * 1.65)).toFixed(2);
+      const microDegradation = Math.max(0, (ssp1CupLifespan - 800) / 12);
+      const hygieneConcern = Math.min(100, Math.round(18 + microDegradation * 1.05));
+      const circulationCapacity = Math.round(1e5 * (1 - feedstockDeficit / 220) * (1 - hygieneConcern / 180));
+      return {
+        virginSupplyRed: virginSupplyRed.toFixed(1),
+        feedstockDeficit,
+        replacementCost,
+        hygieneConcern,
+        circulationCapacity: circulationCapacity.toLocaleString()
+      };
+    }, [ssp1FossilCap, ssp1CupLifespan, studentRules]);
+    const p3Metrics = (0, import_react3.useMemo)(() => {
+      var _a2;
+      const isCoffeeShockActive = (_a2 = studentRules.find((r) => r.id === "RULE-3")) == null ? void 0 : _a2.active;
+      const effectivePriceInc = ssp3CoffeePrice + (isCoffeeShockActive ? 40 : 0);
+      const marginLoss = (effectivePriceInc * 0.38).toFixed(1);
+      const hygieneLevel = Math.min(100, Math.round(22 + ssp3EolPush * 0.68));
+      const vulnerabilityIndex = Math.min(100, Math.round(25 + effectivePriceInc * 0.42 + ssp3EolPush * 0.25));
+      const netAdoptionImpact = -Math.round(marginLoss * 0.8 + hygieneLevel * 0.4);
+      return {
+        effectivePriceInc,
+        marginLoss,
+        hygieneLevel,
+        vulnerabilityIndex,
+        netAdoptionImpact
+      };
+    }, [ssp3CoffeePrice, ssp3EolPush, studentRules]);
+    const handleTriggerRipple = (sourceId, polarity) => {
+      const affected = [];
+      const queue = [{ id: sourceId, depth: 0 }];
+      const visited = /* @__PURE__ */ new Set([sourceId]);
+      while (queue.length > 0) {
+        const curr = queue.shift();
+        if (curr.depth > 0)
+          affected.push(curr.id);
+        EDGES.filter((e) => e.source === curr.id).forEach((e) => {
+          if (!visited.has(e.target) && curr.depth < 3) {
+            visited.add(e.target);
+            queue.push({ id: e.target, depth: curr.depth + 1 });
+          }
+        });
+      }
+      setRippleState({ active: true, sourceId, polarity, affectedIds: affected });
+      const sourceNode = nodes.find((n) => n.id === sourceId);
+      const alertMsg = {
+        id: Date.now(),
+        title: `${polarity === "+" ? "Positive Surge (++" : "Negative Shock (--"} triggered on ${sourceNode == null ? void 0 : sourceNode.label})`,
+        detail: `Cascading disturbance propagated downstream to ${affected.length} connected nodes: ${affected.join(", ")}`
+      };
+      setRippleAlerts((prev) => [alertMsg, ...prev.slice(0, 2)]);
+      setTimeout(() => {
+        setRippleState({ active: false, sourceId: null, polarity: null, affectedIds: [] });
+      }, 3500);
+    };
+    const handleNodeMouseDown = (e, nodeId) => {
+      e.stopPropagation();
+      setDraggedNodeId(nodeId);
+    };
+    const handleCanvasMouseDown = (e) => {
+      if (e.target.tagName === "svg" || e.target.id === "canvas-bg") {
+        setIsDraggingCanvas(true);
+        setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
+      }
+    };
+    const handleMouseMove = (e) => {
+      var _a2;
+      if (draggedNodeId) {
+        const rect = (_a2 = canvasRef.current) == null ? void 0 : _a2.getBoundingClientRect();
+        if (rect) {
+          const mouseX = (e.clientX - rect.left - panOffset.x) / zoomScale;
+          const mouseY = (e.clientY - rect.top - panOffset.y) / zoomScale;
+          setNodes((prev) => prev.map((n) => n.id === draggedNodeId ? __spreadProps(__spreadValues({}, n), { x: mouseX, y: mouseY, vx: 0, vy: 0 }) : n));
+        }
+      } else if (isDraggingCanvas) {
+        setPanOffset({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+      }
+    };
+    const handleMouseUp = () => {
+      setDraggedNodeId(null);
+      setIsDraggingCanvas(false);
+    };
+    const resetLayout = () => {
+      setNodes(INITIAL_NODES.map((n) => {
+        var _a2, _b2;
+        return __spreadProps(__spreadValues({}, n), {
+          x: ((_a2 = DEFAULT_NODE_POSITIONS[n.id]) == null ? void 0 : _a2.x) || Math.random() * 800 + 100,
+          y: ((_b2 = DEFAULT_NODE_POSITIONS[n.id]) == null ? void 0 : _b2.y) || Math.random() * 500 + 100,
+          vx: 0,
+          vy: 0
+        });
+      }));
+      setZoomScale(1);
+      setPanOffset({ x: 0, y: 0 });
+      setSelectedLoopId("All");
+      setSelectedCategory("All");
+      setSearchQuery("");
+    };
+    const toggleStudentRule = (id) => {
+      setStudentRules((prev) => prev.map((r) => r.id === id ? __spreadProps(__spreadValues({}, r), { active: !r.active }) : r));
+    };
+    const deleteStudentRule = (id) => {
+      setStudentRules((prev) => prev.filter((r) => r.id !== id));
+    };
+    const handleAddRuleSubmit = (e) => {
+      e.preventDefault();
+      if (!newRuleForm.name || !newRuleForm.formula)
+        return;
+      const ruleObj = {
+        id: `RULE-${Date.now().toString().slice(-4)}`,
+        name: newRuleForm.name,
+        assumption: newRuleForm.assumption || "User defined system assumption.",
+        formula: newRuleForm.formula,
+        impact: newRuleForm.impact || "Modifies systemic parameters.",
+        active: true,
+        type: newRuleForm.type
+      };
+      setStudentRules((prev) => [...prev, ruleObj]);
+      setNewRuleForm({ name: "", assumption: "", formula: "", impact: "", type: "General" });
+      setIsRuleModalOpen(false);
+    };
+    const selectedNode = (0, import_react3.useMemo)(() => nodes.find((n) => n.id === selectedNodeId), [nodes, selectedNodeId]);
+    const incomingEdges = (0, import_react3.useMemo)(() => EDGES.filter((e) => e.target === selectedNodeId), [selectedNodeId]);
+    const outgoingEdges = (0, import_react3.useMemo)(() => EDGES.filter((e) => e.source === selectedNodeId), [selectedNodeId]);
+    const connectedLoops = (0, import_react3.useMemo)(() => LOOPS.filter((l) => l.nodes.includes(selectedNodeId)), [selectedNodeId]);
+    return /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex flex-col h-screen w-full bg-slate-950 text-slate-100 font-sans antialiased overflow-hidden select-none" }, /* @__PURE__ */ import_react3.default.createElement("style", null, `
+        @keyframes marchingAnts {
+          0% { stroke-dashoffset: 0; }
+          100% { stroke-dashoffset: -24; }
+        }
+        .marching-ants-path {
+          stroke-dasharray: 8, 6;
+          animation: marchingAnts 1.2s linear infinite;
+        }
+        @keyframes pulseGlow {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.15); }
+        }
+        .pulse-glow {
+          animation: pulseGlow 2s infinite ease-in-out;
+        }
+      `), /* @__PURE__ */ import_react3.default.createElement("header", { className: "h-16 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md px-5 flex items-center justify-between z-30 shrink-0" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-3" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20" }, /* @__PURE__ */ import_react3.default.createElement(RefreshCw, { className: "w-5 h-5 text-slate-950 animate-spin-slow" })), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h1", { className: "text-base font-bold bg-gradient-to-r from-slate-100 via-emerald-300 to-teal-200 bg-clip-text text-transparent" }, "RECUP Causal Loop Map & System Simulator"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-slate-400" }, "Circular Reusable Cup System Dynamics | SSP Scenarios & Feedback Architecture"))), /* @__PURE__ */ import_react3.default.createElement("nav", { className: "flex items-center space-x-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800/80" }, /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => setActiveTab("P1"),
+        className: `px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all ${activeTab === "P1" ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 shadow-md shadow-emerald-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"}`
+      },
+      /* @__PURE__ */ import_react3.default.createElement(Layers, { className: "w-3.5 h-3.5" }),
+      /* @__PURE__ */ import_react3.default.createElement("span", null, "P1: System Map (CLD)")
+    ), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => setActiveTab("P2"),
+        className: `px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all ${activeTab === "P2" ? "bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 shadow-md shadow-amber-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"}`
+      },
+      /* @__PURE__ */ import_react3.default.createElement(SlidersVertical, { className: "w-3.5 h-3.5" }),
+      /* @__PURE__ */ import_react3.default.createElement("span", null, "P2: SSP1-2.6 PP Deficit")
+    ), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => setActiveTab("P3"),
+        className: `px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all ${activeTab === "P3" ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md shadow-cyan-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"}`
+      },
+      /* @__PURE__ */ import_react3.default.createElement(Zap, { className: "w-3.5 h-3.5" }),
+      /* @__PURE__ */ import_react3.default.createElement("span", null, "P3: SSP3-7.0 Coffee-Climate")
+    ), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => setActiveTab("RULES"),
+        className: `px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all ${activeTab === "RULES" ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-slate-950 shadow-md shadow-purple-500/20" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"}`
+      },
+      /* @__PURE__ */ import_react3.default.createElement(PenLine, { className: "w-3.5 h-3.5" }),
+      /* @__PURE__ */ import_react3.default.createElement("span", null, "Student Rules (", studentRules.filter((r) => r.active).length, ")")
+    ), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => setActiveTab("AUDIT"),
+        className: `px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all ${activeTab === "AUDIT" ? "bg-gradient-to-r from-slate-200 to-slate-400 text-slate-950 shadow-md" : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"}`
+      },
+      /* @__PURE__ */ import_react3.default.createElement(FileText, { className: "w-3.5 h-3.5" }),
+      /* @__PURE__ */ import_react3.default.createElement("span", null, "Assumptions Audit")
+    ))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex-1 relative overflow-hidden flex flex-col" }, activeTab === "P1" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex-1 flex flex-col relative overflow-hidden bg-slate-950" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "p-3 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 z-10 shrink-0" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-3 flex-wrap gap-y-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "relative w-56" }, /* @__PURE__ */ import_react3.default.createElement(Search, { className: "w-4 h-4 absolute left-3 top-2.5 text-slate-400" }), /* @__PURE__ */ import_react3.default.createElement(
+      "input",
+      {
+        type: "text",
+        placeholder: "Search node ID or title...",
+        value: searchQuery,
+        onChange: (e) => setSearchQuery(e.target.value),
+        className: "w-full bg-slate-950 border border-slate-700/80 rounded-lg pl-9 pr-7 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+      }
+    ), searchQuery && /* @__PURE__ */ import_react3.default.createElement("button", { onClick: () => setSearchQuery(""), className: "absolute right-2.5 top-2 text-slate-400 hover:text-slate-200" }, /* @__PURE__ */ import_react3.default.createElement(X, { className: "w-3.5 h-3.5" }))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-1.5" }, /* @__PURE__ */ import_react3.default.createElement(Funnel, { className: "w-3.5 h-3.5 text-slate-400" }), /* @__PURE__ */ import_react3.default.createElement(
+      "select",
+      {
+        value: selectedCategory,
+        onChange: (e) => setSelectedCategory(e.target.value),
+        className: "bg-slate-950 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+      },
+      /* @__PURE__ */ import_react3.default.createElement("option", { value: "All" }, "All Domains (20 Nodes)"),
+      Object.keys(CATEGORIES).map((cat) => /* @__PURE__ */ import_react3.default.createElement("option", { key: cat, value: cat }, cat))
+    ))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-1.5 bg-slate-950/80 p-1 rounded-lg border border-slate-800" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2" }, "Focus Loop:"), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => setSelectedLoopId("All"),
+        className: `px-2.5 py-1 rounded text-xs font-semibold transition-all ${selectedLoopId === "All" ? "bg-slate-800 text-emerald-400" : "text-slate-400 hover:text-slate-200"}`
+      },
+      "All (Overview)"
+    ), LOOPS.map((loop) => /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        key: loop.id,
+        onClick: () => setSelectedLoopId(loop.id),
+        className: `px-2.5 py-1 rounded text-xs font-bold transition-all flex items-center space-x-1 ${selectedLoopId === loop.id ? loop.type === "Reinforcing" ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-amber-500/20 text-amber-400 border border-amber-500/40" : "text-slate-400 hover:text-slate-200"}`
+      },
+      /* @__PURE__ */ import_react3.default.createElement("span", null, loop.code),
+      /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] opacity-75 font-normal hidden md:inline" }, "(", loop.type === "Reinforcing" ? "R" : "B", ")")
+    ))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => setIsLocked(!isLocked),
+        className: `p-1.5 rounded-lg border text-xs flex items-center space-x-1 transition-all ${isLocked ? "bg-amber-500/10 border-amber-500/30 text-amber-400" : "bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700"}`,
+        title: isLocked ? "Unlock Physics Auto-Layout" : "Freeze / Lock Layout Positions"
+      },
+      isLocked ? /* @__PURE__ */ import_react3.default.createElement(Lock, { className: "w-3.5 h-3.5" }) : /* @__PURE__ */ import_react3.default.createElement(LockOpen, { className: "w-3.5 h-3.5" }),
+      /* @__PURE__ */ import_react3.default.createElement("span", { className: "hidden sm:inline" }, isLocked ? "Locked" : "Physics Active")
+    ), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: resetLayout,
+        className: "p-1.5 bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center space-x-1 transition-all",
+        title: "Reset Layout & Zoom"
+      },
+      /* @__PURE__ */ import_react3.default.createElement(RotateCcw, { className: "w-3.5 h-3.5" }),
+      /* @__PURE__ */ import_react3.default.createElement("span", { className: "hidden sm:inline" }, "Reset")
+    ), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5" }, /* @__PURE__ */ import_react3.default.createElement("button", { onClick: () => setZoomScale((z) => Math.max(0.5, z - 0.15)), className: "px-2 py-0.5 text-slate-400 hover:text-slate-200 text-xs" }, "-"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[11px] text-slate-400 px-1 font-mono" }, Math.round(zoomScale * 100), "%"), /* @__PURE__ */ import_react3.default.createElement("button", { onClick: () => setZoomScale((z) => Math.min(2.5, z + 0.15)), className: "px-2 py-0.5 text-slate-400 hover:text-slate-200 text-xs" }, "+")))), activeLoop && /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900/90 border-b border-slate-800 px-5 py-2.5 flex items-center justify-between text-xs z-10 shrink-0" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-3" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: `px-2 py-0.5 rounded text-[11px] font-bold ${activeLoop.type === "Reinforcing" ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-amber-500/20 text-amber-400 border border-amber-500/40"}` }, activeLoop.code, " (", activeLoop.type, ")"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-semibold text-slate-200" }, activeLoop.name, ":"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-slate-400 hidden lg:inline" }, activeLoop.description)), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2 text-slate-400 text-[11px]" }, /* @__PURE__ */ import_react3.default.createElement("span", null, "Loop Chain Sequence:"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-mono text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" }, activeLoop.nodes.join(" \u2192 ")))), rippleAlerts.length > 0 && /* @__PURE__ */ import_react3.default.createElement("div", { className: "absolute top-20 right-6 z-20 space-y-2 pointer-events-none max-w-sm" }, rippleAlerts.map((alert) => /* @__PURE__ */ import_react3.default.createElement("div", { key: alert.id, className: "bg-slate-900/95 border border-emerald-500/40 rounded-xl p-3 shadow-xl backdrop-blur-md animate-bounce-short" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2 text-xs font-bold text-emerald-400" }, /* @__PURE__ */ import_react3.default.createElement(Sparkles, { className: "w-4 h-4 text-emerald-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, alert.title)), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[11px] text-slate-300 mt-1 leading-snug" }, alert.detail)))), /* @__PURE__ */ import_react3.default.createElement(
+      "div",
+      {
+        ref: canvasRef,
+        id: "canvas-bg",
+        onMouseDown: handleCanvasMouseDown,
+        onMouseMove: handleMouseMove,
+        onMouseUp: handleMouseUp,
+        className: "flex-1 cursor-grab active:cursor-grabbing relative overflow-hidden"
+      },
+      /* @__PURE__ */ import_react3.default.createElement("svg", { className: "w-full h-full" }, /* @__PURE__ */ import_react3.default.createElement("defs", null, /* @__PURE__ */ import_react3.default.createElement("marker", { id: "arrow-pos", viewBox: "0 0 10 10", refX: "28", refY: "5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" }, /* @__PURE__ */ import_react3.default.createElement("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: "#10B981" })), /* @__PURE__ */ import_react3.default.createElement("marker", { id: "arrow-neg", viewBox: "0 0 10 10", refX: "28", refY: "5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" }, /* @__PURE__ */ import_react3.default.createElement("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: "#EF4444" })), /* @__PURE__ */ import_react3.default.createElement("marker", { id: "arrow-dim", viewBox: "0 0 10 10", refX: "28", refY: "5", markerWidth: "6", markerHeight: "6", orient: "auto-start-reverse" }, /* @__PURE__ */ import_react3.default.createElement("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: "#475569" }))), /* @__PURE__ */ import_react3.default.createElement("g", { transform: `translate(${panOffset.x}, ${panOffset.y}) scale(${zoomScale})` }, EDGES.map((edge, idx) => {
+        const sourceNode = nodes.find((n) => n.id === edge.source);
+        const targetNode = nodes.find((n) => n.id === edge.target);
+        if (!sourceNode || !targetNode)
+          return null;
+        let isInLoop = false;
+        let loopStepIndex = -1;
+        if (activeLoop) {
+          for (let i = 0; i < activeLoop.nodes.length - 1; i++) {
+            if (activeLoop.nodes[i] === edge.source && activeLoop.nodes[i + 1] === edge.target) {
+              isInLoop = true;
+              loopStepIndex = i + 1;
+              break;
+            }
+          }
+        }
+        const isSourceCategoryMatch = selectedCategory === "All" || sourceNode.category === selectedCategory;
+        const isTargetCategoryMatch = selectedCategory === "All" || targetNode.category === selectedCategory;
+        const isCategoryFiltered = !isSourceCategoryMatch && !isTargetCategoryMatch;
+        const isDimmed = selectedLoopId !== "All" && !isInLoop || selectedCategory !== "All" && isCategoryFiltered;
+        const isRipplePath = rippleState.active && (rippleState.sourceId === edge.source || rippleState.affectedIds.includes(edge.source));
+        const dx = targetNode.x - sourceNode.x;
+        const dy = targetNode.y - sourceNode.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const normalX = -dy / dist;
+        const normalY = dx / dist;
+        const curveOffset = 26;
+        const controlX = (sourceNode.x + targetNode.x) / 2 + normalX * curveOffset;
+        const controlY = (sourceNode.y + targetNode.y) / 2 + normalY * curveOffset;
+        const pathD = `M ${sourceNode.x} ${sourceNode.y} Q ${controlX} ${controlY} ${targetNode.x} ${targetNode.y}`;
+        const midX = (sourceNode.x + 2 * controlX + targetNode.x) / 4;
+        const midY = (sourceNode.y + 2 * controlY + targetNode.y) / 4;
+        const strokeColor = isDimmed ? "#334155" : isInLoop ? (activeLoop == null ? void 0 : activeLoop.type) === "Reinforcing" ? "#10B981" : "#F59E0B" : edge.polarity === "+" ? "#10B981" : "#EF4444";
+        return /* @__PURE__ */ import_react3.default.createElement("g", { key: `edge-${idx}`, className: "transition-opacity duration-300", style: { opacity: isDimmed ? 0.2 : 1 } }, /* @__PURE__ */ import_react3.default.createElement(
+          "path",
+          {
+            d: pathD,
+            fill: "none",
+            stroke: strokeColor,
+            strokeWidth: isInLoop ? 3.5 : isRipplePath ? 3 : 1.8,
+            strokeOpacity: isDimmed ? 0.3 : 0.8,
+            markerEnd: `url(#${isDimmed ? "arrow-dim" : edge.polarity === "+" ? "arrow-pos" : "arrow-neg"})`
+          }
+        ), isInLoop && /* @__PURE__ */ import_react3.default.createElement(
+          "path",
+          {
+            d: pathD,
+            fill: "none",
+            stroke: "#FFFFFF",
+            strokeWidth: 2,
+            strokeOpacity: 0.9,
+            className: "marching-ants-path"
+          }
+        ), !isDimmed && /* @__PURE__ */ import_react3.default.createElement("g", { transform: `translate(${midX}, ${midY})` }, /* @__PURE__ */ import_react3.default.createElement(
+          "circle",
+          {
+            r: "10",
+            fill: "#0F172A",
+            stroke: strokeColor,
+            strokeWidth: "1.5"
+          }
+        ), /* @__PURE__ */ import_react3.default.createElement(
+          "text",
+          {
+            textAnchor: "middle",
+            dy: "3.5",
+            fontSize: "11",
+            fontWeight: "bold",
+            fill: edge.polarity === "+" ? "#10B981" : "#EF4444"
+          },
+          edge.polarity
+        ), isInLoop && loopStepIndex > 0 && /* @__PURE__ */ import_react3.default.createElement("g", { transform: "translate(12, -10)" }, /* @__PURE__ */ import_react3.default.createElement("circle", { r: "8", fill: "#F59E0B" }), /* @__PURE__ */ import_react3.default.createElement("text", { textAnchor: "middle", dy: "3", fontSize: "9", fontWeight: "bold", fill: "#020617" }, loopStepIndex))));
+      }), nodes.map((node) => {
+        const catConfig = CATEGORIES[node.category] || CATEGORIES["Network & Economics"];
+        const isSelected = selectedNodeId === node.id;
+        const isMatchedSearch = searchQuery && (node.label.toLowerCase().includes(searchQuery.toLowerCase()) || node.id.toLowerCase().includes(searchQuery.toLowerCase()));
+        let isInFocusedLoop = false;
+        let loopSeqNumber = -1;
+        if (activeLoop) {
+          const idx = activeLoop.nodes.indexOf(node.id);
+          if (idx !== -1) {
+            isInFocusedLoop = true;
+            loopSeqNumber = idx + 1;
+          }
+        }
+        const isCategoryFiltered = selectedCategory !== "All" && node.category !== selectedCategory;
+        const isDimmed = selectedLoopId !== "All" && !isInFocusedLoop || isCategoryFiltered;
+        const isRippleTarget = rippleState.active && (rippleState.sourceId === node.id || rippleState.affectedIds.includes(node.id));
+        return /* @__PURE__ */ import_react3.default.createElement(
+          "g",
+          {
+            key: node.id,
+            transform: `translate(${node.x}, ${node.y})`,
+            onMouseDown: (e) => handleNodeMouseDown(e, node.id),
+            onClick: (e) => {
+              e.stopPropagation();
+              setSelectedNodeId(node.id);
+            },
+            className: "cursor-pointer transition-opacity duration-300",
+            style: { opacity: isDimmed ? 0.25 : 1 }
+          },
+          isRippleTarget && /* @__PURE__ */ import_react3.default.createElement(
+            "circle",
+            {
+              r: "34",
+              fill: "none",
+              stroke: rippleState.polarity === "+" ? "#10B981" : "#EF4444",
+              strokeWidth: "3",
+              className: "pulse-glow"
+            }
+          ),
+          isMatchedSearch && /* @__PURE__ */ import_react3.default.createElement("circle", { r: "36", fill: "none", stroke: "#F59E0B", strokeWidth: "3", strokeDasharray: "4,4", className: "animate-spin-slow" }),
+          isSelected && /* @__PURE__ */ import_react3.default.createElement("circle", { r: "30", fill: "none", stroke: "#60A5FA", strokeWidth: "3", className: "animate-pulse" }),
+          /* @__PURE__ */ import_react3.default.createElement(
+            "circle",
+            {
+              r: "22",
+              fill: "#0F172A",
+              stroke: catConfig.color,
+              strokeWidth: isSelected ? "3.5" : isInFocusedLoop ? "3" : "2",
+              className: "shadow-2xl transition-all"
+            }
+          ),
+          /* @__PURE__ */ import_react3.default.createElement(
+            "text",
+            {
+              textAnchor: "middle",
+              dy: "4",
+              fontSize: "11",
+              fontWeight: "bold",
+              fill: "#F8FAFC",
+              className: "pointer-events-none"
+            },
+            node.id
+          ),
+          isInFocusedLoop && loopSeqNumber > 0 && /* @__PURE__ */ import_react3.default.createElement("g", { transform: "translate(16, -16)" }, /* @__PURE__ */ import_react3.default.createElement("circle", { r: "9", fill: "#10B981", stroke: "#020617", strokeWidth: "1.5" }), /* @__PURE__ */ import_react3.default.createElement("text", { textAnchor: "middle", dy: "3", fontSize: "10", fontWeight: "bold", fill: "#020617" }, loopSeqNumber)),
+          /* @__PURE__ */ import_react3.default.createElement("g", { transform: "translate(0, 34)" }, /* @__PURE__ */ import_react3.default.createElement(
+            "rect",
+            {
+              x: "-65",
+              y: "-10",
+              width: "130",
+              height: "20",
+              rx: "4",
+              fill: "#020617",
+              fillOpacity: "0.85",
+              stroke: isSelected ? "#60A5FA" : "transparent",
+              strokeWidth: "1"
+            }
+          ), /* @__PURE__ */ import_react3.default.createElement(
+            "text",
+            {
+              textAnchor: "middle",
+              dy: "4",
+              fontSize: "10",
+              fontWeight: "600",
+              fill: isSelected ? "#60A5FA" : "#E2E8F0",
+              className: "pointer-events-none"
+            },
+            node.label.length > 20 ? node.label.slice(0, 18) + "..." : node.label
+          ))
+        );
+      }))),
+      /* @__PURE__ */ import_react3.default.createElement("div", { className: "absolute bottom-4 left-4 bg-slate-900/90 border border-slate-800 p-3 rounded-xl backdrop-blur-md text-xs space-y-2 pointer-events-none z-10 max-w-xs hidden sm:block" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "font-bold text-slate-200 flex items-center space-x-1.5" }, /* @__PURE__ */ import_react3.default.createElement(Info, { className: "w-3.5 h-3.5 text-emerald-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Canvas Navigation & Polarity")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-slate-400" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-1.5" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "+ Same Direction")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-1.5" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "w-2.5 h-2.5 rounded-full bg-red-500 inline-block" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "- Opposite Direction"))), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[10px] text-slate-500 leading-tight" }, "Drag nodes to reposition. Click node to inspect drivers, impacts, and trigger systemic ripple waves."))
+    ), selectedNode && /* @__PURE__ */ import_react3.default.createElement("div", { className: "absolute top-0 right-0 bottom-0 w-96 bg-slate-900/95 border-l border-slate-800 shadow-2xl backdrop-blur-xl z-30 flex flex-col transition-all duration-300" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/60" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: `px-2 py-0.5 rounded text-xs font-bold ${(_a = CATEGORIES[selectedNode.category]) == null ? void 0 : _a.bg} ${(_b = CATEGORIES[selectedNode.category]) == null ? void 0 : _b.text} border ${(_c = CATEGORIES[selectedNode.category]) == null ? void 0 : _c.border}` }, selectedNode.id), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, selectedNode.category)), /* @__PURE__ */ import_react3.default.createElement("button", { onClick: () => setSelectedNodeId(null), className: "p-1 text-slate-400 hover:text-slate-100 rounded-lg hover:bg-slate-800" }, /* @__PURE__ */ import_react3.default.createElement(X, { className: "w-4 h-4" }))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex-1 overflow-y-auto p-5 space-y-6" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h2", { className: "text-lg font-bold text-slate-100" }, selectedNode.label), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-slate-300 mt-1.5 leading-relaxed bg-slate-950/50 p-3 rounded-lg border border-slate-800/80" }, selectedNode.desc)), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-950/80 p-3.5 rounded-xl border border-emerald-500/30 space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs font-bold text-emerald-400 flex items-center space-x-1.5" }, /* @__PURE__ */ import_react3.default.createElement(Zap, { className: "w-3.5 h-3.5" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Systemic Ripple Simulator"))), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[11px] text-slate-400" }, "Inject an operational shock or boost to observe causal wave propagation downstream."), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-2 gap-2 pt-1" }, /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => handleTriggerRipple(selectedNode.id, "+"),
+        className: "py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-400 font-bold rounded-lg text-xs flex items-center justify-center space-x-1 transition-all"
+      },
+      /* @__PURE__ */ import_react3.default.createElement("span", null, "++ Positive Surge")
+    ), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => handleTriggerRipple(selectedNode.id, "-"),
+        className: "py-1.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 font-bold rounded-lg text-xs flex items-center justify-center space-x-1 transition-all"
+      },
+      /* @__PURE__ */ import_react3.default.createElement("span", null, "-- Negative Shock")
+    ))), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-xs font-bold uppercase tracking-wider text-slate-400 mb-2" }, "Connected Loops (", connectedLoops.length, ")"), connectedLoops.length === 0 ? /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-slate-500 italic" }, "Not part of major feedback loops.") : /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-2" }, connectedLoops.map((loop) => /* @__PURE__ */ import_react3.default.createElement(
+      "div",
+      {
+        key: loop.id,
+        onClick: () => setSelectedLoopId(loop.id),
+        className: "p-2.5 bg-slate-950 border border-slate-800 rounded-lg cursor-pointer hover:border-slate-700 transition-all flex items-center justify-between"
+      },
+      /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: `px-1.5 py-0.5 rounded text-[10px] font-bold ${loop.type === "Reinforcing" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}` }, loop.code), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs font-semibold text-slate-200" }, loop.name)),
+      /* @__PURE__ */ import_react3.default.createElement(ChevronRight, { className: "w-3.5 h-3.5 text-slate-500" })
+    )))), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-xs font-bold uppercase tracking-wider text-slate-400 mb-2" }, "Incoming Drivers (", incomingEdges.length, ")"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-2" }, incomingEdges.map((edge, i) => {
+      const src = nodes.find((n) => n.id === edge.source);
+      return /* @__PURE__ */ import_react3.default.createElement("div", { key: i, className: "p-2.5 bg-slate-950 border border-slate-800/80 rounded-lg flex items-center justify-between text-xs" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: `w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${edge.polarity === "+" ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-red-500/20 text-red-400 border border-red-500/40"}` }, edge.polarity), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-semibold text-slate-300" }, src == null ? void 0 : src.label)), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] text-slate-500 font-mono" }, src == null ? void 0 : src.id));
+    }))), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-xs font-bold uppercase tracking-wider text-slate-400 mb-2" }, "Outgoing Downstream Impacts (", outgoingEdges.length, ")"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-2" }, outgoingEdges.map((edge, i) => {
+      const tgt = nodes.find((n) => n.id === edge.target);
+      return /* @__PURE__ */ import_react3.default.createElement("div", { key: i, className: "p-2.5 bg-slate-950 border border-slate-800/80 rounded-lg flex items-center justify-between text-xs" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: `w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] ${edge.polarity === "+" ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-red-500/20 text-red-400 border border-red-500/40"}` }, edge.polarity), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-semibold text-slate-300" }, tgt == null ? void 0 : tgt.label)), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] text-slate-500 font-mono" }, tgt == null ? void 0 : tgt.id));
+    })))))), activeTab === "P2" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex-1 overflow-y-auto p-6 space-y-6 bg-slate-950" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3 relative overflow-hidden" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "absolute top-0 right-0 p-8 opacity-10" }, /* @__PURE__ */ import_react3.default.createElement(SlidersVertical, { className: "w-32 h-32 text-amber-400" })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-3" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold" }, "SSP1-2.6 Climate Scenario"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-semibold" }, '"Taking the Green Road" / Fossil Fuel Phase-Out')), /* @__PURE__ */ import_react3.default.createElement("h2", { className: "text-xl font-bold text-slate-100" }, "PP Feedstock Scarcity & Dual Loop Constraint Simulator"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-slate-300 max-w-4xl leading-relaxed" }, "Under SSP1-2.6, aggressive phase-out of fossil fuels restricts virgin Polypropylene (PP) byproduct feedstock. This triggers a cascade between ", /* @__PURE__ */ import_react3.default.createElement("strong", null, "Loop B2 (PP Material Scarcity)"), " and ", /* @__PURE__ */ import_react3.default.createElement("strong", null, "Loop B4 (Hygiene Degradation)"), ": to compensate for resin shortages and replacement costs, operators extend cup wash lifespans beyond 1,000 cycles, causing surface micro-degradation, hygiene concerns, and adoption drop-offs.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4" }, /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-sm font-bold text-slate-200 flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement(Activity, { className: "w-4 h-4 text-amber-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Dual Loop Interplay Flow: B2 (Material Scarcity) Triggers B4 (Hygiene Degradation)")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-5 gap-3 pt-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-950 p-3.5 rounded-xl border border-amber-500/30 flex flex-col justify-between space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] font-mono text-amber-400" }, "1. CAUSAL DRIVER (N9)"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs font-bold text-slate-100" }, "PP Feedstock Deficit"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] text-slate-400" }, "Fossil plastic cap restricts virgin resin.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center justify-center hidden md:flex" }, /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-5 h-5 text-amber-400" })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-950 p-3.5 rounded-xl border border-purple-500/30 flex flex-col justify-between space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] font-mono text-purple-400" }, "2. OPERATIONAL TACTIC (N18)"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs font-bold text-slate-100" }, "Extend Cup EoL > 1,000 Washes"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] text-slate-400" }, "Caf\xE9s keep cups in service longer.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center justify-center hidden md:flex" }, /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-5 h-5 text-purple-400" })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-950 p-3.5 rounded-xl border border-blue-500/30 flex flex-col justify-between space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] font-mono text-blue-400" }, "3. ADOPTION CONSEQUENCE (N20 \u2192 N3)"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs font-bold text-slate-100" }, "Hygiene Concerns & Adoption Drop"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] text-slate-400" }, "Micro-degradation deters users.")))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-3 gap-6" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 lg:col-span-1" }, /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-sm font-bold text-slate-200 flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement(SlidersVertical, { className: "w-4 h-4 text-emerald-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Scenario Controls")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center text-xs" }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "font-semibold text-slate-300" }, "Fossil Plastic Cap Strictness"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-mono font-bold text-amber-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" }, ssp1FossilCap, "%")), /* @__PURE__ */ import_react3.default.createElement(
+      "input",
+      {
+        type: "range",
+        min: "0",
+        max: "90",
+        value: ssp1FossilCap,
+        onChange: (e) => setSsp1FossilCap(Number(e.target.value)),
+        className: "w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer h-2"
+      }
+    ), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[10px] text-slate-500" }, "Restricts crude oil refining byproducts, increasing virgin PP resin deficit.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center text-xs" }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "font-semibold text-slate-300" }, "Target Cup Washing Lifespan"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-mono font-bold text-purple-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" }, ssp1CupLifespan, " washes")), /* @__PURE__ */ import_react3.default.createElement(
+      "input",
+      {
+        type: "range",
+        min: "500",
+        max: "2000",
+        step: "50",
+        value: ssp1CupLifespan,
+        onChange: (e) => setSsp1CupLifespan(Number(e.target.value)),
+        className: "w-full accent-purple-500 bg-slate-950 rounded-lg cursor-pointer h-2"
+      }
+    ), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[10px] text-slate-500" }, "Recommended baseline is 1,000 washes before micro-scratches appear.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-300" }, "Active Modifiers:"), /* @__PURE__ */ import_react3.default.createElement("p", null, "\u2022 Active Student Rules applied: ", studentRules.filter((r) => r.active).length))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, "Virgin PP Resin Supply Deficit"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "my-3 flex items-baseline justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-3xl font-extrabold text-amber-400" }, p2Metrics.feedstockDeficit, "%"), /* @__PURE__ */ import_react3.default.createElement(TrendingUp, { className: "w-5 h-5 text-amber-400" })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-amber-500 h-full transition-all", style: { width: `${p2Metrics.feedstockDeficit}%` } }))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, "Replacement Cup Unit Cost"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "my-3 flex items-baseline justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-3xl font-extrabold text-emerald-400" }, "$", p2Metrics.replacementCost), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-500 font-mono" }, "base $0.45")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[11px] text-slate-500" }, "Driven by resin supply deficit and manufacturing overhead.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, "Consumer Hygiene Concern Index"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "my-3 flex items-baseline justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-3xl font-extrabold text-purple-400" }, p2Metrics.hygieneConcern, " / 100"), /* @__PURE__ */ import_react3.default.createElement(TriangleAlert, { className: "w-5 h-5 text-purple-400" })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-purple-500 h-full transition-all", style: { width: `${p2Metrics.hygieneConcern}%` } }))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, "Net System Circulation Capacity"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "my-3 flex items-baseline justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-2xl font-extrabold text-cyan-400" }, p2Metrics.circulationCapacity), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-500" }, "active cups")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[11px] text-slate-500" }, "Effective circulating pool accounting for hoarding and hygiene drop-offs.")))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-2 text-xs text-slate-400" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-200 flex items-center space-x-1.5" }, /* @__PURE__ */ import_react3.default.createElement(FileText, { className: "w-4 h-4 text-emerald-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Scenario Literature & Storyline Methodology Notes")), /* @__PURE__ */ import_react3.default.createElement("ul", { className: "list-disc list-inside space-y-1 text-[11px] text-slate-400" }, /* @__PURE__ */ import_react3.default.createElement("li", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, "Trucost (2026):"), " Recycling 55% post-consumer plastics reduces annual environmental costs by over $7.9 billion in North America/Europe."), /* @__PURE__ */ import_react3.default.createElement("li", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, "Steilemann (2022):"), " Chemical and plastics production accounts for ~7% of global GHG emissions and 4-8% of global crude oil consumption."), /* @__PURE__ */ import_react3.default.createElement("li", null, /* @__PURE__ */ import_react3.default.createElement("strong", null, "Shepherd et al. (2018):"), " Climate storylines provide physically coherent narratives of climate impacts without requiring fully deterministic micro-simulations.")))), activeTab === "P3" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex-1 overflow-y-auto p-6 space-y-6 bg-slate-950" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-3 relative overflow-hidden" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "absolute top-0 right-0 p-8 opacity-10" }, /* @__PURE__ */ import_react3.default.createElement(Zap, { className: "w-32 h-32 text-cyan-400" })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-3" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold" }, "SSP3-7.0 Climate Scenario"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-semibold" }, '"Regional Rivalry" / Fragmented High-Emissions Infrastructure')), /* @__PURE__ */ import_react3.default.createElement("h2", { className: "text-xl font-bold text-slate-100" }, "Coffee-Climate Loop (B3) & Margin Shock Simulator"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-slate-300 max-w-4xl leading-relaxed" }, "In SSP3-7.0, fragmented climate policies lead to fossil-heavy energy grids and severe temperature rise (+30\xB0C days in coffee regions). Reduced Arabica land suitability (-20% by 2050) surges raw coffee bean prices (+80% baseline drought analog), squeezing caf\xE9 margins and threatening RECUP network expansion.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4" }, /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-sm font-bold text-slate-200 flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement(Activity, { className: "w-4 h-4 text-cyan-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "B3 Coffee-Climate Feedback Loop Causal Chain")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-950 p-4 rounded-xl border border-slate-800" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 font-mono" }, "N3 Adoption"), /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-3.5 h-3.5 text-slate-500" }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 font-mono" }, "N12 Energy"), /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-3.5 h-3.5 text-slate-500" }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 font-mono" }, "N13 GHG"), /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-3.5 h-3.5 text-slate-500" }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 font-mono" }, "N14 Temp Rise"), /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-3.5 h-3.5 text-red-500" }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-1 rounded bg-red-500/10 border border-red-500/30 text-red-400 font-mono" }, "N15 Yield Loss"), /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-3.5 h-3.5 text-red-500" }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono" }, "N16 Bean Price"), /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-3.5 h-3.5 text-red-500" }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-1 rounded bg-purple-500/10 border border-purple-500/30 text-purple-400 font-mono" }, "N17 Margin Squeeze"), /* @__PURE__ */ import_react3.default.createElement(ArrowRight, { className: "w-3.5 h-3.5 text-slate-500" }), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-1 rounded bg-slate-900 border border-slate-700 text-slate-200 font-mono" }, "N1 Partner Density"))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-1 lg:grid-cols-3 gap-6" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6 lg:col-span-1" }, /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-sm font-bold text-slate-200 flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement(SlidersVertical, { className: "w-4 h-4 text-cyan-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Interactive Climate Controls")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center text-xs" }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "font-semibold text-slate-300" }, "Coffee Bean Price Increase"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-mono font-bold text-amber-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" }, "+", ssp3CoffeePrice, "%")), /* @__PURE__ */ import_react3.default.createElement(
+      "input",
+      {
+        type: "range",
+        min: "0",
+        max: "150",
+        value: ssp3CoffeePrice,
+        onChange: (e) => setSsp3CoffeePrice(Number(e.target.value)),
+        className: "w-full accent-amber-500 bg-slate-950 rounded-lg cursor-pointer h-2"
+      }
+    ), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[10px] text-slate-500" }, "Baseline 80% increase derived from extreme drought analogs (Univ of Waterloo 2024).")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-between items-center text-xs" }, /* @__PURE__ */ import_react3.default.createElement("label", { className: "font-semibold text-slate-300" }, "Cup Life Extension Push"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-mono font-bold text-purple-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" }, ssp3EolPush, "%")), /* @__PURE__ */ import_react3.default.createElement(
+      "input",
+      {
+        type: "range",
+        min: "0",
+        max: "100",
+        value: ssp3EolPush,
+        onChange: (e) => setSsp3EolPush(Number(e.target.value)),
+        className: "w-full accent-purple-500 bg-slate-950 rounded-lg cursor-pointer h-2"
+      }
+    ), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[10px] text-slate-500" }, "Margin-preservation strategy forcing cups beyond 1,000 washes."))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, "Caf\xE9 Operating Margin Impact"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "my-3 flex items-baseline justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-3xl font-extrabold text-red-400" }, "-", p3Metrics.marginLoss, "%"), /* @__PURE__ */ import_react3.default.createElement(TrendingDown, { className: "w-5 h-5 text-red-400" })), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[11px] text-slate-500" }, "Net margin reduction caused by coffee bean commodity price spikes.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, "Consumer Hygiene Concern Level"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "my-3 flex items-baseline justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-3xl font-extrabold text-purple-400" }, p3Metrics.hygieneLevel, " / 100"), /* @__PURE__ */ import_react3.default.createElement(TriangleAlert, { className: "w-5 h-5 text-purple-400" })), /* @__PURE__ */ import_react3.default.createElement("div", { className: "w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-purple-500 h-full transition-all", style: { width: `${p3Metrics.hygieneLevel}%` } }))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, "Partner Network Vulnerability Index"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "my-3 flex items-baseline justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-3xl font-extrabold text-cyan-400" }, p3Metrics.vulnerabilityIndex, " / 100"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-500" }, "High Risk")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[11px] text-slate-500" }, "Likelihood of partner cafes dropping out of the RECUP deposit program.")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-400 font-medium" }, "Net Adoption Volume Risk"), /* @__PURE__ */ import_react3.default.createElement("div", { className: "my-3 flex items-baseline justify-between" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-3xl font-extrabold text-amber-400" }, p3Metrics.netAdoptionImpact, "%"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-xs text-slate-500 font-mono" }, "System Drop")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-[11px] text-slate-500" }, "Combined effect of hygiene deterioration and caf\xE9 closures.")))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-amber-500/10 border border-amber-500/30 p-5 rounded-2xl space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2 text-xs font-bold text-amber-400" }, /* @__PURE__ */ import_react3.default.createElement(TriangleAlert, { className: "w-4 h-4" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Explicit Scenario Assumption Notice")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-slate-300 leading-relaxed" }, /* @__PURE__ */ import_react3.default.createElement("strong", null, "Scenario Assumption:"), " Coffee bean prices increase by approximately ", /* @__PURE__ */ import_react3.default.createElement("strong", null, "80%"), " under severe climate stress. This is a storyline assumption informed by real-world drought market observations (Univ of Waterloo, 2024; Abigaba et al., 2024) and should not be interpreted as a direct mathematical consequence of reported land-suitability losses alone."))), activeTab === "RULES" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex-1 overflow-y-auto p-6 space-y-6 bg-slate-950" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("h2", { className: "text-xl font-bold text-slate-100 flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement(PenLine, { className: "w-5 h-5 text-purple-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Student Editable Rules & Systemic Constraints Manager")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-slate-400 mt-1" }, "Students may revise, replace, toggle, or add new evidence-based rules to test custom system behavior.")), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        onClick: () => setIsRuleModalOpen(true),
+        className: "px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-slate-950 font-bold rounded-xl text-xs flex items-center space-x-2 transition-all shadow-lg shadow-purple-500/20 shrink-0"
+      },
+      /* @__PURE__ */ import_react3.default.createElement(Plus, { className: "w-4 h-4" }),
+      /* @__PURE__ */ import_react3.default.createElement("span", null, "+ Add Custom Rule")
+    )), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-4" }, studentRules.map((rule) => /* @__PURE__ */ import_react3.default.createElement(
+      "div",
+      {
+        key: rule.id,
+        className: `p-5 rounded-2xl border transition-all ${rule.active ? "bg-slate-900 border-slate-800" : "bg-slate-950/60 border-slate-800/60 opacity-60"}`
+      },
+      /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-start justify-between gap-4" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-2 flex-1" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-3 flex-wrap gap-y-1" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-mono text-xs font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20" }, rule.id), /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-sm font-bold text-slate-100" }, rule.name), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-medium" }, rule.type)), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 text-xs" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-950 p-3 rounded-xl border border-slate-800/80" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] font-bold text-slate-500 block uppercase" }, "Assumption:"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-slate-300" }, rule.assumption)), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-950 p-3 rounded-xl border border-slate-800/80" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] font-bold text-slate-500 block uppercase" }, "Calculation / Formula:"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-mono text-emerald-400" }, rule.formula)), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-950 p-3 rounded-xl border border-slate-800/80" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-[10px] font-bold text-slate-500 block uppercase" }, "Affected Metrics:"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-amber-300" }, rule.impact)))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-3 shrink-0" }, /* @__PURE__ */ import_react3.default.createElement(
+        "button",
+        {
+          onClick: () => toggleStudentRule(rule.id),
+          className: `px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all ${rule.active ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" : "bg-slate-800 text-slate-400 border border-slate-700"}`
+        },
+        rule.active ? /* @__PURE__ */ import_react3.default.createElement(Check, { className: "w-3.5 h-3.5" }) : null,
+        /* @__PURE__ */ import_react3.default.createElement("span", null, rule.active ? "Active" : "Inactive")
+      ), /* @__PURE__ */ import_react3.default.createElement(
+        "button",
+        {
+          onClick: () => deleteStudentRule(rule.id),
+          className: "p-1.5 text-slate-500 hover:text-red-400 rounded-lg hover:bg-slate-800 transition-all",
+          title: "Delete Rule"
+        },
+        /* @__PURE__ */ import_react3.default.createElement(Trash2, { className: "w-4 h-4" })
+      )))
+    ))), isRuleModalOpen && /* @__PURE__ */ import_react3.default.createElement("div", { className: "fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center justify-between border-b border-slate-800 pb-3" }, /* @__PURE__ */ import_react3.default.createElement("h3", { className: "text-base font-bold text-slate-100 flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement(Plus, { className: "w-4 h-4 text-purple-400" }), /* @__PURE__ */ import_react3.default.createElement("span", null, "Add New Evidence-Based Student Rule")), /* @__PURE__ */ import_react3.default.createElement("button", { onClick: () => setIsRuleModalOpen(false), className: "text-slate-400 hover:text-slate-100" }, /* @__PURE__ */ import_react3.default.createElement(X, { className: "w-4 h-4" }))), /* @__PURE__ */ import_react3.default.createElement("form", { onSubmit: handleAddRuleSubmit, className: "space-y-4 text-xs" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-slate-300 font-semibold mb-1" }, "Rule Name"), /* @__PURE__ */ import_react3.default.createElement(
+      "input",
+      {
+        type: "text",
+        required: true,
+        placeholder: "e.g. Extreme Heatwave Washing Capacity Drop",
+        value: newRuleForm.name,
+        onChange: (e) => setNewRuleForm(__spreadProps(__spreadValues({}, newRuleForm), { name: e.target.value })),
+        className: "w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-purple-500"
+      }
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-slate-300 font-semibold mb-1" }, "Underlying System Assumption"), /* @__PURE__ */ import_react3.default.createElement(
+      "textarea",
+      {
+        rows: "2",
+        placeholder: "Describe the real-world or theoretical mechanism...",
+        value: newRuleForm.assumption,
+        onChange: (e) => setNewRuleForm(__spreadProps(__spreadValues({}, newRuleForm), { assumption: e.target.value })),
+        className: "w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-purple-500"
+      }
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-slate-300 font-semibold mb-1" }, "Mathematical Formula / Calculation"), /* @__PURE__ */ import_react3.default.createElement(
+      "input",
+      {
+        type: "text",
+        required: true,
+        placeholder: "e.g. Return Rate = Base \xD7 (1 - Hoarding Rate)",
+        value: newRuleForm.formula,
+        onChange: (e) => setNewRuleForm(__spreadProps(__spreadValues({}, newRuleForm), { formula: e.target.value })),
+        className: "w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 font-mono focus:outline-none focus:border-purple-500"
+      }
+    )), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("label", { className: "block text-slate-300 font-semibold mb-1" }, "Impact Metric Description"), /* @__PURE__ */ import_react3.default.createElement(
+      "input",
+      {
+        type: "text",
+        placeholder: "e.g. Reduces Circulating Inventory (N5) by 15%",
+        value: newRuleForm.impact,
+        onChange: (e) => setNewRuleForm(__spreadProps(__spreadValues({}, newRuleForm), { impact: e.target.value })),
+        className: "w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-100 focus:outline-none focus:border-purple-500"
+      }
+    )), /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex justify-end space-x-3 pt-2 border-t border-slate-800" }, /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        type: "button",
+        onClick: () => setIsRuleModalOpen(false),
+        className: "px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl"
+      },
+      "Cancel"
+    ), /* @__PURE__ */ import_react3.default.createElement(
+      "button",
+      {
+        type: "submit",
+        className: "px-4 py-2 bg-purple-500 hover:bg-purple-600 text-slate-950 font-bold rounded-xl"
+      },
+      "Save & Activate Rule"
+    )))))), activeTab === "AUDIT" && /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex-1 overflow-y-auto p-6 space-y-6 bg-slate-950" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-2" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center space-x-2" }, /* @__PURE__ */ import_react3.default.createElement(FileText, { className: "w-5 h-5 text-emerald-400" }), /* @__PURE__ */ import_react3.default.createElement("h2", { className: "text-xl font-bold text-slate-100" }, "Assumptions & Methods Audit Trail Panel")), /* @__PURE__ */ import_react3.default.createElement("p", { className: "text-xs text-slate-400" }, "Complete system formula breakdown, baseline parameters, active student rules, and source provenance labels:", /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-emerald-400 font-bold ml-1" }, "[P] Prompt Specification"), ",", /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-purple-400 font-bold ml-1" }, "[S] Student Rule"), ",", /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-cyan-400 font-bold ml-1" }, "[AI] AI-Generated Assumption"), ".")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "space-y-4" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center justify-between border-b border-slate-800 pb-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-sm font-bold text-slate-100" }, "Metric: Polypropylene (PP) Resin Deficit (%)"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" }, "Source: [P] Prompt Specification")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4 text-xs" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-400 block mb-1" }, "Exact Mathematical Formula:"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "font-mono text-emerald-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800" }, "Deficit = Math.min(100, FossilCapStrictness \xD7 1.15 + (ActiveStudentRulesCount > 1 ? 5 : 0))")), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-400 block mb-1" }, "Active Assumptions:"), /* @__PURE__ */ import_react3.default.createElement("ul", { className: "list-disc list-inside text-slate-300 space-y-1" }, /* @__PURE__ */ import_react3.default.createElement("li", null, "Low fossil fuel refining directly reduces virgin PP byproduct availability."), /* @__PURE__ */ import_react3.default.createElement("li", null, "Post-consumer recycling target set to 55% (Trucost, 2026)."))))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center justify-between border-b border-slate-800 pb-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-sm font-bold text-slate-100" }, "Metric: Replacement Cup Unit Manufacturing Cost ($)"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40" }, "Source: [P] Prompt Specification")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4 text-xs" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-400 block mb-1" }, "Exact Mathematical Formula:"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "font-mono text-emerald-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800" }, "UnitCost = $0.45 \xD7 (1 + (PP_Deficit / 100) \xD7 1.65)")), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-400 block mb-1" }, "Active Assumptions:"), /* @__PURE__ */ import_react3.default.createElement("ul", { className: "list-disc list-inside text-slate-300 space-y-1" }, /* @__PURE__ */ import_react3.default.createElement("li", null, "Baseline cup unit cost = $0.45 under nominal supply conditions."), /* @__PURE__ */ import_react3.default.createElement("li", null, "Feedstock scarcity inflates raw polymer resin market spot prices."))))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center justify-between border-b border-slate-800 pb-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-sm font-bold text-slate-100" }, "Metric: Coffee Bean Price Surge Index (%)"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-0.5 rounded text-xs font-bold bg-cyan-500/20 text-cyan-400 border border-cyan-500/40" }, "Source: [AI] AI / Literature Informed Scenario")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4 text-xs" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-400 block mb-1" }, "Exact Mathematical Formula:"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "font-mono text-cyan-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800" }, "EffectivePriceInc = CoffeePriceSliderBaseline (80%) + (Rule3_Active ? 40 : 0)")), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-400 block mb-1" }, "Active Assumptions:"), /* @__PURE__ */ import_react3.default.createElement("ul", { className: "list-disc list-inside text-slate-300 space-y-1" }, /* @__PURE__ */ import_react3.default.createElement("li", null, "Arabica price baseline surge set to 80% based on extreme drought analogs (Univ of Waterloo, 2024)."), /* @__PURE__ */ import_react3.default.createElement("li", null, "Up to 20% loss of suitable Arabica land by 2050 under SSP3-7.0 (Abigaba et al., 2024)."))))), /* @__PURE__ */ import_react3.default.createElement("div", { className: "bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "flex items-center justify-between border-b border-slate-800 pb-2" }, /* @__PURE__ */ import_react3.default.createElement("span", { className: "text-sm font-bold text-slate-100" }, "Metric: Effective Return Rate Modifier"), /* @__PURE__ */ import_react3.default.createElement("span", { className: "px-2.5 py-0.5 rounded text-xs font-bold bg-purple-500/20 text-purple-400 border border-purple-500/40" }, "Source: [S] Student Rule")), /* @__PURE__ */ import_react3.default.createElement("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4 text-xs" }, /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-400 block mb-1" }, "Exact Mathematical Formula:"), /* @__PURE__ */ import_react3.default.createElement("p", { className: "font-mono text-purple-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800" }, "EffectiveReturnRate = BaseReturnRate \xD7 (1 - HoardingRate)")), /* @__PURE__ */ import_react3.default.createElement("div", null, /* @__PURE__ */ import_react3.default.createElement("span", { className: "font-bold text-slate-400 block mb-1" }, "Active Assumptions:"), /* @__PURE__ */ import_react3.default.createElement("ul", { className: "list-disc list-inside text-slate-300 space-y-1" }, /* @__PURE__ */ import_react3.default.createElement("li", null, "Hoarding rate set to 15-20% due to consumer souvenir retention."), /* @__PURE__ */ import_react3.default.createElement("li", null, "Reduces Available Circulating Inventory (N5).")))))))));
+  }
+  return __toCommonJS(stdin_exports);
+})();
+/*! Bundled license information:
+
+lucide-react/dist/esm/shared/src/utils.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/defaultAttributes.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/Icon.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/createLucideIcon.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/activity.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/arrow-right.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/check.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/chevron-right.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/file-text.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/funnel.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/info.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/layers.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/lock-open.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/lock.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/pen-line.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/plus.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/refresh-cw.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/rotate-ccw.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/search.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/sliders-vertical.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/sparkles.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/trash-2.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/trending-down.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/trending-up.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/triangle-alert.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/x.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/icons/zap.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+
+lucide-react/dist/esm/lucide-react.js:
+  (**
+   * @license lucide-react v0.511.0 - ISC
+   *
+   * This source code is licensed under the ISC license.
+   * See the LICENSE file in the root directory of this source tree.
+   *)
+*/
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const root = ReactDOM.createRoot(document.getElementById('root'));
+
+                // Include the compiled error boundary code
+                var ErrorBoundaryModule = (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __propIsEnum = Object.prototype.propertyIsEnumerable;
+  var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+  var __spreadValues = (a, b) => {
+    for (var prop in b || (b = {}))
+      if (__hasOwnProp.call(b, prop))
+        __defNormalProp(a, prop, b[prop]);
+    if (__getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(b)) {
+        if (__propIsEnum.call(b, prop))
+          __defNormalProp(a, prop, b[prop]);
+      }
+    return a;
+  };
+  var __objRest = (source, exclude) => {
+    var target = {};
+    for (var prop in source)
+      if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+        target[prop] = source[prop];
+    if (source != null && __getOwnPropSymbols)
+      for (var prop of __getOwnPropSymbols(source)) {
+        if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+          target[prop] = source[prop];
+      }
+    return target;
+  };
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+
+  // node_modules/react/cjs/react.development.js
+  var require_react_development = __commonJS({
+    "node_modules/react/cjs/react.development.js"(exports, module) {
+      "use strict";
+      (function() {
+        function defineDeprecationWarning(methodName, info) {
+          Object.defineProperty(Component.prototype, methodName, {
+            get: function() {
+              console.warn(
+                "%s(...) is deprecated in plain JavaScript React classes. %s",
+                info[0],
+                info[1]
+              );
+            }
+          });
+        }
+        function getIteratorFn(maybeIterable) {
+          if (null === maybeIterable || "object" !== typeof maybeIterable)
+            return null;
+          maybeIterable = MAYBE_ITERATOR_SYMBOL && maybeIterable[MAYBE_ITERATOR_SYMBOL] || maybeIterable["@@iterator"];
+          return "function" === typeof maybeIterable ? maybeIterable : null;
+        }
+        function warnNoop(publicInstance, callerName) {
+          publicInstance = (publicInstance = publicInstance.constructor) && (publicInstance.displayName || publicInstance.name) || "ReactClass";
+          var warningKey = publicInstance + "." + callerName;
+          didWarnStateUpdateForUnmountedComponent[warningKey] || (console.error(
+            "Can't call %s on a component that is not yet mounted. This is a no-op, but it might indicate a bug in your application. Instead, assign to `this.state` directly or define a `state = {};` class property with the desired state in the %s component.",
+            callerName,
+            publicInstance
+          ), didWarnStateUpdateForUnmountedComponent[warningKey] = true);
+        }
+        function Component(props, context, updater) {
+          this.props = props;
+          this.context = context;
+          this.refs = emptyObject;
+          this.updater = updater || ReactNoopUpdateQueue;
+        }
+        function ComponentDummy() {
+        }
+        function PureComponent(props, context, updater) {
+          this.props = props;
+          this.context = context;
+          this.refs = emptyObject;
+          this.updater = updater || ReactNoopUpdateQueue;
+        }
+        function testStringCoercion(value) {
+          return "" + value;
+        }
+        function checkKeyStringCoercion(value) {
+          try {
+            testStringCoercion(value);
+            var JSCompiler_inline_result = false;
+          } catch (e) {
+            JSCompiler_inline_result = true;
+          }
+          if (JSCompiler_inline_result) {
+            JSCompiler_inline_result = console;
+            var JSCompiler_temp_const = JSCompiler_inline_result.error;
+            var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
+            JSCompiler_temp_const.call(
+              JSCompiler_inline_result,
+              "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.",
+              JSCompiler_inline_result$jscomp$0
+            );
+            return testStringCoercion(value);
+          }
+        }
+        function getComponentNameFromType(type) {
+          if (null == type)
+            return null;
+          if ("function" === typeof type)
+            return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
+          if ("string" === typeof type)
+            return type;
+          switch (type) {
+            case REACT_FRAGMENT_TYPE:
+              return "Fragment";
+            case REACT_PROFILER_TYPE:
+              return "Profiler";
+            case REACT_STRICT_MODE_TYPE:
+              return "StrictMode";
+            case REACT_SUSPENSE_TYPE:
+              return "Suspense";
+            case REACT_SUSPENSE_LIST_TYPE:
+              return "SuspenseList";
+            case REACT_ACTIVITY_TYPE:
+              return "Activity";
+          }
+          if ("object" === typeof type)
+            switch ("number" === typeof type.tag && console.error(
+              "Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."
+            ), type.$$typeof) {
+              case REACT_PORTAL_TYPE:
+                return "Portal";
+              case REACT_CONTEXT_TYPE:
+                return (type.displayName || "Context") + ".Provider";
+              case REACT_CONSUMER_TYPE:
+                return (type._context.displayName || "Context") + ".Consumer";
+              case REACT_FORWARD_REF_TYPE:
+                var innerType = type.render;
+                type = type.displayName;
+                type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
+                return type;
+              case REACT_MEMO_TYPE:
+                return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
+              case REACT_LAZY_TYPE:
+                innerType = type._payload;
+                type = type._init;
+                try {
+                  return getComponentNameFromType(type(innerType));
+                } catch (x) {
+                }
+            }
+          return null;
+        }
+        function getTaskName(type) {
+          if (type === REACT_FRAGMENT_TYPE)
+            return "<>";
+          if ("object" === typeof type && null !== type && type.$$typeof === REACT_LAZY_TYPE)
+            return "<...>";
+          try {
+            var name = getComponentNameFromType(type);
+            return name ? "<" + name + ">" : "<...>";
+          } catch (x) {
+            return "<...>";
+          }
+        }
+        function getOwner() {
+          var dispatcher = ReactSharedInternals.A;
+          return null === dispatcher ? null : dispatcher.getOwner();
+        }
+        function UnknownOwner() {
+          return Error("react-stack-top-frame");
+        }
+        function hasValidKey(config) {
+          if (hasOwnProperty.call(config, "key")) {
+            var getter = Object.getOwnPropertyDescriptor(config, "key").get;
+            if (getter && getter.isReactWarning)
+              return false;
+          }
+          return void 0 !== config.key;
+        }
+        function defineKeyPropWarningGetter(props, displayName) {
+          function warnAboutAccessingKey() {
+            specialPropKeyWarningShown || (specialPropKeyWarningShown = true, console.error(
+              "%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)",
+              displayName
+            ));
+          }
+          warnAboutAccessingKey.isReactWarning = true;
+          Object.defineProperty(props, "key", {
+            get: warnAboutAccessingKey,
+            configurable: true
+          });
+        }
+        function elementRefGetterWithDeprecationWarning() {
+          var componentName = getComponentNameFromType(this.type);
+          didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = true, console.error(
+            "Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."
+          ));
+          componentName = this.props.ref;
+          return void 0 !== componentName ? componentName : null;
+        }
+        function ReactElement(type, key, self, source, owner, props, debugStack, debugTask) {
+          self = props.ref;
+          type = {
+            $$typeof: REACT_ELEMENT_TYPE,
+            type,
+            key,
+            props,
+            _owner: owner
+          };
+          null !== (void 0 !== self ? self : null) ? Object.defineProperty(type, "ref", {
+            enumerable: false,
+            get: elementRefGetterWithDeprecationWarning
+          }) : Object.defineProperty(type, "ref", { enumerable: false, value: null });
+          type._store = {};
+          Object.defineProperty(type._store, "validated", {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: 0
+          });
+          Object.defineProperty(type, "_debugInfo", {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: null
+          });
+          Object.defineProperty(type, "_debugStack", {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: debugStack
+          });
+          Object.defineProperty(type, "_debugTask", {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: debugTask
+          });
+          Object.freeze && (Object.freeze(type.props), Object.freeze(type));
+          return type;
+        }
+        function cloneAndReplaceKey(oldElement, newKey) {
+          newKey = ReactElement(
+            oldElement.type,
+            newKey,
+            void 0,
+            void 0,
+            oldElement._owner,
+            oldElement.props,
+            oldElement._debugStack,
+            oldElement._debugTask
+          );
+          oldElement._store && (newKey._store.validated = oldElement._store.validated);
+          return newKey;
+        }
+        function isValidElement(object) {
+          return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
+        }
+        function escape(key) {
+          var escaperLookup = { "=": "=0", ":": "=2" };
+          return "$" + key.replace(/[=:]/g, function(match) {
+            return escaperLookup[match];
+          });
+        }
+        function getElementKey(element, index) {
+          return "object" === typeof element && null !== element && null != element.key ? (checkKeyStringCoercion(element.key), escape("" + element.key)) : index.toString(36);
+        }
+        function noop$1() {
+        }
+        function resolveThenable(thenable) {
+          switch (thenable.status) {
+            case "fulfilled":
+              return thenable.value;
+            case "rejected":
+              throw thenable.reason;
+            default:
+              switch ("string" === typeof thenable.status ? thenable.then(noop$1, noop$1) : (thenable.status = "pending", thenable.then(
+                function(fulfilledValue) {
+                  "pending" === thenable.status && (thenable.status = "fulfilled", thenable.value = fulfilledValue);
+                },
+                function(error) {
+                  "pending" === thenable.status && (thenable.status = "rejected", thenable.reason = error);
+                }
+              )), thenable.status) {
+                case "fulfilled":
+                  return thenable.value;
+                case "rejected":
+                  throw thenable.reason;
+              }
+          }
+          throw thenable;
+        }
+        function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
+          var type = typeof children;
+          if ("undefined" === type || "boolean" === type)
+            children = null;
+          var invokeCallback = false;
+          if (null === children)
+            invokeCallback = true;
+          else
+            switch (type) {
+              case "bigint":
+              case "string":
+              case "number":
+                invokeCallback = true;
+                break;
+              case "object":
+                switch (children.$$typeof) {
+                  case REACT_ELEMENT_TYPE:
+                  case REACT_PORTAL_TYPE:
+                    invokeCallback = true;
+                    break;
+                  case REACT_LAZY_TYPE:
+                    return invokeCallback = children._init, mapIntoArray(
+                      invokeCallback(children._payload),
+                      array,
+                      escapedPrefix,
+                      nameSoFar,
+                      callback
+                    );
+                }
+            }
+          if (invokeCallback) {
+            invokeCallback = children;
+            callback = callback(invokeCallback);
+            var childKey = "" === nameSoFar ? "." + getElementKey(invokeCallback, 0) : nameSoFar;
+            isArrayImpl(callback) ? (escapedPrefix = "", null != childKey && (escapedPrefix = childKey.replace(userProvidedKeyEscapeRegex, "$&/") + "/"), mapIntoArray(callback, array, escapedPrefix, "", function(c) {
+              return c;
+            })) : null != callback && (isValidElement(callback) && (null != callback.key && (invokeCallback && invokeCallback.key === callback.key || checkKeyStringCoercion(callback.key)), escapedPrefix = cloneAndReplaceKey(
+              callback,
+              escapedPrefix + (null == callback.key || invokeCallback && invokeCallback.key === callback.key ? "" : ("" + callback.key).replace(
+                userProvidedKeyEscapeRegex,
+                "$&/"
+              ) + "/") + childKey
+            ), "" !== nameSoFar && null != invokeCallback && isValidElement(invokeCallback) && null == invokeCallback.key && invokeCallback._store && !invokeCallback._store.validated && (escapedPrefix._store.validated = 2), callback = escapedPrefix), array.push(callback));
+            return 1;
+          }
+          invokeCallback = 0;
+          childKey = "" === nameSoFar ? "." : nameSoFar + ":";
+          if (isArrayImpl(children))
+            for (var i = 0; i < children.length; i++)
+              nameSoFar = children[i], type = childKey + getElementKey(nameSoFar, i), invokeCallback += mapIntoArray(
+                nameSoFar,
+                array,
+                escapedPrefix,
+                type,
+                callback
+              );
+          else if (i = getIteratorFn(children), "function" === typeof i)
+            for (i === children.entries && (didWarnAboutMaps || console.warn(
+              "Using Maps as children is not supported. Use an array of keyed ReactElements instead."
+            ), didWarnAboutMaps = true), children = i.call(children), i = 0; !(nameSoFar = children.next()).done; )
+              nameSoFar = nameSoFar.value, type = childKey + getElementKey(nameSoFar, i++), invokeCallback += mapIntoArray(
+                nameSoFar,
+                array,
+                escapedPrefix,
+                type,
+                callback
+              );
+          else if ("object" === type) {
+            if ("function" === typeof children.then)
+              return mapIntoArray(
+                resolveThenable(children),
+                array,
+                escapedPrefix,
+                nameSoFar,
+                callback
+              );
+            array = String(children);
+            throw Error(
+              "Objects are not valid as a React child (found: " + ("[object Object]" === array ? "object with keys {" + Object.keys(children).join(", ") + "}" : array) + "). If you meant to render a collection of children, use an array instead."
+            );
+          }
+          return invokeCallback;
+        }
+        function mapChildren(children, func, context) {
+          if (null == children)
+            return children;
+          var result = [], count = 0;
+          mapIntoArray(children, result, "", "", function(child) {
+            return func.call(context, child, count++);
+          });
+          return result;
+        }
+        function lazyInitializer(payload) {
+          if (-1 === payload._status) {
+            var ctor = payload._result;
+            ctor = ctor();
+            ctor.then(
+              function(moduleObject) {
+                if (0 === payload._status || -1 === payload._status)
+                  payload._status = 1, payload._result = moduleObject;
+              },
+              function(error) {
+                if (0 === payload._status || -1 === payload._status)
+                  payload._status = 2, payload._result = error;
+              }
+            );
+            -1 === payload._status && (payload._status = 0, payload._result = ctor);
+          }
+          if (1 === payload._status)
+            return ctor = payload._result, void 0 === ctor && console.error(
+              "lazy: Expected the result of a dynamic import() call. Instead received: %s\n\nYour code should look like: \n  const MyComponent = lazy(() => import('./MyComponent'))\n\nDid you accidentally put curly braces around the import?",
+              ctor
+            ), "default" in ctor || console.error(
+              "lazy: Expected the result of a dynamic import() call. Instead received: %s\n\nYour code should look like: \n  const MyComponent = lazy(() => import('./MyComponent'))",
+              ctor
+            ), ctor.default;
+          throw payload._result;
+        }
+        function resolveDispatcher() {
+          var dispatcher = ReactSharedInternals.H;
+          null === dispatcher && console.error(
+            "Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:\n1. You might have mismatching versions of React and the renderer (such as React DOM)\n2. You might be breaking the Rules of Hooks\n3. You might have more than one copy of React in the same app\nSee https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem."
+          );
+          return dispatcher;
+        }
+        function noop() {
+        }
+        function enqueueTask(task) {
+          if (null === enqueueTaskImpl)
+            try {
+              var requireString = ("require" + Math.random()).slice(0, 7);
+              enqueueTaskImpl = (module && module[requireString]).call(
+                module,
+                "timers"
+              ).setImmediate;
+            } catch (_err) {
+              enqueueTaskImpl = function(callback) {
+                false === didWarnAboutMessageChannel && (didWarnAboutMessageChannel = true, "undefined" === typeof MessageChannel && console.error(
+                  "This browser does not have a MessageChannel implementation, so enqueuing tasks via await act(async () => ...) will fail. Please file an issue at https://github.com/facebook/react/issues if you encounter this warning."
+                ));
+                var channel = new MessageChannel();
+                channel.port1.onmessage = callback;
+                channel.port2.postMessage(void 0);
+              };
+            }
+          return enqueueTaskImpl(task);
+        }
+        function aggregateErrors(errors) {
+          return 1 < errors.length && "function" === typeof AggregateError ? new AggregateError(errors) : errors[0];
+        }
+        function popActScope(prevActQueue, prevActScopeDepth) {
+          prevActScopeDepth !== actScopeDepth - 1 && console.error(
+            "You seem to have overlapping act() calls, this is not supported. Be sure to await previous act() calls before making a new one. "
+          );
+          actScopeDepth = prevActScopeDepth;
+        }
+        function recursivelyFlushAsyncActWork(returnValue, resolve, reject) {
+          var queue = ReactSharedInternals.actQueue;
+          if (null !== queue)
+            if (0 !== queue.length)
+              try {
+                flushActQueue(queue);
+                enqueueTask(function() {
+                  return recursivelyFlushAsyncActWork(returnValue, resolve, reject);
+                });
+                return;
+              } catch (error) {
+                ReactSharedInternals.thrownErrors.push(error);
+              }
+            else
+              ReactSharedInternals.actQueue = null;
+          0 < ReactSharedInternals.thrownErrors.length ? (queue = aggregateErrors(ReactSharedInternals.thrownErrors), ReactSharedInternals.thrownErrors.length = 0, reject(queue)) : resolve(returnValue);
+        }
+        function flushActQueue(queue) {
+          if (!isFlushing) {
+            isFlushing = true;
+            var i = 0;
+            try {
+              for (; i < queue.length; i++) {
+                var callback = queue[i];
+                do {
+                  ReactSharedInternals.didUsePromise = false;
+                  var continuation = callback(false);
+                  if (null !== continuation) {
+                    if (ReactSharedInternals.didUsePromise) {
+                      queue[i] = callback;
+                      queue.splice(0, i);
+                      return;
+                    }
+                    callback = continuation;
+                  } else
+                    break;
+                } while (1);
+              }
+              queue.length = 0;
+            } catch (error) {
+              queue.splice(0, i + 1), ReactSharedInternals.thrownErrors.push(error);
+            } finally {
+              isFlushing = false;
+            }
+          }
+        }
+        "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
+        var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler");
+        Symbol.for("react.provider");
+        var REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), MAYBE_ITERATOR_SYMBOL = Symbol.iterator, didWarnStateUpdateForUnmountedComponent = {}, ReactNoopUpdateQueue = {
+          isMounted: function() {
+            return false;
+          },
+          enqueueForceUpdate: function(publicInstance) {
+            warnNoop(publicInstance, "forceUpdate");
+          },
+          enqueueReplaceState: function(publicInstance) {
+            warnNoop(publicInstance, "replaceState");
+          },
+          enqueueSetState: function(publicInstance) {
+            warnNoop(publicInstance, "setState");
+          }
+        }, assign = Object.assign, emptyObject = {};
+        Object.freeze(emptyObject);
+        Component.prototype.isReactComponent = {};
+        Component.prototype.setState = function(partialState, callback) {
+          if ("object" !== typeof partialState && "function" !== typeof partialState && null != partialState)
+            throw Error(
+              "takes an object of state variables to update or a function which returns an object of state variables."
+            );
+          this.updater.enqueueSetState(this, partialState, callback, "setState");
+        };
+        Component.prototype.forceUpdate = function(callback) {
+          this.updater.enqueueForceUpdate(this, callback, "forceUpdate");
+        };
+        var deprecatedAPIs = {
+          isMounted: [
+            "isMounted",
+            "Instead, make sure to clean up subscriptions and pending requests in componentWillUnmount to prevent memory leaks."
+          ],
+          replaceState: [
+            "replaceState",
+            "Refactor your code to use setState instead (see https://github.com/facebook/react/issues/3236)."
+          ]
+        }, fnName;
+        for (fnName in deprecatedAPIs)
+          deprecatedAPIs.hasOwnProperty(fnName) && defineDeprecationWarning(fnName, deprecatedAPIs[fnName]);
+        ComponentDummy.prototype = Component.prototype;
+        deprecatedAPIs = PureComponent.prototype = new ComponentDummy();
+        deprecatedAPIs.constructor = PureComponent;
+        assign(deprecatedAPIs, Component.prototype);
+        deprecatedAPIs.isPureReactComponent = true;
+        var isArrayImpl = Array.isArray, REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = {
+          H: null,
+          A: null,
+          T: null,
+          S: null,
+          V: null,
+          actQueue: null,
+          isBatchingLegacy: false,
+          didScheduleLegacyUpdate: false,
+          didUsePromise: false,
+          thrownErrors: [],
+          getCurrentStack: null,
+          recentlyCreatedOwnerStacks: 0
+        }, hasOwnProperty = Object.prototype.hasOwnProperty, createTask = console.createTask ? console.createTask : function() {
+          return null;
+        };
+        deprecatedAPIs = {
+          "react-stack-bottom-frame": function(callStackForError) {
+            return callStackForError();
+          }
+        };
+        var specialPropKeyWarningShown, didWarnAboutOldJSXRuntime;
+        var didWarnAboutElementRef = {};
+        var unknownOwnerDebugStack = deprecatedAPIs["react-stack-bottom-frame"].bind(deprecatedAPIs, UnknownOwner)();
+        var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
+        var didWarnAboutMaps = false, userProvidedKeyEscapeRegex = /\/+/g, reportGlobalError = "function" === typeof reportError ? reportError : function(error) {
+          if ("object" === typeof window && "function" === typeof window.ErrorEvent) {
+            var event = new window.ErrorEvent("error", {
+              bubbles: true,
+              cancelable: true,
+              message: "object" === typeof error && null !== error && "string" === typeof error.message ? String(error.message) : String(error),
+              error
+            });
+            if (!window.dispatchEvent(event))
+              return;
+          } else if ("object" === typeof process && "function" === typeof process.emit) {
+            process.emit("uncaughtException", error);
+            return;
+          }
+          console.error(error);
+        }, didWarnAboutMessageChannel = false, enqueueTaskImpl = null, actScopeDepth = 0, didWarnNoAwaitAct = false, isFlushing = false, queueSeveralMicrotasks = "function" === typeof queueMicrotask ? function(callback) {
+          queueMicrotask(function() {
+            return queueMicrotask(callback);
+          });
+        } : enqueueTask;
+        deprecatedAPIs = Object.freeze({
+          __proto__: null,
+          c: function(size) {
+            return resolveDispatcher().useMemoCache(size);
+          }
+        });
+        exports.Children = {
+          map: mapChildren,
+          forEach: function(children, forEachFunc, forEachContext) {
+            mapChildren(
+              children,
+              function() {
+                forEachFunc.apply(this, arguments);
+              },
+              forEachContext
+            );
+          },
+          count: function(children) {
+            var n = 0;
+            mapChildren(children, function() {
+              n++;
+            });
+            return n;
+          },
+          toArray: function(children) {
+            return mapChildren(children, function(child) {
+              return child;
+            }) || [];
+          },
+          only: function(children) {
+            if (!isValidElement(children))
+              throw Error(
+                "React.Children.only expected to receive a single React element child."
+              );
+            return children;
+          }
+        };
+        exports.Component = Component;
+        exports.Fragment = REACT_FRAGMENT_TYPE;
+        exports.Profiler = REACT_PROFILER_TYPE;
+        exports.PureComponent = PureComponent;
+        exports.StrictMode = REACT_STRICT_MODE_TYPE;
+        exports.Suspense = REACT_SUSPENSE_TYPE;
+        exports.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = ReactSharedInternals;
+        exports.__COMPILER_RUNTIME = deprecatedAPIs;
+        exports.act = function(callback) {
+          var prevActQueue = ReactSharedInternals.actQueue, prevActScopeDepth = actScopeDepth;
+          actScopeDepth++;
+          var queue = ReactSharedInternals.actQueue = null !== prevActQueue ? prevActQueue : [], didAwaitActCall = false;
+          try {
+            var result = callback();
+          } catch (error) {
+            ReactSharedInternals.thrownErrors.push(error);
+          }
+          if (0 < ReactSharedInternals.thrownErrors.length)
+            throw popActScope(prevActQueue, prevActScopeDepth), callback = aggregateErrors(ReactSharedInternals.thrownErrors), ReactSharedInternals.thrownErrors.length = 0, callback;
+          if (null !== result && "object" === typeof result && "function" === typeof result.then) {
+            var thenable = result;
+            queueSeveralMicrotasks(function() {
+              didAwaitActCall || didWarnNoAwaitAct || (didWarnNoAwaitAct = true, console.error(
+                "You called act(async () => ...) without await. This could lead to unexpected testing behaviour, interleaving multiple act calls and mixing their scopes. You should - await act(async () => ...);"
+              ));
+            });
+            return {
+              then: function(resolve, reject) {
+                didAwaitActCall = true;
+                thenable.then(
+                  function(returnValue) {
+                    popActScope(prevActQueue, prevActScopeDepth);
+                    if (0 === prevActScopeDepth) {
+                      try {
+                        flushActQueue(queue), enqueueTask(function() {
+                          return recursivelyFlushAsyncActWork(
+                            returnValue,
+                            resolve,
+                            reject
+                          );
+                        });
+                      } catch (error$0) {
+                        ReactSharedInternals.thrownErrors.push(error$0);
+                      }
+                      if (0 < ReactSharedInternals.thrownErrors.length) {
+                        var _thrownError = aggregateErrors(
+                          ReactSharedInternals.thrownErrors
+                        );
+                        ReactSharedInternals.thrownErrors.length = 0;
+                        reject(_thrownError);
+                      }
+                    } else
+                      resolve(returnValue);
+                  },
+                  function(error) {
+                    popActScope(prevActQueue, prevActScopeDepth);
+                    0 < ReactSharedInternals.thrownErrors.length ? (error = aggregateErrors(
+                      ReactSharedInternals.thrownErrors
+                    ), ReactSharedInternals.thrownErrors.length = 0, reject(error)) : reject(error);
+                  }
+                );
+              }
+            };
+          }
+          var returnValue$jscomp$0 = result;
+          popActScope(prevActQueue, prevActScopeDepth);
+          0 === prevActScopeDepth && (flushActQueue(queue), 0 !== queue.length && queueSeveralMicrotasks(function() {
+            didAwaitActCall || didWarnNoAwaitAct || (didWarnNoAwaitAct = true, console.error(
+              "A component suspended inside an `act` scope, but the `act` call was not awaited. When testing React components that depend on asynchronous data, you must await the result:\n\nawait act(() => ...)"
+            ));
+          }), ReactSharedInternals.actQueue = null);
+          if (0 < ReactSharedInternals.thrownErrors.length)
+            throw callback = aggregateErrors(ReactSharedInternals.thrownErrors), ReactSharedInternals.thrownErrors.length = 0, callback;
+          return {
+            then: function(resolve, reject) {
+              didAwaitActCall = true;
+              0 === prevActScopeDepth ? (ReactSharedInternals.actQueue = queue, enqueueTask(function() {
+                return recursivelyFlushAsyncActWork(
+                  returnValue$jscomp$0,
+                  resolve,
+                  reject
+                );
+              })) : resolve(returnValue$jscomp$0);
+            }
+          };
+        };
+        exports.cache = function(fn) {
+          return function() {
+            return fn.apply(null, arguments);
+          };
+        };
+        exports.captureOwnerStack = function() {
+          var getCurrentStack = ReactSharedInternals.getCurrentStack;
+          return null === getCurrentStack ? null : getCurrentStack();
+        };
+        exports.cloneElement = function(element, config, children) {
+          if (null === element || void 0 === element)
+            throw Error(
+              "The argument must be a React element, but you passed " + element + "."
+            );
+          var props = assign({}, element.props), key = element.key, owner = element._owner;
+          if (null != config) {
+            var JSCompiler_inline_result;
+            a: {
+              if (hasOwnProperty.call(config, "ref") && (JSCompiler_inline_result = Object.getOwnPropertyDescriptor(
+                config,
+                "ref"
+              ).get) && JSCompiler_inline_result.isReactWarning) {
+                JSCompiler_inline_result = false;
+                break a;
+              }
+              JSCompiler_inline_result = void 0 !== config.ref;
+            }
+            JSCompiler_inline_result && (owner = getOwner());
+            hasValidKey(config) && (checkKeyStringCoercion(config.key), key = "" + config.key);
+            for (propName in config)
+              !hasOwnProperty.call(config, propName) || "key" === propName || "__self" === propName || "__source" === propName || "ref" === propName && void 0 === config.ref || (props[propName] = config[propName]);
+          }
+          var propName = arguments.length - 2;
+          if (1 === propName)
+            props.children = children;
+          else if (1 < propName) {
+            JSCompiler_inline_result = Array(propName);
+            for (var i = 0; i < propName; i++)
+              JSCompiler_inline_result[i] = arguments[i + 2];
+            props.children = JSCompiler_inline_result;
+          }
+          props = ReactElement(
+            element.type,
+            key,
+            void 0,
+            void 0,
+            owner,
+            props,
+            element._debugStack,
+            element._debugTask
+          );
+          for (key = 2; key < arguments.length; key++)
+            owner = arguments[key], isValidElement(owner) && owner._store && (owner._store.validated = 1);
+          return props;
+        };
+        exports.createContext = function(defaultValue) {
+          defaultValue = {
+            $$typeof: REACT_CONTEXT_TYPE,
+            _currentValue: defaultValue,
+            _currentValue2: defaultValue,
+            _threadCount: 0,
+            Provider: null,
+            Consumer: null
+          };
+          defaultValue.Provider = defaultValue;
+          defaultValue.Consumer = {
+            $$typeof: REACT_CONSUMER_TYPE,
+            _context: defaultValue
+          };
+          defaultValue._currentRenderer = null;
+          defaultValue._currentRenderer2 = null;
+          return defaultValue;
+        };
+        exports.createElement = function(type, config, children) {
+          for (var i = 2; i < arguments.length; i++) {
+            var node = arguments[i];
+            isValidElement(node) && node._store && (node._store.validated = 1);
+          }
+          i = {};
+          node = null;
+          if (null != config)
+            for (propName in didWarnAboutOldJSXRuntime || !("__self" in config) || "key" in config || (didWarnAboutOldJSXRuntime = true, console.warn(
+              "Your app (or one of its dependencies) is using an outdated JSX transform. Update to the modern JSX transform for faster performance: https://react.dev/link/new-jsx-transform"
+            )), hasValidKey(config) && (checkKeyStringCoercion(config.key), node = "" + config.key), config)
+              hasOwnProperty.call(config, propName) && "key" !== propName && "__self" !== propName && "__source" !== propName && (i[propName] = config[propName]);
+          var childrenLength = arguments.length - 2;
+          if (1 === childrenLength)
+            i.children = children;
+          else if (1 < childrenLength) {
+            for (var childArray = Array(childrenLength), _i = 0; _i < childrenLength; _i++)
+              childArray[_i] = arguments[_i + 2];
+            Object.freeze && Object.freeze(childArray);
+            i.children = childArray;
+          }
+          if (type && type.defaultProps)
+            for (propName in childrenLength = type.defaultProps, childrenLength)
+              void 0 === i[propName] && (i[propName] = childrenLength[propName]);
+          node && defineKeyPropWarningGetter(
+            i,
+            "function" === typeof type ? type.displayName || type.name || "Unknown" : type
+          );
+          var propName = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+          return ReactElement(
+            type,
+            node,
+            void 0,
+            void 0,
+            getOwner(),
+            i,
+            propName ? Error("react-stack-top-frame") : unknownOwnerDebugStack,
+            propName ? createTask(getTaskName(type)) : unknownOwnerDebugTask
+          );
+        };
+        exports.createRef = function() {
+          var refObject = { current: null };
+          Object.seal(refObject);
+          return refObject;
+        };
+        exports.forwardRef = function(render) {
+          null != render && render.$$typeof === REACT_MEMO_TYPE ? console.error(
+            "forwardRef requires a render function but received a `memo` component. Instead of forwardRef(memo(...)), use memo(forwardRef(...))."
+          ) : "function" !== typeof render ? console.error(
+            "forwardRef requires a render function but was given %s.",
+            null === render ? "null" : typeof render
+          ) : 0 !== render.length && 2 !== render.length && console.error(
+            "forwardRef render functions accept exactly two parameters: props and ref. %s",
+            1 === render.length ? "Did you forget to use the ref parameter?" : "Any additional parameter will be undefined."
+          );
+          null != render && null != render.defaultProps && console.error(
+            "forwardRef render functions do not support defaultProps. Did you accidentally pass a React component?"
+          );
+          var elementType = { $$typeof: REACT_FORWARD_REF_TYPE, render }, ownName;
+          Object.defineProperty(elementType, "displayName", {
+            enumerable: false,
+            configurable: true,
+            get: function() {
+              return ownName;
+            },
+            set: function(name) {
+              ownName = name;
+              render.name || render.displayName || (Object.defineProperty(render, "name", { value: name }), render.displayName = name);
+            }
+          });
+          return elementType;
+        };
+        exports.isValidElement = isValidElement;
+        exports.lazy = function(ctor) {
+          return {
+            $$typeof: REACT_LAZY_TYPE,
+            _payload: { _status: -1, _result: ctor },
+            _init: lazyInitializer
+          };
+        };
+        exports.memo = function(type, compare) {
+          null == type && console.error(
+            "memo: The first argument must be a component. Instead received: %s",
+            null === type ? "null" : typeof type
+          );
+          compare = {
+            $$typeof: REACT_MEMO_TYPE,
+            type,
+            compare: void 0 === compare ? null : compare
+          };
+          var ownName;
+          Object.defineProperty(compare, "displayName", {
+            enumerable: false,
+            configurable: true,
+            get: function() {
+              return ownName;
+            },
+            set: function(name) {
+              ownName = name;
+              type.name || type.displayName || (Object.defineProperty(type, "name", { value: name }), type.displayName = name);
+            }
+          });
+          return compare;
+        };
+        exports.startTransition = function(scope) {
+          var prevTransition = ReactSharedInternals.T, currentTransition = {};
+          ReactSharedInternals.T = currentTransition;
+          currentTransition._updatedFibers = /* @__PURE__ */ new Set();
+          try {
+            var returnValue = scope(), onStartTransitionFinish = ReactSharedInternals.S;
+            null !== onStartTransitionFinish && onStartTransitionFinish(currentTransition, returnValue);
+            "object" === typeof returnValue && null !== returnValue && "function" === typeof returnValue.then && returnValue.then(noop, reportGlobalError);
+          } catch (error) {
+            reportGlobalError(error);
+          } finally {
+            null === prevTransition && currentTransition._updatedFibers && (scope = currentTransition._updatedFibers.size, currentTransition._updatedFibers.clear(), 10 < scope && console.warn(
+              "Detected a large number of updates inside startTransition. If this is due to a subscription please re-write it to use React provided hooks. Otherwise concurrent mode guarantees are off the table."
+            )), ReactSharedInternals.T = prevTransition;
+          }
+        };
+        exports.unstable_useCacheRefresh = function() {
+          return resolveDispatcher().useCacheRefresh();
+        };
+        exports.use = function(usable) {
+          return resolveDispatcher().use(usable);
+        };
+        exports.useActionState = function(action, initialState, permalink) {
+          return resolveDispatcher().useActionState(
+            action,
+            initialState,
+            permalink
+          );
+        };
+        exports.useCallback = function(callback, deps) {
+          return resolveDispatcher().useCallback(callback, deps);
+        };
+        exports.useContext = function(Context) {
+          var dispatcher = resolveDispatcher();
+          Context.$$typeof === REACT_CONSUMER_TYPE && console.error(
+            "Calling useContext(Context.Consumer) is not supported and will cause bugs. Did you mean to call useContext(Context) instead?"
+          );
+          return dispatcher.useContext(Context);
+        };
+        exports.useDebugValue = function(value, formatterFn) {
+          return resolveDispatcher().useDebugValue(value, formatterFn);
+        };
+        exports.useDeferredValue = function(value, initialValue) {
+          return resolveDispatcher().useDeferredValue(value, initialValue);
+        };
+        exports.useEffect = function(create, createDeps, update) {
+          null == create && console.warn(
+            "React Hook useEffect requires an effect callback. Did you forget to pass a callback to the hook?"
+          );
+          var dispatcher = resolveDispatcher();
+          if ("function" === typeof update)
+            throw Error(
+              "useEffect CRUD overload is not enabled in this build of React."
+            );
+          return dispatcher.useEffect(create, createDeps);
+        };
+        exports.useId = function() {
+          return resolveDispatcher().useId();
+        };
+        exports.useImperativeHandle = function(ref, create, deps) {
+          return resolveDispatcher().useImperativeHandle(ref, create, deps);
+        };
+        exports.useInsertionEffect = function(create, deps) {
+          null == create && console.warn(
+            "React Hook useInsertionEffect requires an effect callback. Did you forget to pass a callback to the hook?"
+          );
+          return resolveDispatcher().useInsertionEffect(create, deps);
+        };
+        exports.useLayoutEffect = function(create, deps) {
+          null == create && console.warn(
+            "React Hook useLayoutEffect requires an effect callback. Did you forget to pass a callback to the hook?"
+          );
+          return resolveDispatcher().useLayoutEffect(create, deps);
+        };
+        exports.useMemo = function(create, deps) {
+          return resolveDispatcher().useMemo(create, deps);
+        };
+        exports.useOptimistic = function(passthrough, reducer) {
+          return resolveDispatcher().useOptimistic(passthrough, reducer);
+        };
+        exports.useReducer = function(reducer, initialArg, init) {
+          return resolveDispatcher().useReducer(reducer, initialArg, init);
+        };
+        exports.useRef = function(initialValue) {
+          return resolveDispatcher().useRef(initialValue);
+        };
+        exports.useState = function(initialState) {
+          return resolveDispatcher().useState(initialState);
+        };
+        exports.useSyncExternalStore = function(subscribe, getSnapshot, getServerSnapshot) {
+          return resolveDispatcher().useSyncExternalStore(
+            subscribe,
+            getSnapshot,
+            getServerSnapshot
+          );
+        };
+        exports.useTransition = function() {
+          return resolveDispatcher().useTransition();
+        };
+        exports.version = "19.1.0";
+        "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
+      })();
+    }
+  });
+
+  // node_modules/react/index.js
+  var require_react = __commonJS({
+    "node_modules/react/index.js"(exports, module) {
+      "use strict";
+      if (false) {
+        module.exports = null;
+      } else {
+        module.exports = require_react_development();
+      }
+    }
+  });
+
+  // <stdin>
+  var require_stdin = __commonJS({
+    "<stdin>"(exports, module) {
+      var React = require_react();
+      function createErrorBoundary() {
+        return class ErrorBoundary extends React.Component {
+          constructor(props) {
+            super(props);
+            this.state = {
+              hasError: false,
+              error: null,
+              errorInfo: null,
+              isCopied: false,
+              isMinimized: false,
+              isFullWidth: true,
+              copyButtonState: "default"
+            };
+            this.copyErrorToClipboard = this.copyErrorToClipboard.bind(this);
+            this.toggleMinimize = this.toggleMinimize.bind(this);
+            this.toggleFullWidth = this.toggleFullWidth.bind(this);
+          }
+          static getDerivedStateFromError(error) {
+            return {
+              hasError: true,
+              error,
+              errorInfo: null,
+              isCopied: false,
+              isMinimized: false,
+              // Start expanded when error occurs
+              isFullWidth: false,
+              copyButtonState: "default"
+            };
+          }
+          componentDidCatch(error, errorInfo) {
+            this.setState({
+              error,
+              errorInfo
+            });
+            console.error("Error caught by ErrorBoundary:", error, errorInfo);
+          }
+          copyErrorToClipboard() {
+            if (this.state.error) {
+              const errorText = `Error: ${this.state.error.toString()}
+
+Component Stack:
+${this.state.errorInfo ? this.state.errorInfo.componentStack : "Not available"}`;
+              const fallbackCopyTextToClipboard = (text) => {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.top = "0";
+                textArea.style.left = "0";
+                textArea.style.position = "fixed";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                  const successful = document.execCommand("copy");
+                  const msg = successful ? "Text copied to clipboard" : "Failed to copy text";
+                  console.log(msg);
+                  this.setState({
+                    isCopied: successful,
+                    copyButtonState: successful ? "copied" : "default"
+                  });
+                  if (successful) {
+                    setTimeout(() => {
+                      this.setState({
+                        isCopied: false,
+                        copyButtonState: "default"
+                      });
+                    }, 2e3);
+                  }
+                } catch (err) {
+                  console.error("Fallback: Failed to copy text: ", err);
+                } finally {
+                  document.body.removeChild(textArea);
+                }
+              };
+              if (!navigator.clipboard) {
+                fallbackCopyTextToClipboard(errorText);
+                return;
+              }
+              navigator.clipboard.writeText(errorText).then(() => {
+                this.setState({
+                  isCopied: true,
+                  copyButtonState: "copied"
+                });
+                setTimeout(() => {
+                  this.setState({
+                    isCopied: false,
+                    copyButtonState: "default"
+                  });
+                }, 2e3);
+              }).catch((err) => {
+                console.error("Failed to copy error details:", err);
+                fallbackCopyTextToClipboard(errorText);
+              });
+            }
+          }
+          toggleMinimize() {
+            this.setState((prevState) => ({
+              isMinimized: !prevState.isMinimized,
+              // If minimizing, ensure it's not full width
+              isFullWidth: prevState.isMinimized ? prevState.isFullWidth : false
+            }));
+          }
+          toggleFullWidth() {
+            if (!this.state.isMinimized) {
+              this.setState((prevState) => ({
+                isFullWidth: !prevState.isFullWidth
+              }));
+            }
+          }
+          render() {
+            if (this.state.hasError) {
+              const { isMinimized, isFullWidth, isCopied, error, errorInfo } = this.state;
+              const AlertTriangleIcon = (_a) => {
+                var _b = _a, { className } = _b, otherProps = __objRest(_b, ["className"]);
+                return /* @__PURE__ */ React.createElement(
+                  "svg",
+                  __spreadValues({
+                    xmlns: "http://www.w3.org/2000/svg",
+                    width: isMinimized ? "16" : "20",
+                    height: isMinimized ? "16" : "20",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    stroke: "currentColor",
+                    strokeWidth: "2",
+                    strokeLinecap: "round",
+                    strokeLinejoin: "round",
+                    className: className || "text-red-500 dark:text-red-400"
+                  }, otherProps),
+                  /* @__PURE__ */ React.createElement("path", { d: "M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" }),
+                  /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "9", x2: "12", y2: "13" }),
+                  /* @__PURE__ */ React.createElement("line", { x1: "12", y1: "17", x2: "12.01", y2: "17" })
+                );
+              };
+              const CopyIcon = () => /* @__PURE__ */ React.createElement(
+                "svg",
+                {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "16",
+                  height: "16",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round"
+                },
+                /* @__PURE__ */ React.createElement("rect", { x: "9", y: "9", width: "13", height: "13", rx: "2", ry: "2" }),
+                /* @__PURE__ */ React.createElement("path", { d: "M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" })
+              );
+              const MinimizeIcon = () => /* @__PURE__ */ React.createElement(
+                "svg",
+                {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "16",
+                  height: "16",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round"
+                },
+                /* @__PURE__ */ React.createElement("line", { x1: "5", y1: "12", x2: "19", y2: "12" })
+              );
+              const ExpandIcon = () => /* @__PURE__ */ React.createElement(
+                "svg",
+                {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "16",
+                  height: "16",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round"
+                },
+                /* @__PURE__ */ React.createElement("polyline", { points: "15 3 21 3 21 9" }),
+                /* @__PURE__ */ React.createElement("polyline", { points: "9 21 3 21 3 15" }),
+                /* @__PURE__ */ React.createElement("line", { x1: "21", y1: "3", x2: "14", y2: "10" }),
+                /* @__PURE__ */ React.createElement("line", { x1: "3", y1: "21", x2: "10", y2: "14" })
+              );
+              const CompressIcon = () => /* @__PURE__ */ React.createElement(
+                "svg",
+                {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "16",
+                  height: "16",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round"
+                },
+                /* @__PURE__ */ React.createElement("polyline", { points: "4 14 10 14 10 20" }),
+                /* @__PURE__ */ React.createElement("polyline", { points: "20 10 14 10 14 4" }),
+                /* @__PURE__ */ React.createElement("line", { x1: "14", y1: "10", x2: "21", y2: "3" }),
+                /* @__PURE__ */ React.createElement("line", { x1: "3", y1: "21", x2: "10", y2: "14" })
+              );
+              const RefreshIcon = () => /* @__PURE__ */ React.createElement(
+                "svg",
+                {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "16",
+                  height: "16",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round"
+                },
+                /* @__PURE__ */ React.createElement("path", { d: "M23 4v6h-6" }),
+                /* @__PURE__ */ React.createElement("path", { d: "M1 20v-6h6" }),
+                /* @__PURE__ */ React.createElement("path", { d: "M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" })
+              );
+              const CheckIcon = () => /* @__PURE__ */ React.createElement(
+                "svg",
+                {
+                  xmlns: "http://www.w3.org/2000/svg",
+                  width: "14",
+                  height: "14",
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
+                  strokeLinecap: "round",
+                  strokeLinejoin: "round"
+                },
+                /* @__PURE__ */ React.createElement("path", { d: "M20 6L9 17l-5-5" })
+              );
+              if (isMinimized) {
+                return /* @__PURE__ */ React.createElement(React.Fragment, null, this.props.children, /* @__PURE__ */ React.createElement(
+                  "div",
+                  {
+                    className: "fixed bottom-4 right-4 z-[9999]",
+                    onClick: this.toggleMinimize
+                  },
+                  /* @__PURE__ */ React.createElement("div", { className: "group flex items-center justify-center w-10 h-10 rounded-full bg-red-500 shadow-lg cursor-pointer hover:bg-red-600 transition-colors dark:bg-red-700 dark:hover:bg-red-600" }, /* @__PURE__ */ React.createElement(AlertTriangleIcon, { className: "text-white dark:text-gray-100" }), /* @__PURE__ */ React.createElement("div", { className: "absolute right-12 bottom-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap dark:bg-gray-900 shadow-md" }, "Error - Click to expand"))
+                ));
+              }
+              const baseContainerClasses = "fixed bottom-0 z-[9999] transition-all duration-300 ease-in-out mb-8";
+              const innerBoxBaseClasses = "relative overflow-hidden rounded-lg border border-red-300 bg-white shadow-xl dark:border-red-700 dark:bg-gray-950";
+              const positionAndWidthClass = isFullWidth ? "inset-x-0 w-full" : "right-4 w-[32rem] max-w-[90vw]";
+              const paddingClass = isFullWidth ? "p-4" : "";
+              return /* @__PURE__ */ React.createElement(React.Fragment, null, this.props.children, /* @__PURE__ */ React.createElement("div", { className: `${baseContainerClasses} ${positionAndWidthClass} ${paddingClass}` }, /* @__PURE__ */ React.createElement(
+                "div",
+                {
+                  className: `${innerBoxBaseClasses} ${isFullWidth ? "mx-auto" : ""}`,
+                  style: isFullWidth ? { maxWidth: "100%" } : {}
+                },
+                /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between bg-gradient-to-r from-red-100 to-red-200 px-3 py-2 dark:from-red-950/50 dark:to-red-900/50" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement(AlertTriangleIcon, { className: "text-red-500 dark:text-red-400" }), /* @__PURE__ */ React.createElement("h3", { className: "text-sm font-semibold text-red-800 dark:text-red-300" }, "Sorry, something went wrong")), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-1" }, /* @__PURE__ */ React.createElement(
+                  "button",
+                  {
+                    onClick: () => window.location.reload(),
+                    className: "rounded p-1 text-gray-600 hover:bg-red-200/50 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-red-800/50 dark:hover:text-gray-200 transition-colors",
+                    title: "Refresh page"
+                  },
+                  /* @__PURE__ */ React.createElement(RefreshIcon, null)
+                ), /* @__PURE__ */ React.createElement(
+                  "button",
+                  {
+                    onClick: this.toggleFullWidth,
+                    className: "rounded p-1 text-gray-600 hover:bg-red-200/50 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-red-800/50 dark:hover:text-gray-200 transition-colors",
+                    title: isFullWidth ? "Reduce width" : "Expand to full width"
+                  },
+                  isFullWidth ? /* @__PURE__ */ React.createElement(CompressIcon, null) : /* @__PURE__ */ React.createElement(ExpandIcon, null)
+                ), /* @__PURE__ */ React.createElement(
+                  "button",
+                  {
+                    onClick: this.toggleMinimize,
+                    className: "rounded p-1 text-gray-600 hover:bg-red-200/50 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-red-800/50 dark:hover:text-gray-200 transition-colors",
+                    title: "Minimize"
+                  },
+                  /* @__PURE__ */ React.createElement(MinimizeIcon, null)
+                ))),
+                /* @__PURE__ */ React.createElement("div", { className: "p-4" }, /* @__PURE__ */ React.createElement("div", { className: "mb-3" }, /* @__PURE__ */ React.createElement("p", { className: "text-sm text-gray-700 dark:text-gray-300" }, "You can copy the error details and ask Gemini to fix the error.")), /* @__PURE__ */ React.createElement(
+                  "div",
+                  {
+                    className: `overflow-auto rounded bg-gray-50 p-3 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 scrollbar-none ${isFullWidth ? "max-h-[40vh]" : "max-h-60"}`
+                  },
+                  /* @__PURE__ */ React.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ React.createElement("div", { className: "space-y-1" }, /* @__PURE__ */ React.createElement("h4", { className: "text-xs uppercase font-semibold text-gray-500 dark:text-gray-400" }, "Error Message:"), /* @__PURE__ */ React.createElement("p", { className: "font-mono text-xs text-red-700 dark:text-red-400 break-words px-2 py-1.5 bg-red-50 dark:bg-red-900/30 rounded border border-red-100 dark:border-red-900/50" }, error ? error.toString() : "No error message available.")), errorInfo && /* @__PURE__ */ React.createElement("div", { className: "space-y-1" }, /* @__PURE__ */ React.createElement("h4", { className: "text-xs uppercase font-semibold text-gray-500 dark:text-gray-400" }, "Component Stack:"), /* @__PURE__ */ React.createElement("pre", { className: "whitespace-pre-wrap font-mono text-xs text-gray-700 dark:text-gray-300 px-2 py-1.5 bg-gray-100 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700" }, errorInfo.componentStack)))
+                ), /* @__PURE__ */ React.createElement("div", { className: "mt-4" }, /* @__PURE__ */ React.createElement(
+                  "button",
+                  {
+                    onClick: this.copyErrorToClipboard,
+                    className: `flex items-center justify-center gap-2 px-4 py-2 text-white rounded-md transition-colors w-full ${this.state.copyButtonState === "copied" ? "bg-blue-600 hover:bg-blue-700" : "bg-indigo-600 hover:bg-indigo-700"}`
+                  },
+                  this.state.copyButtonState === "copied" ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(CheckIcon, null), "Copied to Clipboard!") : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(CopyIcon, null), "Copy Error Details")
+                )))
+              )));
+            }
+            return this.props.children;
+          }
+        };
+      }
+      module.exports = { createErrorBoundary };
+    }
+  });
+  return require_stdin();
+})();
+/*! Bundled license information:
+
+react/cjs/react.development.js:
+  (**
+   * @license React
+   * react.development.js
+   *
+   * Copyright (c) Meta Platforms, Inc. and affiliates.
+   *
+   * This source code is licensed under the MIT license found in the
+   * LICENSE file in the root directory of this source tree.
+   *)
+*/
+
+
+                // Use the exported createErrorBoundary function
+                const ErrorBoundary = ErrorBoundaryModule.createErrorBoundary();
+
+                const AppComponent = React.createElement(
+                    ErrorBoundary,
+                    null,
+                    React.createElement(App.default, null)
+                );
+                root.render(AppComponent);
+            });
+        </script>
+    </body>
+</html>
