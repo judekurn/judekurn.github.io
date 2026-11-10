@@ -1,0 +1,146 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>RECUP Causal Loop Map & Simulator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+:root{--bg:#f8fafc;--fg:#0f172a;--card:#fff;--mut:#64748b;--bd:#cbd5e1;--acc:#059669;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#020617;--fg:#f1f5f9;--card:#0f172a;--mut:#94a3b8;--bd:#1e293b;--acc:#34d399;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#020617;--fg:#f1f5f9;--card:#0f172a;--mut:#94a3b8;--bd:#1e293b;--acc:#34d399;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column;overflow:hidden}
+header{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:16px;margin:0}header p{margin:0;color:var(--mut);font-size:12px}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+button,select,input[type=text],input[type=number]{font:inherit;color:var(--fg);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:5px 10px}
+button{cursor:pointer}button:hover{border-color:var(--acc)}button.on{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+main{flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.tab{display:none;flex:1;overflow:auto;padding:16px}.tab.show{display:block}#p1.show{display:flex;flex-direction:column;padding:0;overflow:hidden}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:8px 12px;border-bottom:1px solid var(--bd)}
+#cv{flex:1;position:relative;overflow:hidden}svg{width:100%;height:100%;display:block;cursor:grab}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.big{font-size:28px;font-weight:700}.mut{color:var(--mut);font-size:12px}
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.chain span.b{padding:6px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);font-size:12px}
+.chain .b2{border-color:#f59e0b!important}.chain .b4{border-color:#8b5cf6!important}.chain .hot{border-color:#ef4444!important;background:rgba(239,68,68,.1)}
+input[type=range]{width:100%}
+#drawer{position:absolute;top:0;right:0;bottom:0;width:min(340px,92%);background:var(--card);border-left:1px solid var(--bd);padding:14px;overflow:auto;transform:translateX(100%);transition:transform .25s;z-index:5}#drawer.open{transform:none}
+.row{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border:1px solid var(--bd);border-radius:8px;margin-top:6px;font-size:12px}
+.tag{font-weight:700;padding:1px 7px;border-radius:99px;font-size:11px;border:1px solid}.P{color:#10b981}.S{color:#a78bfa}.AI{color:#22d3ee}
+code{font-family:ui-monospace,monospace;font-size:12px;background:var(--bg);padding:2px 6px;border-radius:6px;display:inline-block}
+#alerts{position:absolute;left:12px;bottom:12px;z-index:4;max-width:340px;pointer-events:none}#alerts div{background:var(--card);border:1px solid var(--acc);border-radius:10px;padding:8px 10px;margin-top:6px;font-size:12px}
+@keyframes ants{to{stroke-dashoffset:-28}}.ants{stroke-dasharray:8 6;animation:ants 1s linear infinite}
+@keyframes pu{50%{opacity:.3}}.pulse{animation:pu 1s infinite}
+.rule input[type=text],.rule select{width:100%;margin-top:4px}
+</style></head><body>
+<header><div><h1>RECUP Causal Loop Map & System Simulator</h1><p>Circular reusable cup system dynamics · SSP scenarios</p></div>
+<nav id="nav"></nav></header>
+<main>
+<section class="tab show" id="p1">
+ <div class="bar"><input type="text" id="q" placeholder="Search node…" style="width:150px"><select id="cat"></select>
+ <span class="mut">Focus loop:</span><span id="loops"></span>
+ <button id="lock">Physics on</button><button id="reset">Reset view</button></div>
+ <div id="cv"><svg id="svg"></svg><div id="alerts"></div>
+ <div id="drawer"></div></div>
+</section>
+<section class="tab" id="p2"></section><section class="tab" id="p3"></section>
+<section class="tab" id="rules"></section><section class="tab" id="meth"></section>
+</main>
+<script>
+const C=[["Network & Economics","#10b981"],["Consumer Operations","#3b82f6"],["Supply Chain & Stock","#f59e0b"],["Material & Quality","#8b5cf6"],["Environment & Climate","#06b6d4"]];
+const NL=[["Partner Density",0],["Return Convenience",1],["Adoption Volume",1],["Vendor Financial Savings",0],["Available Circulating Inventory",2],["Hoarded Cup Stock",1],["Cup Wear",3],["Replacement Demand",2],["PP Feedstock Deficit",3],["Manufacturing Cost",0],["Replacement Cup Supply",2],["Washing & Logistics Energy",4],["System GHG Emissions",4],["Average Global Temp",4],["Coffee Yield Loss",4],["Coffee Bean Price",0],["Café Operating Margin",0],["Extending Cup EoL Past 1,000 Washes",3],["Surface Micro-Degradation",3],["Consumer Hygiene Concerns",1]];
+const nodes=NL.map(([label,c],i)=>({id:"N"+(i+1),label,cat:C[c][0],col:C[c][1]}));
+const edges="1,2,+;2,3,+;3,4,+;4,1,+;3,6,+;6,5,-;5,2,+;3,7,+;7,8,+;7,18,+;8,9,+;9,10,+;10,11,-;11,5,+;3,12,+;12,13,+;13,14,+;14,15,-;15,16,-;16,17,-;17,1,+;9,18,+;18,19,+;18,12,+;19,20,+;20,3,-;19,7,+;11,18,-;8,18,+;17,18,-;18,17,-".split(";").map(s=>{const[a,b,p]=s.split(",");return{source:"N"+a,target:"N"+b,p}});
+const loops=[["R1","Network Expansion Loop","Reinforcing","Higher partner density improves return convenience, driving adoption volume and vendor savings, which incentivizes more partners to join.","1,2,3,4,1"],["B1","Cup Hoarding Constraint","Balancing","Increased adoption leads to cup hoarding, which reduces circulating stock, lowers return convenience, and dampens adoption.","3,6,5,2,3"],["B2","PP Material Scarcity Constraint","Balancing","High adoption wears cups out, creating replacement demand and PP feedstock deficits, raising manufacturing costs and constraining supply.","3,7,8,9,10,11,5,2,3"],["B3","Coffee-Climate Feedback","Balancing","Logistics energy drives GHG emissions and climate change, impacting coffee yields and bean prices, which squeezes café margins and network density.","3,12,13,14,15,16,17,1,2,3"],["B4","Hygiene Degradation","Balancing","Over-extending cup lifespans causes surface micro-degradation, raising hygiene concerns and reducing adoption volume.","3,7,18,19,20,3"]].map(([id,name,type,desc,n])=>({id,name,type,desc,nodes:n.split(",").map(x=>"N"+x)}));
+const $=s=>document.querySelector(s),ID=id=>nodes.find(n=>n.id===id);
+const pc=p=>p==="+"?"#10b981":"#ef4444";
+/* tabs */
+const T=[["p1","P1 · System Map"],["p2","P2 · SSP1-2.6"],["p3","P3 · SSP3-7.0"],["rules","Student Rules"],["meth","Assumptions & Methods"]];
+T.forEach(([id,l],i)=>{const b=document.createElement("button");b.textContent=l;b.className=i?"":"on";b.onclick=()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("show",t.id===id));[...$("#nav").children].forEach(x=>x.classList.toggle("on",x===b));if(id==="meth")upd()};$("#nav").appendChild(b)});
+/* P1 graph */
+let focus=null,catF="All",q="",sel=null,locked=false,ripple=new Map(),rt;
+const svg=d3.select("#svg"),W=()=>$("#cv").clientWidth,H=()=>$("#cv").clientHeight;
+svg.append("defs").selectAll("marker").data([["g","#10b981"],["r","#ef4444"]]).join("marker").attr("id",d=>"m"+d[0]).attr("viewBox","0 0 10 10").attr("refX",30).attr("refY",5).attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto").append("path").attr("d","M0 0L10 5L0 10z").attr("fill",d=>d[1]);
+const g=svg.append("g"),zoom=d3.zoom().scaleExtent([.3,3]).on("zoom",e=>g.attr("transform",e.transform));svg.call(zoom).on("dblclick.zoom",null);
+const links=edges.map(e=>({...e}));
+const eg=g.selectAll(".e").data(links).join("g").attr("class","e");
+eg.append("path").attr("class","base").attr("fill","none").attr("stroke",d=>pc(d.p)).attr("marker-end",d=>d.p==="+"?"url(#mg)":"url(#mr)");
+eg.append("path").attr("class","ants").attr("fill","none").attr("stroke","var(--bg)").attr("stroke-width",1.8).style("display","none");
+const lb=eg.append("g").attr("class","lb");lb.append("circle").attr("r",9).attr("fill","var(--card)").attr("stroke",d=>pc(d.p));lb.append("text").attr("text-anchor","middle").attr("dy",4).attr("font-size",12).attr("font-weight",700).attr("fill",d=>pc(d.p)).text(d=>d.p==="+"?"+":"−");
+const st=eg.append("g").attr("class","step").style("display","none");st.append("circle").attr("r",8).attr("fill","#f59e0b");st.append("text").attr("text-anchor","middle").attr("dy",3.5).attr("font-size",10).attr("font-weight",700).attr("fill","#000");
+const ng=g.selectAll(".n").data(nodes).join("g").attr("class","n").style("cursor","pointer").on("click",(e,d)=>{e.stopPropagation();open(d.id)});
+ng.append("circle").attr("class","rip").attr("r",34).attr("fill","none").attr("stroke-width",3).style("display","none");
+ng.append("circle").attr("class","core").attr("r",22).attr("fill","var(--card)").attr("stroke",d=>d.col).attr("stroke-width",2.5);
+ng.append("text").attr("text-anchor","middle").attr("dy",4).attr("font-size",11).attr("font-weight",700).attr("fill","var(--fg)").style("pointer-events","none").text(d=>d.id);
+ng.append("text").attr("text-anchor","middle").attr("y",38).attr("font-size",10).attr("fill","var(--fg)").style("pointer-events","none").text(d=>d.label.length>22?d.label.slice(0,20)+"…":d.label);
+ng.append("circle").attr("class","seq").attr("cx",17).attr("cy",-17).attr("r",9).attr("fill","#10b981").style("display","none");
+ng.append("text").attr("class","seqt").attr("x",17).attr("y",-13.5).attr("text-anchor","middle").attr("font-size",10).attr("font-weight",700).attr("fill","#000").style("display","none");
+const sim=d3.forceSimulation(nodes).force("link",d3.forceLink(links).id(d=>d.id).distance(150).strength(.35)).force("charge",d3.forceManyBody().strength(-700)).force("c",d3.forceCenter(W()/2,H()/2)).force("col",d3.forceCollide(48)).on("tick",tick);
+function tick(){eg.each(function(d){const s=d.source,t=d.target,dx=t.x-s.x,dy=t.y-s.y,l=Math.hypot(dx,dy)||1,cx=(s.x+t.x)/2-dy/l*30,cy=(s.y+t.y)/2+dx/l*30,p=`M${s.x} ${s.y}Q${cx} ${cy} ${t.x} ${t.y}`,e=d3.select(this);e.selectAll("path").attr("d",p);const mx=(s.x+2*cx+t.x)/4,my=(s.y+2*cy+t.y)/4;e.select(".lb").attr("transform",`translate(${mx},${my})`);e.select(".step").attr("transform",`translate(${mx+13},${my-12})`)});ng.attr("transform",d=>`translate(${d.x},${d.y})`)}
+ng.call(d3.drag().on("start",(e,d)=>{if(!locked&&!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y}).on("drag",(e,d)=>{d.fx=e.x;d.fy=e.y;d.x=e.x;d.y=e.y;if(locked)tick()}).on("end",(e,d)=>{if(!e.active)sim.alphaTarget(0);if(!locked){d.fx=null;d.fy=null}}));
+svg.on("click",()=>$("#drawer").classList.remove("open"));
+function pairs(l){return l.nodes.slice(0,-1).map((a,i)=>[a,l.nodes[i+1]])}
+function refresh(){const L=loops.find(l=>l.id===focus),lp=L?pairs(L):[],ql=q.toLowerCase();
+eg.each(function(d){const i=lp.findIndex(([a,b])=>a===d.source.id&&b===d.target.id),inL=i>=0,cm=catF==="All"||d.source.cat===catF||d.target.cat===catF,dim=(L&&!inL)||!cm,e=d3.select(this);
+e.style("opacity",dim?.15:1);e.select(".base").attr("stroke-width",inL?3.8:ripple.size&&ripple.has(d.target.id)&&ripple.has(d.source.id)?3:1.8);e.select(".ants").style("display",inL?null:"none").classed("ants",inL);e.select(".step").style("display",inL?null:"none").select("text").attr("dy",3.5).text(i+1)});
+ng.each(function(d){const i=L?L.nodes.indexOf(d.id):-1,m=ql&&(d.label.toLowerCase().includes(ql)||d.id.toLowerCase().includes(ql)),dim=(L&&i<0)||(catF!=="All"&&d.cat!==catF)||(ql&&!m),r=ripple.get(d.id),n=d3.select(this);
+n.style("opacity",dim?.2:1);n.select(".core").attr("stroke-width",sel===d.id?5:i>=0?4:2.5).attr("stroke",sel===d.id?"#60a5fa":m?"#f59e0b":d.col);
+n.select(".rip").style("display",r?null:"none").attr("stroke",r>0?"#10b981":"#ef4444").classed("pulse",!!r);
+n.select(".seq").style("display",i>=0?null:"none");n.select(".seqt").style("display",i>=0?null:"none").text(i+1)})}
+function open(id){sel=id;const d=ID(id),inn=edges.filter(e=>e.target===id),out=edges.filter(e=>e.source===id),cl=loops.filter(l=>l.nodes.includes(id)),r=e=>`<div class="row"><span><b style="color:${pc(e.p)}">${e.p==="+"?"+":"−"}</b> ${ID(e.source===id?e.target:e.source).label}</span><span class="mut">${e.source===id?e.target:e.source}</span></div>`;
+$("#drawer").innerHTML=`<button onclick="closeD()" style="float:right">✕</button><span class="tag" style="color:${d.col}">${d.id}</span> <span class="mut">${d.cat}</span><h2 style="margin:8px 0">${d.label}</h2>
+<div class="card"><b>Systemic ripple simulator</b><p class="mut">Inject a shock and trace the sign through each causal link (up to 4 steps downstream).</p><button onclick="rip('${id}',1)">++ Positive surge</button> <button onclick="rip('${id}',-1)">−− Negative shock</button></div>
+<b>Connected loops (${cl.length})</b>${cl.map(l=>`<div class="row" style="cursor:pointer" onclick="setFocus('${l.id}')"><span><b>${l.id}</b> ${l.name}</span><span class="mut">${l.type}</span></div>`).join("")||'<p class="mut">None</p>'}
+<p><b>Incoming drivers (${inn.length})</b></p>${inn.map(r).join("")}<p><b>Outgoing impacts (${out.length})</b></p>${out.map(r).join("")}`;
+$("#drawer").classList.add("open");refresh()}
+function closeD(){sel=null;$("#drawer").classList.remove("open");refresh()}
+function rip(id,s){ripple=new Map([[id,s]]);const qd=[[id,s,0]];while(qd.length){const[a,v,dp]=qd.shift();if(dp>=4)continue;edges.filter(e=>e.source===a).forEach(e=>{if(!ripple.has(e.target)){const nv=e.p==="+"?v:-v;ripple.set(e.target,nv);qd.push([e.target,nv,dp+1])}})}
+const up=[...ripple].filter(([k,v])=>k!==id&&v>0).map(x=>x[0]),dn=[...ripple].filter(([k,v])=>k!==id&&v<0).map(x=>x[0]);
+const a=document.createElement("div");a.innerHTML=`<b>${s>0?"++ Surge":"−− Shock"} on ${ID(id).label}</b><br>Increase: ${up.join(", ")||"–"}<br>Decrease: ${dn.join(", ")||"–"}`;$("#alerts").prepend(a);while($("#alerts").children.length>3)$("#alerts").lastChild.remove();
+refresh();clearTimeout(rt);rt=setTimeout(()=>{ripple=new Map();$("#alerts").innerHTML="";refresh()},6000)}
+function setFocus(id){focus=id===focus?null:id;[...$("#loops").children].forEach(b=>b.classList.toggle("on",b.dataset.id===focus));$("#all").classList.toggle("on",!focus);const L=loops.find(l=>l.id===focus);$("#lnote").textContent=L?`${L.id} (${L.type}): ${L.description||L.desc}  ·  ${L.nodes.join(" → ")}`:"";refresh()}
+$("#loops").innerHTML=`<button id="all" class="on" onclick="setFocus(null)">All</button> `+loops.map(l=>`<button data-id="${l.id}" onclick="setFocus('${l.id}')">${l.id}</button>`).join(" ");
+$("#cv").insertAdjacentHTML("beforebegin",'<div class="mut" id="lnote" style="padding:2px 12px;min-height:18px"></div>');
+$("#cat").innerHTML='<option>All</option>'+C.map(c=>`<option>${c[0]}</option>`).join("");$("#cat").onchange=e=>{catF=e.target.value;refresh()};
+$("#q").oninput=e=>{q=e.target.value;const m=nodes.find(n=>q&&(n.label.toLowerCase().includes(q.toLowerCase())||n.id.toLowerCase()===q.toLowerCase()));if(m)open(m.id);else refresh()};
+$("#lock").onclick=e=>{locked=!locked;e.target.textContent=locked?"Layout locked":"Physics on";locked?sim.stop():sim.alpha(.5).restart()};
+$("#reset").onclick=()=>{svg.transition().call(zoom.transform,d3.zoomIdentity);focus=null;catF="All";q="";$("#q").value="";$("#cat").value="All";setFocus(null);locked=false;$("#lock").textContent="Physics on";nodes.forEach(n=>{n.fx=n.fy=null});sim.alpha(.8).restart()};
+/* Student rules + models */
+const EFF={none:"No numeric effect (documented only)",hoard:"Cup hoarding rate (%)",wash:"Washing capacity loss (%)",coffee:"Extra coffee price shock (+%)",margin:"Café margin hit (pts)"};
+let rules=[{n:"Cup Hoarding",kind:"Rule",a:"Some customers keep RECUP cups as souvenirs and fail to return them.",c:"Increase hoarding rate from 5% to 20%. Return Rate = Base × (1 − Hoarding)",e:"hoard",v:20,on:true},
+{n:"Industrial Washing Constraint",kind:"Constraint",a:"Severe heatwaves reduce washing capacity.",c:"Heatwaves above 35°C reduce industrial washing throughput by 25%.",e:"wash",v:25,on:true},
+{n:"Coffee Supply Shock",kind:"Climate shock",a:"Climate impacts reduce global coffee yield.",c:"Coffee Yield −15%, Coffee Price +40%, Café Margin −20% (applied as +40% price, 2-pt margin hit)",e:"coffee",v:40,on:false}];
+const R=e=>rules.filter(r=>r.on&&r.e===e).reduce((s,r)=>s+(+r.v||0),0),cl=(x,a=0,b=100)=>Math.min(b,Math.max(a,x));
+function drawRules(){$("#rules").innerHTML=`<div class="card"><h2 style="margin:0">Student editable rules</h2><p class="mut">Revise, replace, toggle or delete rules; add new rules, constraints, climate shocks or assumptions. Each rule has a Rule, Assumption and Calculation. Pick a numeric effect to wire a rule into the simulators.</p><button onclick="rules.push({n:'New rule',kind:'Rule',a:'',c:'',e:'none',v:0,on:true});drawRules();upd()">+ Add rule</button></div>`+rules.map((r,i)=>`<div class="card rule" style="${r.on?"":"opacity:.55"}"><div style="display:flex;gap:6px;flex-wrap:wrap"><b>Rule:</b><input type="text" value="${r.n.replace(/"/g,"&quot;")}" oninput="rules[${i}].n=this.value;upd()" style="flex:1"><select onchange="rules[${i}].kind=this.value">${["Rule","Constraint","Climate shock","Assumption"].map(k=>`<option${k===r.kind?" selected":""}>${k}</option>`).join("")}</select><button onclick="rules[${i}].on=!rules[${i}].on;drawRules();upd()">${r.on?"Active":"Inactive"}</button><button onclick="rules.splice(${i},1);drawRules();upd()">Delete</button></div>
+<b class="mut">Assumption:</b><input type="text" value="${r.a.replace(/"/g,"&quot;")}" oninput="rules[${i}].a=this.value;upd()"><b class="mut">Calculation:</b><input type="text" value="${r.c.replace(/"/g,"&quot;")}" oninput="rules[${i}].c=this.value;upd()">
+<div style="display:flex;gap:6px;margin-top:6px"><select onchange="rules[${i}].e=this.value;upd()" style="flex:1">${Object.entries(EFF).map(([k,v])=>`<option value="${k}"${k===r.e?" selected":""}>${v}</option>`).join("")}</select><input type="number" value="${r.v}" style="width:90px" oninput="rules[${i}].v=this.value;upd()"></div></div>`).join("")}
+function slider(id,l,mn,mx,v,u,step=1,note=""){return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between"><b>${l}</b><code id="${id}v"></code></div><input type="range" id="${id}" min="${mn}" max="${mx}" step="${step}" value="${v}" data-u="${u}" oninput="upd()"><div class="mut">${note}</div></div>`}
+const chain=(a)=>`<div class="chain">${a.map((x,i)=>(i?"<span>→</span>":"")+`<span class="b ${x[1]||""}">${x[0]}</span>`).join("")}</div>`;
+const out=(t,id,sub)=>`<div class="card"><div class="mut">${t}</div><div class="big" id="${id}"></div><div class="mut">${sub}</div></div>`;
+$("#p2").innerHTML=`<div class="card"><span class="tag" style="color:#f59e0b">SSP1-2.6</span> <span class="mut">“Taking the Green Road” · aggressive fossil-fuel phase-out</span><h2 style="margin:6px 0">PP feedstock scarcity: B2 triggers B4</h2><p class="mut">Plastics are a by-product of crude-oil refining, so a stricter fossil production cap lowers virgin PP supply. Replacement demand is the cups needed per period (shorter lifespan = more replacements). When the deficit raises replacement cost, operators extend cup life past 1,000 washes, which degrades surfaces and raises hygiene concerns.</p>${chain([["B2 · PP Feedstock Deficit (N9)","b2"],["Extend Cup EoL > 1,000 washes (N18)","b2 b4"],["Surface Micro-Degradation (N19)","b4"],["Consumer Hygiene Concerns (N20)","b4"],["Adoption Volume Decline (N3)","hot"]])}<p class="mut"><b>Narrative (assumption):</b> feedstock falls as fossil fuels phase out, raising replacement cost; cup lifespans must lengthen, while adoption rises with sustainability awareness. Researchers can use the storyline approach (Shepherd et al., 2018).</p></div>
+<div class="grid"><div class="card">${slider("s1","Fossil plastic production cap strictness (%)",0,90,55,"%",1,"Higher = less crude refining = less by-product plastic.")}${slider("s2","Target cup washing lifespan (washes)",500,2000,1000," washes",50,"1,000 washes is the baseline before wear shows.")}</div><div style="grid-column:span 2" class="grid">${out("Feedstock deficit","o1","(Demand − Supply) ÷ Demand")}${out("Replacement cup unit cost","o2","base $0.45")}${out("Net system circulation capacity","o3","active cups")}${out("Consumer hygiene concerns","o4","index 0–100")}</div></div>`;
+$("#p3").innerHTML=`<div class="card"><span class="tag" style="color:#06b6d4">SSP3-7.0</span> <span class="mut">“Regional Rivalry” · fragmented, high-emissions infrastructure</span><h2 style="margin:6px 0">Coffee–climate loop (B3) and the margin squeeze</h2><div class="chain">${["N3 Adoption","N12 Energy","N13 GHG","N14 Temp","N15 Yield loss","N16 Bean price","N17 Margin","N1 Partners","N2 Return","N3"].map((x,i)=>(i?"<span>→</span>":"")+`<span class="b">${x}</span>`).join("")}</div><p class="mut">Assumed SSP3-7.0 chain:</p>${chain([["Coffee Yield Loss"],["Bean Price Increase"],["Café Margin Reduction"],["Cup Life Extension"],["Surface Micro-Degradation"],["Hygiene Concerns"],["Adoption Decline","hot"]])}
+<p class="mut">Up to 20% less Arabica land (9% Robusta) by 2050 under SSP3-7.0 (Abigaba et al., 2024); more 30°C+ days in major producers (The Guardian, 2026); prices up ~80% in drought (Univ. of Waterloo, 2024).</p></div>
+<div class="grid"><div class="card">${slider("s3","Coffee bean price increase (%)",0,150,80,"%",1,"80% is a scenario assumption, not derived from land loss.")}${slider("s4","Extending cup EoL past 1,000 washes (%)",0,100,45,"%",1,"Warning: margin-saving attempts have unintended hygiene consequences.")}</div><div style="grid-column:span 2" class="grid">${out("Café operating margin","o5","baseline 12%")}${out("Consumer hygiene concerns","o6","index 0–100")}${out("Partner network vulnerability","o7","risk of café drop-out")}${out("Net adoption change","o8","from hygiene concerns")}</div></div>
+<div class="card" style="border-color:#f59e0b"><b>Scenario assumption:</b> coffee bean prices increase by approximately 80% under severe climate stress. This is a scenario assumption informed by drought-related coffee market observations and is not a direct mathematical consequence of reported land-suitability losses. Storylines are assumptions; see Shepherd et al. (2018).</div>`;
+let M={};
+function calc(){const s=+$("#s1").value,Lf=+$("#s2").value,pr=+$("#s3").value,pu=+$("#s4").value,hoard=R("hoard"),wash=R("wash"),ex=R("coffee"),mh=R("margin");
+const D=60*1000/Lf,S=100*(1-s/100),def=Math.max(0,(D-S)/D)*100,cost=.45*(1+def/100*1.65),hyg=cl(20+60*Math.max(0,(Lf-1000)/1000)),cap=Math.round(1e5*(1-hoard/100)*(1-wash/100)*(1-def/100*.5)*(1-(hyg-20)/100*.6));
+const price=pr+ex,margin=12-price*.05+pu*.015-mh,hyg3=cl(20+pu*.6),vul=cl(100-margin*7+hyg3*.3),adopt=-(hyg3-20)*.5;
+M={s,Lf,pr,pu,hoard,wash,ex,mh,D,S,def,cost,hyg,cap,price,margin,hyg3,vul,adopt}}
+function upd(){calc();const m=M;$("#s1v").textContent=m.s+"%";$("#s2v").textContent=m.Lf+" washes";$("#s3v").textContent="+"+m.pr+"%";$("#s4v").textContent=m.pu+"%";
+$("#o1").textContent=m.def.toFixed(1)+"%";$("#o2").textContent="$"+m.cost.toFixed(2);$("#o3").textContent=m.cap.toLocaleString();$("#o4").textContent=Math.round(m.hyg)+" / 100";
+$("#o5").textContent=m.margin.toFixed(1)+"%";$("#o6").textContent=Math.round(m.hyg3)+" / 100";$("#o7").textContent=Math.round(m.vul)+" / 100";$("#o8").textContent=m.adopt.toFixed(1)+"%";drawMeth()}
+const src=s=>`<span class="tag ${s}">[${s}]</span>`;
+function drawMeth(){const m=M,rs=rules.filter(r=>r.on),mt=[
+["PP resin deficit (%)","max(0, (Replacement Demand − Available Supply) ÷ Replacement Demand) × 100",[[`Supply = 100 × (1 − ${m.s}% cap) = ${m.S.toFixed(0)} units`,"P"],[`Demand = 60 × 1,000 ÷ ${m.Lf} washes = ${m.D.toFixed(0)} units (60 = baseline units, assumed)`,"AI"],["Plastics are a refining by-product, so lower fossil output lowers PP supply","P"],["Recycling 55% of post-consumer plastics is the SSP1-2.6 target (Trucost, 2026)","P"]]],
+["Replacement cup unit cost ($)","0.45 × (1 + Deficit ÷ 100 × 1.65)",[["Base cost $0.45; 1.65 resin-price sensitivity","AI"]]],
+["Consumer hygiene concerns (P2)","min(100, 20 + 60 × max(0, (Lifespan − 1000) ÷ 1000))",[["Micro-scratches appear beyond ~1,000 washes; baseline concern 20","AI"],["Chain B2 → B4: deficit drives lifespan extension","P"]]],
+["Net circulation capacity (cups)","100,000 × (1 − Hoarding) × (1 − Washing loss) × (1 − 0.5 × Deficit) × (1 − 0.6 × (Hygiene − 20) ÷ 100)",[[`Hoarding ${m.hoard}% and washing loss ${m.wash}% (active rules)`,"S"],["100,000 cup baseline fleet; 0.5 and 0.6 weights","AI"]]],
+["Café operating margin (%)","12 − 0.05 × (Price increase + Shock) + 0.015 × EoL push − Margin hit",[[`Price increase ${m.pr}% (+${m.ex}% from rules)`,"P"],["80% baseline price rise from drought analogue (Univ. of Waterloo, 2024), not derived from land loss","P"],["12% baseline margin, 0.05 bean-cost pass-through, 0.015 replacement saving per push point","AI"]]],
+["Consumer hygiene concerns (P3)","min(100, 20 + 0.6 × EoL push)",[["Longer cup life drives micro-degradation and perceived risk","AI"]]],
+["Partner network vulnerability","clamp(100 − 7 × Margin + 0.3 × Hygiene, 0, 100)",[["Cafés with thin margins and low consumer trust are likelier to exit","AI"]]],
+["Coffee bean price index","Base Price × (1 + Price increase)",[["Coffee yield loss lifts price; modelled as a scenario input","AI"],["Arabica land −20% and Robusta −9% by 2050 under SSP3-7.0 (Abigaba et al., 2024)","P"]]]];
+$("#meth").innerHTML=`<div class="card"><h2 style="margin:0">Assumptions & methods</h2><p class="mut">Sources: ${src("P")} Prompt specification · ${src("S")} Student rule · ${src("AI")} AI-generated assumption. Values update live.</p></div>`+mt.map(([n,f,a])=>`<div class="card"><b>Metric: ${n}</b><div style="margin:6px 0"><span class="mut">Formula:</span> <code>${f}</code></div>${a.map(x=>`<div class="row"><span>${x[0]}</span>${src(x[1])}</div>`).join("")}</div>`).join("")+
+`<div class="card" style="border-color:#f59e0b"><b>Scenario assumptions</b><div class="row"><span>SSP1-2.6 storyline: reduced feedstock raises replacement cost; cup lifespan extended beyond 1,000 washes; adoption rises with sustainability awareness (assumption; see Shepherd et al., 2018).</span>${src("P")}</div><div class="row"><span>SSP3-7.0: coffee prices rise ≈80% under severe climate stress. Scenario assumption from drought observations, not a direct consequence of land-suitability loss. Operators may extend cup EoL to protect margins, raising hygiene concerns and constraining network growth.</span>${src("P")}</div></div>
+<div class="card"><b>Active student rules (${rs.length})</b>${rs.map(r=>`<div class="row"><span><b>${r.n}</b> (${r.kind}): ${r.a} <code>${r.c}</code> → ${EFF[r.e]}: ${r.v}</span>${src("S")}</div>`).join("")||'<p class="mut">None active</p>'}</div>`}
+drawRules();upd();refresh();
+addEventListener("resize",()=>{sim.force("c",d3.forceCenter(W()/2,H()/2));sim.alpha(.3).restart()});
+</script></body></html>
