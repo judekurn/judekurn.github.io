@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Signal Pairings</title>
+</head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: problem statement on top, shortlist strip, then signal pool (left) beside a pairing workspace (matrix / network / list) */
+:root{
+  --bg:#EDF0F3; --surface:#FFFFFF; --surface2:#F5F7F9; --ink:#14202B; --muted:#586878; --line:#D3DAE1;
+  --accent:#17324D; --on-accent:#FFFFFF;
+  --reinforce:#0B8577; --enable:#3350C8; --tension:#C94A17; --none:#8C99A6; --good:#2E7D32; --mixed:#A45F00; --bad:#C62828;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E151C; --surface:#16202A; --surface2:#1C2733; --ink:#E6ECF1; --muted:#93A2B1; --line:#2B3846;
+  --accent:#A9CBEA; --on-accent:#0E151C;
+  --reinforce:#35C2B0; --enable:#8AA2FF; --tension:#FF8F63; --none:#66758A; --good:#6CC47A; --mixed:#F0B455; --bad:#FF7B7B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E151C; --surface:#16202A; --surface2:#1C2733; --ink:#E6ECF1; --muted:#93A2B1; --line:#2B3846;
+  --accent:#A9CBEA; --on-accent:#0E151C;
+  --reinforce:#35C2B0; --enable:#8AA2FF; --tension:#FF8F63; --none:#66758A; --good:#6CC47A; --mixed:#F0B455; --bad:#FF7B7B; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--body);margin:0;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.kicker{font:12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+
+header{display:flex;flex-direction:column;gap:8px}
+h1{font-size:30px;line-height:1.1}
+.ps{width:100%;resize:vertical;min-height:58px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:15px}
+.ps::placeholder{color:var(--muted)}
+.banner{background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:8px 12px;color:var(--muted)}
+
+.strip{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.strip-h{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between}
+.count{font:13px var(--mono)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;min-height:36px}
+.chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface2);border-radius:999px;padding:4px 6px 4px 4px;max-width:100%}
+.chip .n{background:var(--accent);color:var(--on-accent);border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font:12px var(--mono);flex:none}
+.chip .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}
+.chip .deg{font:11px var(--mono);color:var(--muted)}
+.chip button{border:0;background:none;color:var(--muted);width:22px;height:22px;border-radius:50%;line-height:1}
+.chip button:hover{background:var(--line);color:var(--ink)}
+.chip.hub{border-color:var(--accent)}
+.hint{color:var(--muted)}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:960px){.main{grid-template-columns:340px minmax(0,1fr)}.pool{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;min-width:0}
+.pool{display:flex;flex-direction:column;gap:10px}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.filters input{grid-column:1/-1}
+input[type=text],input[type=search],select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px;min-width:0;width:100%}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.sig{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:start;padding:6px;border:1px solid transparent;border-radius:6px}
+.sig:hover{background:var(--surface2)}
+.sig.in{background:var(--surface2);border-color:var(--line)}
+.sig .add{width:28px;height:28px;border-radius:50%;border:1px solid var(--accent);background:none;color:var(--accent);font-size:18px;line-height:1}
+.sig.in .add{background:var(--accent);color:var(--on-accent)}
+.sig .nm{text-align:left;background:none;border:0;padding:0;font-weight:500;display:block;width:100%}
+.sig .mt{display:flex;flex-wrap:wrap;gap:2px 8px;color:var(--muted);font-size:12px}
+.tag{font:11px var(--mono);border:1px solid var(--line);border-radius:3px;padding:0 4px;color:var(--ink)}
+.sig .note{grid-column:2/-1;color:var(--muted);font-size:13px;display:none}
+.sig.open .note{display:block}
+.sig .rm{border:0;background:none;color:var(--muted);font-size:12px;padding:2px 4px;opacity:.5}
+.sig:hover .rm,.sig .rm:focus-visible{opacity:1}
+details summary{cursor:pointer;font-weight:600}
+details form{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);border-radius:6px;padding:6px 12px;font-weight:500}
+.btn.ghost{background:none;color:var(--accent)}
+.btn[disabled]{opacity:.5;cursor:default}
+
+.ws-h{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;margin-bottom:12px}
+.tabs{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.tabs button{border:0;background:none;padding:6px 14px}
+.tabs button[aria-selected=true]{background:var(--accent);color:var(--on-accent)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.legend i{font-style:normal;font-family:var(--mono);display:inline-grid;place-items:center;width:20px;height:20px;border-radius:4px;margin-right:4px;color:var(--c);border:1px solid var(--c)}
+.scroll{overflow-x:auto}
+table.mx{border-collapse:separate;border-spacing:3px;margin:0}
+.mx th{font-weight:400;text-align:left}
+.mx .ch{font:12px var(--mono);color:var(--muted);text-align:center}
+.mx .rh{white-space:nowrap;padding-right:8px;font-size:13px;max-width:280px;overflow:hidden;text-overflow:ellipsis}
+.mx .rh .num{font:12px var(--mono);color:var(--muted);margin-right:6px}
+.mx td{padding:0}
+.mx .void{background:repeating-linear-gradient(135deg,transparent 0 4px,var(--line) 4px 5px);opacity:.5;border-radius:4px}
+.cell{width:44px;height:44px;border-radius:6px;border:1px solid var(--line);background:var(--surface2);font:16px var(--mono);color:var(--c,var(--muted));padding:0}
+.cell.set{background:color-mix(in srgb,var(--c) calc(var(--s)*1%),var(--surface));border-color:var(--c)}
+.cell.draft{border-style:dashed}
+.cell.sel{outline:2px solid var(--ink);outline-offset:1px}
+.cell.todo::after{content:"";display:block;width:4px;height:4px;border-radius:50%;background:var(--none);margin:auto;opacity:.6}
+.c-reinforce{--c:var(--reinforce)}.c-enable{--c:var(--enable)}.c-tension{--c:var(--tension)}.c-none{--c:var(--none)}
+
+svg.net{width:100%;height:auto;max-height:560px;display:block}
+svg.net text{fill:var(--ink);font:12px var(--body)}
+svg.net .edge{stroke:var(--c);fill:none;cursor:pointer}
+svg.net .hit{stroke:transparent;stroke-width:14;fill:none;cursor:pointer}
+svg.net .dim{opacity:.12}
+svg.net .node circle{fill:var(--surface);stroke:var(--accent);stroke-width:2;cursor:pointer}
+svg.net .node.f circle{fill:var(--accent)}
+svg.net .node.f .nn{fill:var(--on-accent)}
+svg.net .nn{font:12px var(--mono);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+svg.net marker path{fill:var(--enable)}
+
+.pairs{display:flex;flex-direction:column;gap:6px;list-style:none;margin:0;padding:0}
+.pairs li button{width:100%;text-align:left;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;border:1px solid var(--line);background:var(--surface2);border-radius:6px;padding:8px}
+.pairs .g{width:34px;height:34px;border-radius:6px;display:grid;place-items:center;font:16px var(--mono);color:var(--c);border:1px solid var(--c)}
+.pairs .tt{font-weight:500}
+.pairs .ss{color:var(--muted);font-size:13px}
+.sc{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;background:var(--surface2)}
+.sc .n{background:var(--accent);color:var(--on-accent);border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font:12px var(--mono);flex:none}
+.sc .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.axb{border:1px solid var(--accent);background:none;color:var(--accent);border-radius:4px;padding:2px 8px;font:12px var(--mono)}
+.axb.on{background:var(--accent);color:var(--on-accent)}
+.scs{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:6px;margin-bottom:12px}
+.frame{border:1px solid var(--ink);border-radius:4px;padding:10px 12px;margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
+.fr{display:grid;grid-template-columns:minmax(90px,160px) minmax(0,1fr);gap:8px}
+.frl{font-weight:600;text-transform:uppercase;font-size:12px;letter-spacing:.04em}
+.sgrid{display:grid;grid-template-columns:130px minmax(0,1fr) minmax(0,1fr) 130px;grid-template-areas:". top top ." "left tl tr right" "left bl br right" ". bot bot .";gap:8px}
+.g-top{grid-area:top}.g-left{grid-area:left}.g-right{grid-area:right}.g-bot{grid-area:bot}
+.g-top,.g-bot,.g-left,.g-right{display:flex;align-items:center}
+.axl{text-align:center;font-weight:600;text-transform:uppercase;letter-spacing:.03em;font-size:12px;resize:none;border-color:transparent;background:transparent;width:100%}
+.axl:hover,.axl:focus{border-color:var(--line);background:var(--surface)}
+.g-left .axl,.g-right .axl{min-height:90px}
+.quad{border:1px solid var(--ink);border-radius:4px;background:var(--surface);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.quad .qn{font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.02em;text-align:center;border-color:transparent;background:transparent}
+.quad .qn:hover,.quad .qn:focus{border-color:var(--line)}
+.quad select{align-self:center;width:auto;font-size:12px}
+.quad textarea{min-height:140px;resize:vertical;font-size:13px}
+.quad.d-good .qn,.quad.d-good select{color:var(--good)}
+.quad.d-mixed .qn,.quad.d-mixed select{color:var(--mixed)}
+.quad.d-bad .qn,.quad.d-bad select{color:var(--bad)}
+.quad.d-good{border-color:var(--good)}.quad.d-mixed{border-color:var(--mixed)}.quad.d-bad{border-color:var(--bad)}
+.warn{border:1px solid var(--tension);border-radius:6px;padding:6px 10px;margin-bottom:10px;font-size:13px}
+@media (max-width:760px){.sgrid{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "left" "right" "tl" "tr" "bl" "br" "bot"}.g-left .axl,.g-right .axl{min-height:0}.fr{grid-template-columns:minmax(0,1fr)}}
+.nts{display:flex;flex-direction:column;gap:10px}
+.nt{border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--surface2)}
+.nt .n{background:var(--accent);color:var(--on-accent);border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font:12px var(--mono);flex:none}
+.nt textarea{min-height:110px;resize:vertical}
+.ctx{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--muted)}.ctx li{margin:2px 0}
+.sig .note textarea{margin-top:4px;font-size:13px;color:var(--ink)}
+.thread{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.tn{border-left:2px solid var(--line);padding:2px 0 2px 10px}
+.tm{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;font-size:12px;color:var(--muted)}
+.tm strong{color:var(--ink);font-size:13px}
+.tx{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);font-size:13px}
+.nf{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.nf input{max-width:220px}
+.nf textarea{min-height:70px;resize:vertical}
+#legend[hidden]{display:none}
+.psbox{border:1px solid var(--ink);border-radius:4px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.pst{font-family:var(--display);font-weight:600;font-size:18px;line-height:1.25;text-wrap:balance}
+.psp{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.psp label{display:flex;flex-direction:column;gap:3px}
+.cov{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px}
+.cov strong{font-family:var(--mono);font-size:15px}
+.lkgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.empty{padding:28px 8px;color:var(--muted);text-align:center}
+
+.editor{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.editor h3{font-size:18px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{border:1px solid var(--line);border-radius:6px;padding:5px 10px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.seg input{width:auto;margin:0;accent-color:var(--c,var(--accent))}
+.seg label:has(input:checked){border-color:var(--c,var(--accent));background:color-mix(in srgb,var(--c,var(--accent)) 14%,var(--surface))}
+.fl{font-size:12px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.badge{font:11px var(--mono);border:1px dashed var(--muted);border-radius:3px;padding:0 5px;color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;max-width:90vw;z-index:9}
+.toast[hidden]{display:none}
+@media (prefers-reduced-motion:no-preference){.cell,.chip{transition:background .15s,border-color .15s}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="kicker">PPPM301 · MND futures project</div>
+    <h1>Signal Pairings</h1>
+    <textarea id="problem" class="ps" rows="2" placeholder="Group problem statement: write it here once the group has agreed on it."></textarea>
+    <div id="banner" class="banner" hidden></div>
+  </header>
+
+  <section class="strip" aria-label="Shortlist">
+    <div class="strip-h">
+      <h2 style="font-size:16px">Shortlist</h2>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <div class="main">
+    <aside class="panel pool" aria-label="Pool of driving forces">
+      <h2 style="font-size:16px">Pool of driving forces <span class="count" id="poolcount"></span></h2>
+      <div class="filters">
+        <input type="search" id="q" placeholder="Search signals" aria-label="Search signals">
+        <select id="fLabel" aria-label="Filter by label"><option value="">All labels</option></select>
+        <select id="fOwner" aria-label="Filter by owner"><option value="">Everyone</option></select>
+        <select id="fKind" aria-label="Show driving forces or weak signals" style="grid-column:1/-1">
+          <option value="df">Driving forces</option><option value="ws">Weak signals (context)</option><option value="">Both</option>
+        </select>
+      </div>
+      <ul class="list" id="pool"></ul>
+      <details>
+        <summary>Add signals</summary>
+        <form id="addForm">
+          <label class="fl" for="who">Your name</label>
+          <input type="text" id="who" placeholder="e.g. Megan">
+          <label class="fl" for="bulk">One signal per line: name | label | note</label>
+          <textarea id="bulk" rows="6" placeholder="Void decks redesigned as flexible shared rooms | Weak Signal | SUTD COSY pilot&#10;Hawker centres as ageing-in-place hubs | Trend"></textarea>
+          <button class="btn" type="submit">Add to pool</button>
+        </form>
+      </details>
+    </aside>
+
+    <main class="panel" aria-label="Pairing workspace">
+      <div class="ws-h">
+        <div class="tabs" role="tablist">
+          <button role="tab" id="t-matrix" aria-selected="true" data-view="matrix">Matrix</button>
+          <button role="tab" id="t-net" aria-selected="false" data-view="net">Network</button>
+          <button role="tab" id="t-list" aria-selected="false" data-view="list">List</button>
+          <button role="tab" id="t-notes" aria-selected="false" data-view="notes">Driver notes</button>
+          <button role="tab" id="t-links" aria-selected="false" data-view="links">Problem link</button>
+          <button role="tab" id="t-scen" aria-selected="false" data-view="scen">2×2 scenarios</button>
+        </div>
+        <div class="row">
+          <span class="hint" id="progress"></span>
+          <button class="btn ghost" id="draftAll" hidden>Draft unrated pairs with Claude</button>
+        </div>
+      </div>
+      <div class="legend" id="legend"></div>
+      <div id="viz"></div>
+      <div id="editor"></div>
+    </main>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* Offline snapshot: embedded data and a tiny in-memory stand-in for the shared database. Edits last until the page is closed. */
+(() => {
+const D = {"signals": {"df-b4": {"ctx": ["Cool coatings: Tampines pilot of about 130 blocks with up to 2 degrees C reduction; planned for all HDB estates by 2030. [Brandon log B10]", "Zhu & Yuan (2023): 12 highest-risk subzones for heat, with 32,540 elderly residents (Black Elephant). [Brandon log B11]", "Related: densification intensifies the urban heat island (Megan log), and AC outdoor units add heat (Tanvi log T4)."], "kind": "df", "label": "Driver", "name": "Urban heat exposure", "order": 104, "owner": "Brandon"}, "ws-a3": {"kind": "ws", "label": "Weak Signal", "name": "Current stagnation of large-scale local energy supply generation efforts", "order": 233, "owner": "Ailin"}, "df-a4": {"ctx": ["Local supply is stuck: natural gas is above 92% of generation, solar is about 2% of electricity because of intermittency and limited roof area, and nuclear is only at the IAEA assessment stage (from 2027). [Ai Lin log]", "Existing buildings are the gap: BCA Green Mark is mandatory only for new buildings, so older stock can lock in inefficient energy use for decades and make later retrofits costlier. [Ai Lin log, MND/BCA, Black Elephant]", "Related: Megan's log shows retrofit subsidies (BCA Green Mark Incentive Scheme) and a larger incentive in the 3rd Green Building Masterplan, which signals that voluntary uptake is seen as too slow. [Megan log, rows on retrofit incentives]"], "kind": "df", "label": "Driver", "name": "Adaptation capacity", "order": 134, "owner": "Ailin"}, "ws-t4": {"kind": "ws", "label": "Weak Signal", "name": "Consequences of commercial cooling inflation on Singapore's businesses", "order": 224, "owner": "Tanvi"}, "df-b3": {"ctx": ["Lease Buyback / home-reversion (Kwong et al. 2025): returned flat interests could accumulate by 2045 (a Black Jellyfish). [Brandon log B14]", "Silver Housing Bonus pays up to S$40,000 for right-sizing to a 3-room flat or smaller. [Brandon log B19]", "Spatial mismatch of facilities nationally (AFMI 0.24) shows that where stock turns over matters for amenities. [Brandon log B13]", "Related: leasehold decay and SERS force redevelopment decisions on a fixed clock. [Megan log]"], "kind": "df", "label": "Driver", "name": "Public-housing stock turnover", "order": 103, "owner": "Brandon"}, "ws-a1": {"kind": "ws", "label": "Weak Signal", "name": "Potentially lowered receptivity to green energy transition (businesses and consumers)", "order": 231, "owner": "Ailin"}, "ws-m3": {"kind": "ws", "label": "Weak Signal", "name": "Community places are being built on borrowed land and time", "order": 243, "owner": "Megan"}, "ws-t2": {"kind": "ws", "label": "Weak Signal", "name": "Heat trapped between buildings can raise night-time temperatures by up to 5°C in tightly packed areas", "order": 222, "owner": "Tanvi"}, "df-m4": {"ctx": ["Commentary documents the loss of free, unstructured third places as rents push public life toward pay-to-linger venues (anecdotal evidence). [Megan log]", "Weekend Brew Club (roving heartland events since March 2026) and Beyond the Vines at New Bahru show community being programmed commercially. [Megan log]", "'Public' space is increasingly delivered through private Bonus GFA schemes (POPS), which may come with restrictive rules or closures. [Megan log]", "The green price premium eroding as certification spreads is the financial mirror of this trend. [Megan log]"], "kind": "df", "label": "Driver", "name": "Commercialisation of everyday social space", "order": 144, "owner": "Megan"}, "ws-t3": {"kind": "ws", "label": "Weak Signal", "name": "Civic blind spot: high climate concern does not become neighbourhood mutual aid", "order": 223, "owner": "Tanvi"}, "df-a2": {"ctx": ["GBIC 2.0 has a translation gap: a S$45m programme, with South Beach Tower as the first demonstration (Sept 2024); pilots do not automatically scale. [Ai Lin log]", "Funding adequacy gap: S$1.6m of support against S$3.9m of cost. [Ai Lin log]", "Policy horizon gap: research funding (e.g. RIE2030, S$300m grant) is planned to 2030, while the transition runs to 2050. [Ai Lin log]"], "kind": "df", "label": "Driver", "name": "Research capacities", "order": 132, "owner": "Ailin"}, "df-m1": {"ctx": ["177 State fields (about 197 ha) are open to free community use through SLA's Land for Community Use scheme; interim parks (Taman Jurong Oasis, Taman Damai) and the Dunbar Interim Fitness Corner (Feb 2026) show placemaking before permanent construction. [Megan log]", "Leftover infrastructure is being activated: Bukit Gombak viaduct (Jan 2025), and the Draft Master Plan 2025 names viaduct undersides and HDB car park rooftops. [Megan log]", "Time-sharing: about 180 school fields and 220 sports halls are used by the community (90% of Government schools); Joo Chiat Road was closed to cars on 3 Oct 2026. [Megan log]", "Master Plan zoning trades off growth, sustainability and heritage; white sites and mixed-use zoning stack uses; the 2026 National Climate Adaptation Plan makes heat and flood resilience a land-use priority. [Megan log]"], "kind": "df", "label": "Driver", "name": "Land scarcity and competing land demands", "order": 141, "owner": "Megan"}, "df-y2": {"ctx": ["Related in Megan's log: SUTD's Cascadia COSY void deck (movable furniture, zones for study, work and exercise), Bukit Gombak viaduct art by residents, and interim State land uses. [Megan log]"], "kind": "df", "label": "Driver", "name": "Tactical urbanism", "note": "Grassroots modifications such as a community library and a cosy corner remedy rigid, sterile HDB communal spaces (Han, 2022; Goel, 2023).", "order": 112, "owner": "Yuhui"}, "df-m2": {"ctx": ["Leasehold decay and SERS force redevelopment decisions on a fixed clock, whatever the building's physical state. [Megan log, near-certain driver]", "Reuse emits much less than demolish-and-rebuild (Singapore study); retrofits are subsidised, yet rebuilding stays the default where it unlocks more GFA. [Megan log]", "C&D waste: 99% recycled (832,000 tonnes in 2023) but mostly downcycled; under 10% becomes recycled concrete aggregate; recycled materials met about 26% of demand (2020). [Megan log]", "Net-zero buildings are proven (NUS SDE4, BCA Zero Energy Building, RSAF hangar) but mostly low-rise. Adaptive reuse works commercially (New Bahru), with a gentrification risk. Commune @ Henderson (SLA, 292 beds, 102 rooms) reuses a former student hostel for intergenerational living. [Megan log]"], "kind": "df", "label": "Driver", "name": "An ageing built environment, and a shift from rebuilding to reuse", "order": 142, "owner": "Megan"}, "ws-m4": {"kind": "ws", "label": "Weak Signal", "name": "Shared space may need to be time-shared between different groups", "order": 244, "owner": "Megan"}, "df-m5": {"ctx": ["SG Youth Plan (launched 25 Jul 2026): 12 free youth third spaces by end-2026 and a Somerset youth precinct of over 8,700 sq m by 2028; about three in five youths said dedicated spaces would help them meet people from different backgrounds. [Megan log]", "Youth are co-designing public spaces; the public is increasingly willing to accept shared, multifunctional spaces. [Megan log]", "Void decks: SUTD's Cascadia COSY pilot shows low-cost flexibility, while newer blocks may have smaller void decks (non-official source). [Megan log]", "Culture pulls two ways: Gen Z 'curated calm' vs Singapore's dense, lively design; individuality in public space; heritage competing with redevelopment value. [Megan log]"], "kind": "df", "label": "Driver", "name": "Demand for community and belonging in a dense, rule-bound city", "order": 145, "owner": "Megan"}, "df-t2": {"ctx": ["'Compactness ceiling': canopy-layer urban heat island of up to +5 degrees C at night (Roth & Chow 2012). [Tanvi log T3]", "Related: building density and morphology are consistently linked to local heat in Singapore, and Trivic (2021) found 38% crowding dissatisfaction in one estate and 24% noise dissatisfaction in another (301 mostly older residents). [Megan log]"], "kind": "df", "label": "Driver", "name": "Urban densification limits", "order": 122, "owner": "Tanvi"}, "df-b2": {"ctx": ["SINEW: nine in-home sensors with 200+ seniors; an MCI model from 63 seniors reached over 90% accuracy. [Brandon log B6]", "Barriers are privacy and implementation. [Brandon log B7]", "HDB Alert Alarm System / CareLine: about 10,000 seniors in around 50 rental blocks by Feb 2025, extending to 26,800 seniors across about 170 blocks (HPC+). [Brandon log B8]", "Hospital-at-home study of 250 patients found a positive incremental net monetary benefit (S$6,895). [Brandon log B9]"], "kind": "df", "label": "Driver", "name": "Adoption of in-home care technologies", "order": 102, "owner": "Brandon"}, "ws-a4": {"kind": "ws", "label": "Weak Signal", "name": "Potential gap in green energy transition efforts for existing infrastructure", "order": 234, "owner": "Ailin"}, "df-t3": {"ctx": ["No community 'thermal welfare check-ins' exist for heat-vulnerable people (LKYCIC/SUTD 2026 study). [Tanvi log T10]", "Elderly heat risk (Borzino et al. 2025). [Tanvi log T5]; cool coatings context. [T7]", "Related: 12 highest-risk subzones with 32,540 elderly residents (Brandon log B11)."], "kind": "df", "label": "Driver", "name": "Community heat care gaps", "order": 123, "owner": "Tanvi"}, "ws-b5": {"kind": "ws", "label": "Weak Signal", "name": "Emerging mismatch between Community Care Apartments and seniors' housing preferences", "order": 205, "owner": "Brandon"}, "df-a5": {"ctx": ["Green Mark is voluntary for existing buildings and mandatory only for new ones, so the strongest rule applies to the smaller part of the stock. [Ai Lin log]", "Policy escalation: the 3rd Green Building Masterplan introduced a larger retrofit incentive, which suggests mandatory requirements could follow if uptake lags. [Megan log]", "Climate resilience is now a formal planning priority through the 2026 National Climate Adaptation Plan and a S$5b top-up to the Coastal and Flood Protection Fund; this could become new approval criteria for building projects. [Megan log]"], "kind": "df", "label": "Driver", "name": "Legislation", "order": 135, "owner": "Ailin"}, "ws-b3": {"kind": "ws", "label": "Weak Signal", "name": "Potential accumulation of HDB-returned housing interests through lease-monetisation schemes", "order": 203, "owner": "Brandon"}, "df-m3": {"ctx": ["Ageing: citizens aged 65+ are a growing share, raising demand for shade, seating, step-free routes and services close to home. [Megan log]", "Composition: June 2025 had 3.66M citizens, 0.54M PRs and 1.91M non-residents (about 31%); non-residents grew 2.7% vs 0.7% for citizens. [Megan log]", "Households shrink: average size 3.5 (2010) to 3.2 (2020); one-person households 12.2% to 16.0% (about 16.7% by 2025); couple-with-children households 56.0% to 47.7%. [Megan log]", "A scoping review of 32 studies found more than two-thirds linked access to community facilities, shops and green space with social interaction among older adults. [Megan log]"], "kind": "df", "label": "Driver", "name": "Demographic change", "order": 143, "owner": "Megan"}, "df-a1": {"ctx": ["Consumers are price-led: 65.9% worry about prices, over 80% choose no-cost lifestyle changes and fewer than 50% would pay more for low-carbon electricity; Gen Z is aware but less active. [Ai Lin log, consumer receptivity]", "Untapped nudges: 88% of UOB-surveyed consumers are interested in rewards or rebates, and 81% want to convert card points into green credits (Tan, Straits Times, 2021). [Ai Lin log, behavioural incentives]", "SMEs show the same pattern: 62% say price matters most vs 15% sustainability. [Ai Lin log, SME receptivity]"], "kind": "df", "label": "Driver", "name": "Consumer preferences", "order": 131, "owner": "Ailin"}, "ws-t5": {"kind": "ws", "label": "Weak Signal", "name": "Unmanaged humidity from green corridors can impair perceived thermal comfort", "order": 225, "owner": "Tanvi"}, "ws-m1": {"kind": "ws", "label": "Weak Signal", "name": "Everyday gathering space is shrinking, and is being re-made inside existing blocks", "order": 241, "owner": "Megan"}, "ws-b2": {"kind": "ws", "label": "Weak Signal", "name": "Emerging privacy and implementation barriers to continuous in-home monitoring", "order": 202, "owner": "Brandon"}, "df-t5": {"ctx": ["Humidity can rise near green corridors, which weakens their cooling benefit (Kubilay et al. 2026). [Tanvi log T12]", "Biogenic emissions from vegetation can spike ozone (Li et al. 2026). [Tanvi log T13]", "Related: vertical greenery has moved from incentive to expected norm (LUSH third iteration, Skyrise Greenery). [Megan log]"], "kind": "df", "label": "Driver", "name": "Cooling limits of blue-green infrastructure", "order": 125, "owner": "Tanvi"}, "ws-m5": {"kind": "ws", "label": "Weak Signal", "name": "Leftover infrastructure is being activated as community space", "order": 245, "owner": "Megan"}, "df-y1": {"ctx": ["Related in Megan's log: 'public' space delivered through private incentive schemes (POPS) can come with restrictive rules or closures, and shared space may need time-sharing between groups (31% of residents are non-residents). [Megan log]"], "kind": "df", "label": "Driver", "name": "Erosion of universal common ground", "note": "Neighbour disputes over noise and hoarding have led to temporary closure or restricted use of communal spaces in HDB estates (TOC, 2025; Shafeeq, 2024). Access gating, card barriers and anti-loitering design risk segregation and isolation (Li et al., 2022).", "order": 111, "owner": "Yuhui"}, "df-y5": {"ctx": ["Related in Megan's log: densification intensifies the urban heat island, and resident strain concentrates on shade, breezes and quiet rather than the quantity of space. [Megan log]", "Related in Tanvi's log: AC outdoor units add 1.4-3.0 degrees C and push life indoors; community heat check-ins are missing. [Tanvi log T4, T10]"], "kind": "df", "label": "Driver", "name": "Climate discomfort", "note": "Unshaded concrete layouts and haze make outdoor communal spaces unusable at peak heat (Pomeroy, 2012; NEA, 2025), pushing community life indoors.", "order": 115, "owner": "Yuhui"}, "df-t4": {"ctx": ["Commercial buildings are 4-5 times more energy-intensive per m2 than housing; BCA Green Mark and CLC Cooling Singapore are the main levers. [Tanvi log T11]", "Related: the Green Mark premium has faded as certification became common (offices 13-28% in 2005-2014, none by 2023; JLL 4-9%; about 1.1% for certified HDB blocks). [Megan log]"], "kind": "df", "label": "Driver", "name": "Rising commercial building cooling costs", "order": 124, "owner": "Tanvi"}, "df-y4": {"ctx": ["The logs have little direct evidence. Closest: COSY void deck users include parents working and children studying (Megan log), and Zoom-era demand for power-integrated void decks is Yuhui's own source. Needs more evidence."], "kind": "df", "label": "Driver", "name": "Post-pandemic influences", "note": "Remote work and decentralised study drive demand for power-integrated void decks and working pods (JRTC, 2024; Tay, 2022; Ng, 2026), while overlapping claims raise noise and maintenance friction.", "order": 114, "owner": "Yuhui"}, "df-y3": {"ctx": ["Related in Megan's log: the erosion of free third places, roving paid events (Weekend Brew Club), and state-provided youth third spaces (SG Youth Plan). [Megan log]"], "kind": "df", "label": "Driver", "name": "Fragmentation and relocation of third spaces", "note": "Younger residents host gatherings in strangers' HDB living rooms, and social connection is moving to digital channels (Lok, 2026; Mele, 2017).", "order": 113, "owner": "Yuhui"}, "df-b5": {"ctx": ["Community Care Apartments: eligibility age lowered from 65 to 55 and fees cut 18-75% (announced July 2026; 55+ eligible from the Oct 2026 BTO), after applications fell from 706 (2021) to 152 (2025). [Brandon log B18]", "EASE since 2012; Silver Upgrading Programme from Aug 2024 covers 26 precincts and about 24,000 seniors by 2029. [Brandon log B3]", "Age Well Neighbourhoods expanded to 4 areas, serving over 110,000 seniors. [Brandon log B4]", "NParks therapeutic gardens: 13 by Oct 2023, target 30 by 2030. [Brandon log B17]; environmental barriers found in Bangkit and Clementi (Trivic 2021). [B16]"], "kind": "df", "label": "Driver", "name": "Assisted-living housing policy adaptation", "order": 105, "owner": "Brandon"}, "ws-b4": {"kind": "ws", "label": "Weak Signal", "name": "Under-addressed concentration of heat-health risk among older HDB residents", "order": 204, "owner": "Brandon"}, "ws-a2": {"kind": "ws", "label": "Weak Signal", "name": "Potential translation gap between energy-efficient building innovations and sector-wide deployment", "order": 232, "owner": "Ailin"}, "ws-a5": {"kind": "ws", "label": "Weak Signal", "name": "Potential long-term energy security vulnerability from reliance on imported energy", "order": 235, "owner": "Ailin"}, "ws-m2": {"kind": "ws", "label": "Weak Signal", "name": "Third spaces are shifting from found to provided", "order": 242, "owner": "Megan"}, "df-a3": {"ctx": ["Imported energy dependence: about 94% of electricity (2024) comes from imported natural gas; renewable import capacity is being doubled to 200 MW through multidirectional power trade with Malaysia. If supplier countries need renewables for their own transition, Singapore faces competition for clean supply (a Black Swan in the log). [Ai Lin log, Cheong & Chua 2026; EDB 2024; Chew 2026]", "Green finance mismatch: Singapore's green finance mostly flows to regional ASEAN and Asian projects, so domestic energy infrastructure may be under-financed (Subramaniam & Loganathan 2024). [Ai Lin log, Black Jellyfish]", "Demand could outrun supply: green demand may exceed the 6 GW import target by 2041. [Ai Lin log]"], "kind": "df", "label": "Driver", "name": "Globalisation", "order": 133, "owner": "Ailin"}, "df-t1": {"ctx": ["AC saturation reached 88% in 2015, with over 80% of HDB flats and 99% of private homes having AC; the log calls it 'behavioural insulation'. Youth prefer AC. [Tanvi log T2, T4, T6]", "AC outdoor units raise nearby air temperature by 1.4-3.0 degrees C, up to 38 degrees C in tight spaces. [Tanvi log T4]", "Black Swan: a grid failure during a heatwave could cascade. [Tanvi log T8]", "Passive ventilation has limits (Gamero-Salinas et al. 2021; Gou et al. 2018). [Tanvi log T1, T9]"], "kind": "df", "label": "Driver", "name": "Dependence on private cooling", "order": 121, "owner": "Tanvi"}, "df-b1": {"ctx": ["Willingness for hands-on family care fell from 81.4% (2023) to 73.8% (2025). [Brandon log B1]", "Informal caregiving is 73.3% of the £4,568 six-month societal cost of 199 frail adults (Nai et al. 2026). [Brandon log B12]", "13.81% of 7,692 respondents aged 48-79 were caregivers (average age 63.2); 54.09% of care recipients were 80+, 33.99% of caregivers had 2+ chronic conditions and only 50.09% knew about respite care. [Brandon log B15]", "65+ living alone rose from 41,200 (2015) to 88,400 (2025), 11.5% of seniors. [Brandon log B5]; Project Silver Circle in Toa Payoh Central (May 2026) is a community response. [B2]"], "kind": "df", "label": "Driver", "name": "Informal caregiving capacity", "order": 101, "owner": "Brandon"}, "ws-b1": {"kind": "ws", "label": "Weak Signal", "name": "Potential decline in willingness to provide hands-on family care", "order": 201, "owner": "Brandon"}, "ws-t1": {"kind": "ws", "label": "Weak Signal", "name": "Relying on unassisted passive ventilation has physical limits", "order": 221, "owner": "Tanvi"}}, "pairs": {"df-a1~df-m2": {"a": "df-a1", "b": "df-m2", "by": "", "dir": "ab", "draft": false, "note": "", "sentence": "Increased preference for new, modern homes leads to resistance to reuse of older buildings.", "strength": 0, "t": 1792143157491, "type": "none"}, "df-a2~df-m2": {"a": "df-a2", "b": "df-m2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased research capacity leads to cost-effective retrofitting and low-carbon reuse methods.", "strength": 2, "t": 1792137156887, "type": "enable"}, "df-a3~df-a5": {"a": "df-a3", "b": "df-a5", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased globalisation leads to cross-border pressures and standards that complicate domestic legislation.", "strength": 1, "t": 1792137148693, "type": "tension"}, "df-a1~df-b1": {"a": "df-a1", "b": "df-b1", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased consumer preference for ageing in place leads to greater demand for family-supported care at home.", "strength": 2, "t": 1792137140720, "type": "reinforce"}, "df-b3~df-m1": {"a": "df-b3", "b": "df-m1", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased land scarcity leads to constrained new supply, so stock turnover becomes critical and harder to rely on for meeting needs.", "strength": 3, "t": 1792137147836, "type": "tension"}, "df-a1~df-a2": {"a": "df-a1", "b": "df-a2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased consumer preferences have only a weak direct link to research capacities.", "strength": 0, "t": 1792137155176, "type": "none"}, "df-a3~df-b3": {"a": "df-a3", "b": "df-b3", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased globalisation has only an indirect effect on public-housing stock turnover.", "strength": 0, "t": 1792137146232, "type": "none"}, "df-a2~df-b2": {"a": "df-a2", "b": "df-b2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased research capacity leads to more proven and affordable in-home care technologies.", "strength": 2, "t": 1792137144434, "type": "enable"}, "df-a3~df-b2": {"a": "df-a3", "b": "df-b2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased globalisation leads to faster access to imported care technologies and supply chains, enabling adoption.", "strength": 2, "t": 1792137143172, "type": "enable"}, "df-a5~df-m2": {"a": "df-a5", "b": "df-m2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased legislation such as retrofit incentives and building codes leads to a shift from rebuilding to reuse.", "strength": 3, "t": 1792137150732, "type": "enable"}, "df-b2~df-m2": {"a": "df-b2", "b": "df-m2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased in-home care technology leads to existing older buildings being retrofitted and kept usable rather than rebuilt.", "strength": 2, "t": 1792137145326, "type": "enable"}, "df-a5~df-b1": {"a": "df-a5", "b": "df-b1", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased legislation such as caregiver support, leave and housing priority schemes leads to greater informal caregiving capacity.", "strength": 2, "t": 1792137139475, "type": "enable"}, "df-a4~df-m1": {"a": "df-a4", "b": "df-m1", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased adaptation capacity leads to more flexible use of limited land and buildings.", "strength": 2, "t": 1792137154108, "type": "enable"}, "df-a2~df-b3": {"a": "df-a2", "b": "df-b3", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased research capacity has little direct link to public-housing stock turnover.", "strength": 0, "t": 1792137147460, "type": "none"}, "df-a4~df-a5": {"a": "df-a4", "b": "df-a5", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased legislation such as flexible building and housing rules leads to greater adaptation capacity.", "strength": 2, "t": 1792137149097, "type": "enable"}, "df-a4~df-b3": {"a": "df-a4", "b": "df-b3", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased public-housing stock turnover leads to more opportunities to match flats to changing household needs, raising adaptation capacity.", "strength": 2, "t": 1792137146641, "type": "enable"}, "df-a3~df-m2": {"a": "df-a3", "b": "df-m2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased globalisation has only a weak direct link to the reuse of ageing buildings.", "strength": 0, "t": 1792137152891, "type": "none"}, "df-m1~df-m2": {"a": "df-m1", "b": "df-m2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased land scarcity and competing land demands lead to a stronger shift from rebuilding to reuse of existing buildings.", "strength": 3, "t": 1792137157292, "type": "reinforce"}, "df-a2~df-a4": {"a": "df-a2", "b": "df-a4", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased research capacity leads to greater adaptation capacity through better solutions and knowledge.", "strength": 2, "t": 1792137153734, "type": "reinforce"}, "df-a1~df-b2": {"a": "df-a1", "b": "df-b2", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased consumer preference for independence and ageing in place leads to higher uptake of in-home care technologies.", "strength": 2, "t": 1792137144006, "type": "reinforce"}, "df-a4~df-b2": {"a": "df-a4", "b": "df-b2", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased adoption of in-home care technologies leads to greater capacity for homes and residents to adapt to ageing.", "strength": 2, "t": 1792137143613, "type": "enable"}, "df-a3~df-b1": {"a": "df-a3", "b": "df-b1", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased globalisation leads to more mobile families and migrant care workers, which erodes informal family caregiving capacity.", "strength": 1, "t": 1792137139871, "type": "tension"}, "df-a2~df-m1": {"a": "df-a2", "b": "df-m1", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased research capacity leads to innovations such as underground and multi-use space that ease land scarcity.", "strength": 2, "t": 1792137156444, "type": "enable"}, "df-b1~df-b2": {"a": "df-b1", "b": "df-b2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased in-home care technology adoption leads to reduced reliance on informal caregivers, so stronger caregiving capacity weakens the need for technology.", "strength": 2, "t": 1792137138595, "type": "tension"}, "df-a1~df-a3": {"a": "df-a1", "b": "df-a3", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased globalisation leads to evolving consumer tastes and expectations for housing.", "strength": 2, "t": 1792137151567, "type": "reinforce"}, "df-a5~df-b3": {"a": "df-a5", "b": "df-b3", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased legislation on resale, eligibility, lease and upgrading rules leads to changes in public-housing stock turnover.", "strength": 3, "t": 1792137145827, "type": "enable"}, "df-a1~df-a4": {"a": "df-a1", "b": "df-a4", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased adaptation capacity leads to a wider range of housing options that shape consumer preferences.", "strength": 1, "t": 1792137153314, "type": "reinforce"}, "df-b1~df-m2": {"a": "df-b1", "b": "df-m2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased reuse and retrofitting of ageing estates leads to familiar neighbourhoods that sustain caregiving networks.", "strength": 1, "t": 1792137141947, "type": "reinforce"}, "df-a1~df-b3": {"a": "df-a1", "b": "df-b3", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased shifts in consumer preferences lead to more moves and trading of flats, raising stock turnover.", "strength": 2, "t": 1792137147033, "type": "reinforce"}, "df-a4~df-m2": {"a": "df-a4", "b": "df-m2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased adaptation capacity leads to buildings being reused and retrofitted rather than rebuilt.", "strength": 3, "t": 1792137154496, "type": "enable"}, "df-a2~df-a3": {"a": "df-a2", "b": "df-a3", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased globalisation leads to greater research collaboration and talent flows.", "strength": 2, "t": 1792137152073, "type": "enable"}, "df-a5~df-b2": {"a": "df-a5", "b": "df-b2", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased adoption of in-home care technologies leads to regulatory pressure on data privacy, safety and standards that can slow deployment.", "strength": 2, "t": 1792137142806, "type": "tension"}, "df-a1~df-m1": {"a": "df-a1", "b": "df-m1", "by": "", "dir": "ab", "draft": false, "note": "", "sentence": "Increased consumer preference for larger, greener and more varied homes leads to greater pressure on scarce land.", "strength": 2, "t": 1792143012608, "type": "reinforce"}, "df-a3~df-a4": {"a": "df-a3", "b": "df-a4", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased globalisation leads to exchange of ideas and practices that raise adaptation capacity.", "strength": 1, "t": 1792137151101, "type": "enable"}, "df-a4~df-b1": {"a": "df-a4", "b": "df-b1", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased adaptation capacity in homes and communities leads to families being better able to sustain caregiving.", "strength": 2, "t": 1792137140274, "type": "reinforce"}, "df-b1~df-b3": {"a": "df-b1", "b": "df-b3", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased informal caregiving capacity leads to more multigenerational and nearby-living choices, which keeps public-housing stock turning over within families and estates.", "strength": 2, "t": 1792137139066, "type": "reinforce"}, "df-a2~df-b1": {"a": "df-a2", "b": "df-b1", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased research capacity has only a weak direct link to informal caregiving capacity.", "strength": 0, "t": 1792137141134, "type": "none"}, "df-a3~df-m1": {"a": "df-a3", "b": "df-m1", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased globalisation leads to population and investment inflows that intensify competing land demands.", "strength": 2, "t": 1792137152480, "type": "reinforce"}, "df-a2~df-a5": {"a": "df-a2", "b": "df-a5", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased legislation and funding frameworks lead to stronger research capacities.", "strength": 1, "t": 1792137149916, "type": "enable"}, "df-b1~df-m1": {"a": "df-b1", "b": "df-m1", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased land scarcity leads to smaller homes and distant living arrangements, which constrain caregiving capacity.", "strength": 1, "t": 1792137141528, "type": "tension"}, "df-a5~df-m1": {"a": "df-a5", "b": "df-m1", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased legislation on land use and zoning leads to better management of competing land demands.", "strength": 2, "t": 1792137150320, "type": "enable"}, "df-b3~df-m2": {"a": "df-b3", "b": "df-m2", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased ageing of the built environment and reuse leads to lower en-bloc redevelopment, reducing stock turnover through rebuilding.", "strength": 3, "t": 1792137148268, "type": "tension"}, "df-b2~df-b3": {"a": "df-b2", "b": "df-b3", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased in-home care technology adoption leads to older residents staying longer in flats, slowing stock turnover unless units are adapted.", "strength": 2, "t": 1792137142349, "type": "enable"}, "df-a1~df-a5": {"a": "df-a1", "b": "df-a5", "by": "Claude", "dir": "ba", "draft": true, "note": "", "sentence": "Increased regulation leads to constraints on consumer choice and preferences.", "strength": 1, "t": 1792137149516, "type": "tension"}, "df-b2~df-m1": {"a": "df-b2", "b": "df-m1", "by": "Claude", "dir": "ab", "draft": true, "note": "", "sentence": "Increased in-home care technology has little direct link to land scarcity.", "strength": 0, "t": 1792137144846, "type": "none"}}, "picks": {"df-a4": {"by": "", "id": "df-a4", "t": 1792142939004}, "df-m1": {"by": "", "id": "df-m1", "t": 1792142796701}, "df-m2": {"by": "", "id": "df-m2", "t": 1792143133123}, "df-t2": {"by": "", "id": "df-t2", "t": 1792572300892}, "df-b2": {"by": "", "id": "df-b2", "t": 1792143025088}, "df-t3": {"by": "", "id": "df-t3", "t": 1792572300223}, "df-m3": {"by": "", "id": "df-m3", "t": 1792142885670}, "df-y1": {"by": "", "id": "df-y1", "t": 1792143115339}, "df-y3": {"by": "", "id": "df-y3", "t": 1792139604106}, "df-a3": {"by": "", "id": "df-a3", "t": 1792142794002}}, "notes": {}, "links": {}, "docs": {"meta/problem": {"text": "How should Singapore manage evolving residential needs while keeping it green beyond 2045?"}, "meta/psparts": null, "meta/scenario": null}};
+const subs = {};
+const cols = {signals:D.signals,pairs:D.pairs,picks:D.picks,notes:D.notes,links:D.links};
+const docs = D.docs;
+const fire = k => (subs[k]||[]).forEach(f => f());
+const colSnap = n => ({docs:Object.entries(cols[n]).map(([id,v]) => ({id, data:() => JSON.parse(JSON.stringify(v))}))});
+const docSnap = p => ({exists: !!docs[p], data:() => JSON.parse(JSON.stringify(docs[p]||{}))});
+const split = p => { const i = p.indexOf("/"); return [p.slice(0,i), p.slice(i+1)]; };
+const db = {
+  collection(n){ return {
+    onSnapshot(cb){ (subs["c:"+n] = subs["c:"+n] || []).push(() => cb(colSnap(n))); cb(colSnap(n)); return () => {}; },
+    async add(v){ const id = "n" + Date.now() + Math.random().toString(36).slice(2,6); cols[n][id] = v; fire("c:"+n); return {id}; }
+  }; },
+  doc(p){ const [c,id] = split(p); return {
+    async set(v){ if(cols[c]) cols[c][id] = v; else docs[p] = v; fire(cols[c] ? "c:"+c : "d:"+p); },
+    async update(v){ if(cols[c]) cols[c][id] = {...(cols[c][id]||{}), ...v}; else docs[p] = {...(docs[p]||{}), ...v}; fire(cols[c] ? "c:"+c : "d:"+p); },
+    async delete(){ if(cols[c]) delete cols[c][id]; else delete docs[p]; fire(cols[c] ? "c:"+c : "d:"+p); },
+    onSnapshot(cb){ (subs["d:"+p] = subs["d:"+p] || []).push(() => cb(docSnap(p))); cb(docSnap(p)); return () => {}; }
+  }; }
+};
+window.claude = {use: async n => { if(n === "db") return db; throw new Error("not available offline"); }};
+})();
+</script>
+<script>
+(() => {
+const LABELS = ["Driver","Trend","Weak Signal","Black Elephant","Black Jellyfish","Black Swan"];
+const TYPES = {
+  reinforce:{label:"Reinforces", glyph:"↔", desc:"each makes the other stronger"},
+  enable:{label:"Enables", glyph:"→", desc:"one makes the other possible"},
+  tension:{label:"Pulls against", glyph:"×", desc:"they compete or conflict"},
+  none:{label:"Unrelated", glyph:"–", desc:"no meaningful link"}
+};
+const MAX = 10;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const trunc = (s, n) => s.length > n ? s.slice(0, n - 1) + "…" : s;
+const pk = (a, b) => [a, b].sort().join("~");
+
+let db = null, sample = null;
+let signals = new Map(), pairs = new Map(), shortlist = [], problem = "";
+let view = "matrix", sel = null, focus = null, open = new Set();
+let filt = {q:"", label:"", owner:"", kind:"df"};
+let scen = {};
+let picks = new Map(), pend = new Map(), notes = new Map(), links = new Map(), psParts = {};
+
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true, 3500); }
+function who(){ try{ return localStorage.getItem("sp-name") || ""; }catch(e){ return ""; } }
+async function put(path, data){
+  if(!db){ toast("Shared storage is not available in this view."); return false; }
+  try{ await db.doc(path).set(data); return true; }
+  catch(e){ toast(e && e.code === "invalid_argument" ? "You need Contributor access to edit this page." : "Could not save. Try again."); return false; }
+}
+
+/* ---------- shortlist ---------- */
+function members(){ return shortlist.map(id => signals.get(id)).filter(Boolean); }
+function degree(id){
+  let d = 0;
+  for(const p of pairs.values()) if(p.type && p.type !== "none" && (p.a===id || p.b===id) && shortlist.includes(p.a) && shortlist.includes(p.b)) d++;
+  return d;
+}
+function recompute(){
+  const m = new Map(picks);
+  for(const [id,v] of pend){ if(v.on){ if(!m.has(id)) m.set(id, {id, t:v.t}); } else m.delete(id); }
+  shortlist = [...m.values()].sort((a,b) => (a.t||0) - (b.t||0) || (a.id < b.id ? -1 : 1)).map(p => p.id);
+  if(sel && !(shortlist.includes(sel.a) && shortlist.includes(sel.b))) sel = null;
+}
+async function delDoc(path){
+  if(!db){ toast("Shared storage is not available in this view."); return false; }
+  try{ await db.doc(path).delete(); return true; }
+  catch(e){ toast(e && e.code === "invalid_argument" ? "You need Contributor access to edit this page." : "Could not save. Try again."); return false; }
+}
+async function toggle(id){
+  const on = !shortlist.includes(id);
+  if(on && shortlist.length >= MAX){ toast("The shortlist holds up to " + MAX + " driving forces. Remove one first."); return; }
+  const t = Date.now();
+  pend.set(id, {on, t}); recompute(); renderAll();
+  const ok = on ? await put("picks/" + id, {id, t, by: who()}) : await delDoc("picks/" + id);
+  const cur = pend.get(id);
+  if(cur && cur.t === t){
+    pend.delete(id);
+    if(ok){ if(on) picks.set(id, {id, t}); else picks.delete(id); }
+  }
+  recompute(); renderAll();
+}
+
+/* ---------- rendering ---------- */
+function renderChips(){
+  const L = members(), n = L.length;
+  $("#count").textContent = n + " of " + MAX + (n < 7 ? " · aim for 7–8" : n <= 8 ? " · good range" : " · more than 8 gets crowded");
+  const maxDeg = Math.max(0, ...L.map(s => degree(s.id)));
+  $("#chips").innerHTML = n ? L.map((s,i) => {
+    const d = degree(s.id);
+    return `<div class="chip ${d && d===maxDeg ? "hub":""}"><span class="n">${i+1}</span><span class="t" title="${esc(s.name)}">${esc(s.name)}</span><span class="deg" title="Links to other shortlisted signals">${d} link${d===1?"":"s"}</span><button data-act="remove" data-id="${esc(s.id)}" aria-label="Remove ${esc(s.name)} from shortlist">×</button></div>`;
+  }).join("") : `<span class="hint">Nothing picked yet. Press + next to a signal in the pool to add it.</span>`;
+}
+function fillSelect(el, vals, all){
+  const cur = el.value;
+  el.innerHTML = `<option value="">${all}</option>` + vals.map(v => `<option>${esc(v)}</option>`).join("");
+  el.value = vals.includes(cur) ? cur : "";
+}
+function renderPool(){
+  const all = [...signals.values()];
+  fillSelect($("#fLabel"), [...new Set(all.map(s => s.label).filter(Boolean))], "All labels");
+  fillSelect($("#fOwner"), [...new Set(all.map(s => s.owner).filter(Boolean))].sort(), "Everyone");
+  filt.label = $("#fLabel").value; filt.owner = $("#fOwner").value;
+  const q = filt.q.toLowerCase();
+  const rows = all.filter(s =>
+    (!q || (s.name+" "+(s.note||"")+" "+(s.owner||"")).toLowerCase().includes(q)) &&
+    (!filt.label || s.label === filt.label) && (!filt.owner || s.owner === filt.owner) && (!filt.kind || (s.kind || "df") === filt.kind)
+  ).sort((a,b) => (a.order ?? 1e6) - (b.order ?? 1e6) || a.name.localeCompare(b.name));
+  $("#poolcount").textContent = rows.length === all.length ? "(" + all.length + ")" : "(" + rows.length + " of " + all.length + ")";
+  $("#pool").innerHTML = rows.length ? rows.map(s => {
+    const inn = shortlist.includes(s.id);
+    return `<li class="sig ${inn?"in":""} ${open.has(s.id)?"open":""}">
+      <button class="add" data-act="toggle" data-id="${esc(s.id)}" aria-pressed="${inn}" aria-label="${inn?"Remove from":"Add to"} shortlist: ${esc(s.name)}">${inn?"✓":"+"}</button>
+      <div><button class="nm" data-act="open" data-id="${esc(s.id)}">${esc(s.name)}</button>
+        <div class="mt">${s.label?`<span class="tag">${esc(s.label)}</span>`:""}${s.owner?`<span>${esc(s.owner)}</span>`:""}${noteCount(s.id)?`<span title="Notes from the group">✎ ${noteCount(s.id)}</span>`:""}${s.fit?`<span>${esc(s.fit)} fit</span>`:""}${s.ref?`<span>${esc(s.ref)}</span>`:""}</div></div>
+      <button class="rm" data-act="del" data-id="${esc(s.id)}" aria-label="Delete ${esc(s.name)}">delete</button>
+      <div class="note">${esc(s.note || (s.ctx&&s.ctx.length ? "" : "No description yet."))}${s.source?`<br>Source: ${esc(s.source)}`:""}${ctxHtml(s)}<div class="fl" style="display:block;margin-top:8px">Notes from the group</div>${open.has(s.id) ? threadHtml(s.id) : ""}</div></li>`;
+  }).join("") : `<li class="empty">${all.length ? "No signals match these filters." : "The pool is empty. Paste your signals under “Add signals” to start."}</li>`;
+}
+function renderLegend(){
+  $("#legend").hidden = ["scen","notes","links"].includes(view);
+  $("#legend").innerHTML = Object.entries(TYPES).map(([k,t]) => `<span class="c-${k}"><i>${t.glyph}</i>${t.label}: ${t.desc}</span>`).join("")
+    + `<span>Darker fill means a stronger link. Dashed border means a Claude draft nobody has confirmed.</span>`;
+}
+function pairList(){
+  const L = members(), out = [];
+  for(let i=0;i<L.length;i++) for(let j=i+1;j<L.length;j++){
+    const k = pk(L[i].id, L[j].id); out.push({k, x:L[i], y:L[j], p:pairs.get(k)});
+  }
+  return out;
+}
+function fromTo(p){ return p.dir === "ba" ? [p.b, p.a] : [p.a, p.b]; }
+function renderProgress(){
+  const ps = pairList(), done = ps.filter(o => o.p && o.p.type).length;
+  $("#progress").textContent = ps.length ? done + " of " + ps.length + " pairs rated" : "";
+  $("#draftAll").hidden = !(sample && !["scen","notes","links"].includes(view) && ps.length && done < ps.length);
+}
+function renderMatrix(){
+  const L = members(), n = L.length;
+  if(n < 2) return `<div class="empty">Pick at least two signals from the pool to see how they pair.</div>`;
+  let h = `<div class="scroll"><table class="mx"><thead><tr><th></th>`;
+  for(let j=0;j<n-1;j++) h += `<th class="ch" scope="col" title="${esc(L[j].name)}">${j+1}</th>`;
+  h += `</tr></thead><tbody>`;
+  for(let i=1;i<n;i++){
+    h += `<tr><th class="rh" scope="row" title="${esc(L[i].name)}"><span class="num">${i+1}</span>${esc(trunc(L[i].name, 34))}</th>`;
+    for(let j=0;j<n-1;j++){
+      if(j >= i){ h += `<td class="void"></td>`; continue; }
+      const k = pk(L[i].id, L[j].id), p = pairs.get(k);
+      let cls = "cell todo", style = "", glyph = "", label = "Not rated";
+      if(p && p.type){
+        const t = TYPES[p.type];
+        glyph = t.glyph;
+        if(p.type === "enable"){ const [f] = fromTo(p); glyph = f === L[i].id ? "→" : "↑"; }
+        cls = `cell set c-${p.type} ${p.draft?"draft":""}`;
+        style = `--s:${[0,18,38,62][p.strength || 1]}`;
+        label = t.label;
+      }
+      if(sel && sel.k === k) cls += " sel";
+      h += `<td><button class="${cls}" style="${style}" data-act="pair" data-a="${esc(L[i].id)}" data-b="${esc(L[j].id)}" aria-label="${esc(L[i].name)} and ${esc(L[j].name)}: ${label}">${glyph}</button></td>`;
+    }
+    h += `</tr>`;
+  }
+  return h + `</tbody></table></div><p class="hint" style="margin:8px 0 0">Columns use the numbers on the shortlist. An arrow → means the row signal enables the column signal; ↑ means the column signal enables the row signal.</p>`;
+}
+function renderNet(){
+  const L = members(), n = L.length;
+  if(n < 2) return `<div class="empty">Pick at least two signals from the pool to see how they pair.</div>`;
+  const cx=330, cy=270, R=170, pos = {};
+  L.forEach((s,i) => { const a = -Math.PI/2 + i*2*Math.PI/n; pos[s.id] = {x:cx+R*Math.cos(a), y:cy+R*Math.sin(a), a}; });
+  const rad = id => 13 + Math.min(degree(id), 6) * 1.5;
+  let edges = "", nodes = "";
+  for(const o of pairList()){
+    const p = o.p; if(!p || !p.type || p.type === "none") continue;
+    const [f,t] = fromTo(p), A = pos[f], B = pos[t];
+    const dim = focus && focus !== p.a && focus !== p.b ? "dim" : "";
+    const w = 1 + (p.strength || 1) * 1.6;
+    let x2 = B.x, y2 = B.y;
+    if(p.type === "enable"){ const dx=B.x-A.x, dy=B.y-A.y, d=Math.hypot(dx,dy)||1; x2 = B.x - dx/d*(rad(t)+6); y2 = B.y - dy/d*(rad(t)+6); }
+    const dash = p.type === "tension" ? ' stroke-dasharray="6 4"' : p.draft ? ' stroke-dasharray="2 4"' : "";
+    edges += `<g class="${dim} c-${p.type}" data-act="pair" data-a="${esc(o.x.id)}" data-b="${esc(o.y.id)}">
+      <line class="hit" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/>
+      <line class="edge" x1="${A.x}" y1="${A.y}" x2="${x2}" y2="${y2}" stroke-width="${w}"${dash}${p.type==="enable"?' marker-end="url(#arr)"':""}><title>${esc(o.x.name)} / ${esc(o.y.name)}: ${TYPES[p.type].label}</title></line></g>`;
+  }
+  L.forEach((s,i) => {
+    const P = pos[s.id], r = rad(s.id), cos = Math.cos(P.a), sin = Math.sin(P.a);
+    const anchor = Math.abs(cos) < .3 ? "middle" : cos > 0 ? "start" : "end";
+    const lx = P.x + cos*(r+10), ly = P.y + sin*(r+10) + (Math.abs(cos)<.3 ? sin*8 : 0);
+    nodes += `<g class="node ${focus===s.id?"f":""}" data-act="focus" data-id="${esc(s.id)}" tabindex="0" role="button" aria-label="${esc(s.name)}">
+      <circle cx="${P.x}" cy="${P.y}" r="${r}"/><text class="nn" x="${P.x}" y="${P.y}">${i+1}</text>
+      <text x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="central">${esc(trunc(s.name, 30))}</text></g>`;
+  });
+  return `<svg class="net" viewBox="0 0 660 540" role="img" aria-label="Network of shortlisted signals">
+    <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker></defs>
+    ${edges}${nodes}</svg><p class="hint" style="margin:0">Select a signal to isolate its links. Node size grows with the number of links. Line weight shows strength; dashed lines are tensions.</p>`;
+}
+function renderList(){
+  const ps = pairList();
+  if(ps.length < 1) return `<div class="empty">Pick at least two signals from the pool to see how they pair.</div>`;
+  const rated = ps.filter(o => o.p && o.p.type && o.p.type !== "none").sort((a,b) => (b.p.strength||0)-(a.p.strength||0));
+  const todo = ps.filter(o => !(o.p && o.p.type));
+  let h = `<ul class="pairs">` + rated.map(o => {
+    const p = o.p, [f,t] = fromTo(p), A = signals.get(f), B = signals.get(t);
+    const arrow = p.type === "enable" ? " enables " : p.type === "tension" ? " pulls against " : " reinforces ";
+    return `<li><button data-act="pair" data-a="${esc(o.x.id)}" data-b="${esc(o.y.id)}" class="c-${p.type}"><span class="g">${TYPES[p.type].glyph}</span>
+      <span><span class="tt">${esc(A.name)}<span class="hint">${arrow}</span>${esc(B.name)}</span> ${p.draft?'<span class="badge">Claude draft</span>':""}
+      <span class="ss" style="display:block">${"●".repeat(p.strength||1)} ${esc(p.sentence || "No sentence yet.")}</span></span></button></li>`;
+  }).join("") + `</ul>`;
+  if(!rated.length) h = "";
+  if(todo.length) h += `<p class="hint">${todo.length} pair${todo.length===1?"":"s"} not rated yet. <button class="btn ghost" data-act="next" style="margin-left:6px">Open next unrated pair</button></p>`;
+  return h;
+}
+function rel(a, b){
+  const p = pairs.get(pk(a, b));
+  if(!p || !p.type || p.type === "none") return "no link rated";
+  if(p.type === "enable") return fromTo(p)[0] === a ? "enables" : "is enabled by";
+  return p.type === "reinforce" ? "reinforces" : "pulls against";
+}
+function setPath(o, path, v){
+  const k = path.split("."); let c = o;
+  for(let i = 0; i < k.length - 1; i++){ if(!c[k[i]] || typeof c[k[i]] !== "object") c[k[i]] = {}; c = c[k[i]]; }
+  c[k[k.length - 1]] = v;
+}
+function dfNames(list){ return list.length ? list.map(s => esc(trunc(s.name, 42))).join("; ") : "none yet"; }
+function renderScen(){
+  const L = members();
+  if(L.length < 2) return `<div class="empty">Pick at least two driving forces from the pool to build a 2×2.</div>`;
+  const A = scen.assign || {}, ax = scen.axes || {}, cx = scen.ctx || {}, q = scen.q || {};
+  const by = v => L.filter(s => A[s.id] === v);
+  let h = `<p class="hint" style="margin:0 0 8px">Sensemaking: sort each shortlisted driving force onto the axis it shapes most, or into the context frame. Then name both ends of each axis and read the four corners.</p><div class="scs">` +
+    L.map((s,i) => `<div class="sc"><span class="n">${i+1}</span><span class="t" title="${esc(s.name)}">${esc(s.name)}</span>${[["x","X","Horizontal axis"],["y","Y","Vertical axis"],["c","Frame","Context frame"]].map(([v,l,tt]) => `<button class="axb ${A[s.id]===v?"on":""}" data-act="assign" data-v="${v}" data-id="${esc(s.id)}" aria-pressed="${A[s.id]===v}" title="${tt}">${l}</button>`).join("")}</div>`).join("") + `</div>`;
+  if(sample) h += `<div class="row" style="margin-bottom:12px"><button class="btn ghost" id="suggestAx" data-act="suggestAx">Suggest axes with Claude</button><span class="hint">Fills blanks only. Your choices stay.</span></div>`;
+  let strong = 0;
+  for(const a of by("x")) for(const b of by("y")){ const p = pairs.get(pk(a.id, b.id)); if(p && p.type && p.type !== "none" && p.strength >= 2) strong++; }
+  if(strong >= 2) h += `<div class="warn">${strong} strong links between forces on the horizontal and vertical axes in your pairing matrix. Axes that move together leave two corners nearly empty. Consider moving a force.</div>`;
+  const fr = k => `<div class="fr"><input type="text" class="frl" data-p="ctx.${k}.l" value="${esc((cx[k]||{}).l||"")}" placeholder="${k==="a"?"Evolving needs":"Green goals"}" aria-label="Frame label"><input type="text" data-p="ctx.${k}.t" value="${esc((cx[k]||{}).t||"")}" placeholder="What holds in all four scenarios?" aria-label="Frame text"></div>`;
+  h += `<div class="frame"><div class="fl">Context frame</div>${fr("a")}${fr("b")}<div class="hint">Frame forces: ${dfNames(by("c"))}</div></div>`;
+  const axI = (k, ph) => `<textarea class="axl" data-p="axes.${k}" rows="2" placeholder="${ph}" aria-label="${ph}">${esc(ax[k]||"")}</textarea>`;
+  const qd = k => {
+    const v = q[k] || {}, d = v.des || "";
+    return `<div class="quad ${d ? "d-"+d : ""}" style="grid-area:${k}"><input type="text" class="qn" data-p="q.${k}.name" value="${esc(v.name||"")}" placeholder="Name this scenario" aria-label="Scenario name">
+      <select data-p="q.${k}.des" aria-label="How desirable is this scenario"><option value="">Desirability</option><option value="good" ${d==="good"?"selected":""}>Preferable</option><option value="mixed" ${d==="mixed"?"selected":""}>Mixed</option><option value="bad" ${d==="bad"?"selected":""}>Difficult</option></select>
+      <div class="fl">Scenario details</div><textarea data-p="q.${k}.text" placeholder="What does Singapore look like beyond 2045 here? Who acts, what happens to land, who benefits?" aria-label="Scenario details">${esc(v.text||"")}</textarea></div>`;
+  };
+  h += `<div class="sgrid"><div class="g-top">${axI("ytop","Top end of the vertical axis")}</div><div class="g-left">${axI("xleft","Left end of the horizontal axis")}</div>${qd("tl")}${qd("tr")}<div class="g-right">${axI("xright","Right end of the horizontal axis")}</div>${qd("bl")}${qd("br")}<div class="g-bot">${axI("ybot","Bottom end of the vertical axis")}</div></div>`;
+  h += `<p class="hint" style="margin:10px 0 0"><strong>Vertical axis forces:</strong> ${dfNames(by("y"))}. <strong>Horizontal axis forces:</strong> ${dfNames(by("x"))}.</p>`;
+  if(sample) h += `<div class="row" style="margin-top:10px"><button class="btn ghost" id="draftScen" data-act="draftScen">Draft empty scenarios with Claude</button><span class="hint">Needs all four axis ends named. Fills only blank corners.</span></div>`;
+  return h;
+}
+async function saveScen(){ await put("meta/scenario", scen); }
+async function saveElab(id, v){
+  const s = signals.get(id); if(!s || (s.elab || "") === v) return;
+  s.elab = v;
+  if(!db){ toast("Shared storage is not available in this view."); return; }
+  try{ await db.doc("signals/" + id).update({elab: v}); toast("Note saved."); }
+  catch(e){ toast(e && e.code === "invalid_argument" ? "You need Contributor access to edit notes." : "Could not save the note. Try again."); }
+}
+const dfBrief = (L) => L.map((s,i) => brief(s, i+1)).join("\n");
+async function suggestAx(){
+  const L = members(); if(L.length < 3){ toast("Shortlist at least three driving forces first."); return; }
+  const btn = $("#suggestAx"); btn.disabled = true; btn.textContent = "Thinking…";
+  try{
+    const r = await sample.json(`You are helping a Singapore public-policy student group run 2×2 scenario sensemaking for the Ministry of National Development.
+Problem statement: ${problem || "(not set yet)"}
+Shortlisted driving forces:
+${dfBrief(L)}
+Task: (1) choose two axes, each a spectrum shaped by several of the forces, that are both highly uncertain, highly consequential and independent of each other; (2) treat forces that are near-certain and hold in every scenario as the context frame.
+Reply with JSON only: {"assign":{"1":"x|y|c", ...one entry per force number...},"axes":{"ytop":"4-8 words","ybot":"4-8 words","xleft":"4-8 words","xright":"4-8 words"},"ctx":{"a":{"l":"short label","t":"one line"},"b":{"l":"short label","t":"one line"}}}. "x" is the horizontal axis, "y" the vertical axis, "c" the context frame. Name each axis end as a clear opposite of the other end.`, {modelTier:"default"});
+    scen.assign = scen.assign || {}; scen.axes = scen.axes || {}; scen.ctx = scen.ctx || {};
+    L.forEach((s,i) => { const v = r.assign && r.assign[String(i+1)]; if(!scen.assign[s.id] && ["x","y","c"].includes(v)) scen.assign[s.id] = v; });
+    for(const k of ["ytop","ybot","xleft","xright"]) if(!scen.axes[k] && r.axes && r.axes[k]) scen.axes[k] = String(r.axes[k]);
+    for(const k of ["a","b"]){ const c = scen.ctx[k] = scen.ctx[k] || {}; if(r.ctx && r.ctx[k]){ if(!c.l) c.l = String(r.ctx[k].l||""); if(!c.t) c.t = String(r.ctx[k].t||""); } }
+    renderViz(); await saveScen(); toast("Axes suggested. Move forces or rename the ends as you see fit.");
+  }catch(e){ toast("Claude could not suggest axes just now."); const b = $("#suggestAx"); if(b){ b.disabled = false; b.textContent = "Suggest axes with Claude"; } }
+}
+async function draftScen(){
+  const L = members(), ax = scen.axes || {};
+  if(!(ax.ytop && ax.ybot && ax.xleft && ax.xright)){ toast("Name all four axis ends first."); return; }
+  const A = scen.assign || {}, cx = scen.ctx || {}, by = v => L.filter(s => A[s.id] === v);
+  const btn = $("#draftScen"); btn.disabled = true; btn.textContent = "Drafting…";
+  try{
+    const r = await sample.json(`You are helping a Singapore public-policy student group build 2×2 scenarios for the Ministry of National Development.
+Problem statement: ${problem || "(not set yet)"}
+Context frame (true in all four scenarios): ${["a","b"].map(k => (cx[k]&&cx[k].l ? cx[k].l+": "+(cx[k].t||"") : "")).filter(Boolean).join(" | ") || "none given"}${by("c").length ? "; frame forces: " + by("c").map(s=>s.name).join(", ") : ""}
+Vertical axis: top "${ax.ytop}", bottom "${ax.ybot}". Forces shaping it: ${by("y").map(s=>s.name).join(", ") || "n/a"}.
+Horizontal axis: left "${ax.xleft}", right "${ax.xright}". Forces shaping it: ${by("x").map(s=>s.name).join(", ") || "n/a"}.
+Write one scenario per corner: tl (top + left), tr (top + right), bl (bottom + left), br (bottom + right).
+Reply with JSON only: {"tl":{"name":"short name","des":"good|mixed|bad","text":"3-4 sentences on who acts, what happens to land use and green goals, and who benefits or is left out"}, "tr":{...}, "bl":{...}, "br":{...}}. Judge desirability honestly against the problem statement; not every corner is good.`, {modelTier:"default"});
+    scen.q = scen.q || {}; let n = 0;
+    for(const k of ["tl","tr","bl","br"]){
+      const cur = scen.q[k] || {};
+      if(cur.name || cur.text || !r[k]) continue;
+      scen.q[k] = {name:String(r[k].name||""), des:["good","mixed","bad"].includes(r[k].des) ? r[k].des : "", text:String(r[k].text||"")}; n++;
+    }
+    renderViz(); if(n) await saveScen(); toast(n ? n + " scenario" + (n===1?"":"s") + " drafted. Edit freely." : "All four corners already have text.");
+  }catch(e){ toast("Claude could not draft the scenarios just now."); const b = $("#draftScen"); if(b){ b.disabled = false; b.textContent = "Draft empty scenarios with Claude"; } }
+}
+function noteCount(id){ let n = 0; for(const x of notes.values()) if(x.df === id) n++; return n; }
+function fmtT(t){ try{ return new Date(t).toLocaleString("en-SG", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}); }catch(e){ return ""; } }
+function threadHtml(id){
+  const list = [...notes.values()].filter(n => n.df === id).sort((a,b) => (a.t||0) - (b.t||0));
+  return `<div class="thread">` + (list.length ? list.map(n => `<div class="tn"><div class="tm"><strong>${esc(n.by || "Someone")}</strong><span>${esc(fmtT(n.t))}</span><button class="rm" data-act="delnote" data-nid="${esc(n.id)}">delete</button></div><div class="tx">${esc(n.text)}</div></div>`).join("") : `<div class="hint">No notes yet. Be the first to add what you are trying to explain.</div>`) +
+    `<form class="nf" data-df="${esc(id)}"><input type="text" name="by" placeholder="Your name" value="${esc(who())}" aria-label="Your name"><textarea name="text" rows="3" placeholder="What are you trying to explain about this driver?" aria-label="Add a note to this driver"></textarea><button class="btn" type="submit">Post note</button></form></div>`;
+}
+function renderNotes(){
+  const L = members();
+  if(!L.length) return `<div class="empty">Shortlist your driving forces to write up each one here.</div>`;
+  return `<p class="hint" style="margin:0 0 10px">Each shortlisted driver has its own thread. Add what you are trying to explain: what the driver is, why it matters for residential needs and a green Singapore beyond 2045, and what evidence backs it. Everyone's notes stack under the driver with their name.</p><div class="nts">` + L.map((s,i) => `<div class="nt"><div class="row"><span class="n">${i+1}</span><strong>${esc(s.name)}</strong><span class="hint">${esc(s.owner||"")}</span></div>${s.note?`<div class="hint">${esc(s.note)}</div>`:""}${ctxHtml(s)}${threadHtml(s.id)}</div>`).join("") + `</div>`;
+}
+const MND_TAGS = ["HDB","URA","BCA","NParks","SLA","MND policy"];
+const LV = ["None","Slight","Clear","Strong"];
+function threadText(id){
+  const t = [...notes.values()].filter(n => n.df === id).sort((a,b) => (a.t||0)-(b.t||0)).map(n => (n.by||"Someone") + ": " + n.text).join(" | ");
+  return t ? " Group notes: " + t.slice(0, 600) : "";
+}
+function renderLinks(){
+  const L = members();
+  if(!L.length) return `<div class="empty">Shortlist your driving forces to see how each one connects to the problem statement and to MND.</div>`;
+  const pa = psParts.a || "Evolving residential needs", pb = psParts.b || "Staying green beyond 2045";
+  const g = id => links.get(id) || {};
+  const n = L.length, rated = L.filter(x => links.has(x.id)).length;
+  const ra = L.filter(x => (g(x.id).res||0) >= 2).length, rb = L.filter(x => (g(x.id).grn||0) >= 2).length;
+  const both = L.filter(x => (g(x.id).res||0) >= 2 && (g(x.id).grn||0) >= 2).length;
+  const tc = {}; for(const x of L) for(const t of (g(x.id).mnd||[])) tc[t] = (tc[t]||0) + 1;
+  const tcs = Object.entries(tc).sort((a,b) => b[1]-a[1]).map(([t,c]) => `${esc(t)} ×${c}`).join(", ");
+  const thin = rated && Math.min(ra, rb) < Math.ceil(n/4);
+  let h = `<div class="psbox"><div class="fl">Problem statement</div><div class="pst">${esc(problem || "Write the problem statement at the top of the page.")}</div>
+    <div class="psp"><label><span class="fl">Part 1 of the statement</span><input type="text" data-ps="a" value="${esc(psParts.a||"")}" placeholder="Evolving residential needs"></label>
+    <label><span class="fl">Part 2 of the statement</span><input type="text" data-ps="b" value="${esc(psParts.b||"")}" placeholder="Staying green beyond 2045"></label></div>
+    <div class="cov"><span><strong>${ra}</strong> of ${n} clearly tie to ${esc(pa.toLowerCase())}</span><span><strong>${rb}</strong> of ${n} clearly tie to ${esc(pb.toLowerCase())}</span><span><strong>${both}</strong> tie to both</span><span>${rated} of ${n} rated</span></div>
+    ${tcs ? `<div class="hint">MND levers touched: ${tcs}</div>` : ""}
+    ${thin ? `<div class="warn" style="margin:8px 0 0">One half of the problem statement is thinly covered by this shortlist. Swap in a driver that speaks to the weaker half.</div>` : ""}</div>`;
+  if(sample) h += `<div class="row" style="margin:12px 0"><button class="btn ghost" id="draftLinks" data-act="draftLinks">Draft links with Claude</button><span class="hint">Fills only drivers you haven't rated. Uses the group's notes.</span></div>`;
+  h += `<div class="nts">` + L.map((x,i) => {
+    const c = g(x.id), mnd = c.mnd || [];
+    const seg = (f, label) => `<div><div class="fl">Link to: ${esc(label)}</div><div class="seg">${LV.map((l,k) => `<label><input type="radio" name="${f}-${esc(x.id)}" data-lk="${f}" data-id="${esc(x.id)}" value="${k}" ${(c[f]??-1)===k?"checked":""}>${l}</label>`).join("")}</div></div>`;
+    return `<div class="nt lk"><div class="row"><span class="n">${i+1}</span><strong>${esc(x.name)}</strong><span class="hint">${esc(x.owner||"")}</span>${c.draft ? '<span class="badge">Claude draft</span>' : ""}</div>
+      <div class="lkgrid">${seg("res", pa)}${seg("grn", pb)}</div>
+      <div><div class="fl">MND levers it informs</div><div class="row">${MND_TAGS.map(t => `<button type="button" class="axb ${mnd.includes(t)?"on":""}" data-act="lkchip" data-id="${esc(x.id)}" data-v="${esc(t)}" aria-pressed="${mnd.includes(t)}">${esc(t)}</button>`).join("")}</div></div>
+      <div><label class="fl" for="why-${esc(x.id)}">Why it matters to MND: what decision does it inform?</label><textarea id="why-${esc(x.id)}" data-lk="why" data-id="${esc(x.id)}" rows="3" placeholder="e.g. what MND or an agency would do differently if this driver strengthens">${esc(c.why||"")}</textarea></div></div>`;
+  }).join("") + `</div>`;
+  return h;
+}
+async function saveLink(id, patch){
+  const cur = links.get(id) || {};
+  const next = {...cur, ...patch, draft:false, by: who(), t: Date.now()}; delete next.id;
+  links.set(id, {id, ...next});
+  await put("links/" + id, next);
+}
+async function draftLinks(){
+  const L = members().filter(x => !links.has(x.id));
+  if(!L.length){ toast("Every shortlisted driver already has a link."); return; }
+  const btn = $("#draftLinks"); btn.disabled = true; btn.textContent = "Drafting…";
+  const pa = psParts.a || "Evolving residential needs", pb = psParts.b || "Staying green beyond 2045";
+  try{
+    const r = await sample.json(`You are helping a Singapore public-policy student group show how each driving force links to their problem statement and why it matters to the Ministry of National Development (MND). MND oversees land use planning, public housing, building quality and parks through HDB, URA, BCA, NParks and SLA.
+Problem statement: ${problem || "(not set yet)"}
+Part 1: ${pa}. Part 2: ${pb}.
+Driving forces:
+${L.map((x,i) => (i+1) + ". " + x.name + (x.note ? " — " + x.note : "") + ctxText(x) + threadText(x.id)).join("\n")}
+For each force give: "res" (0-3, how strongly it shapes part 1), "grn" (0-3, how strongly it shapes part 2), "mnd" (array chosen only from ${JSON.stringify(MND_TAGS)}), and "why" (one or two sentences naming the kind of MND decision it informs, such as housing supply, land use planning, building standards or greenery). Do not invent specific policies, programmes or statistics. Be honest: use 0 or 1 where the link is weak.
+Reply with a JSON array only: [{"i":1,"res":0,"grn":0,"mnd":[],"why":""}, ...]`, {modelTier:"default"});
+    let c = 0;
+    for(const it of (Array.isArray(r) ? r : [])){
+      const x = L[(it.i||0) - 1]; if(!x || links.has(x.id)) continue;
+      const d = {res: Math.min(3, Math.max(0, Math.round(+it.res)||0)), grn: Math.min(3, Math.max(0, Math.round(+it.grn)||0)),
+        mnd: (Array.isArray(it.mnd) ? it.mnd : []).filter(t => MND_TAGS.includes(t)), why: String(it.why||""), draft:true, by:"Claude", t:Date.now()};
+      links.set(x.id, {id:x.id, ...d}); c++;
+      await put("links/" + x.id, d);
+    }
+    renderViz(); toast(c + " driver" + (c===1?"":"s") + " drafted. Check each one and adjust.");
+  }catch(e){ toast("Claude could not draft the links just now."); const b = $("#draftLinks"); if(b){ b.disabled = false; b.textContent = "Draft links with Claude"; } }
+}
+function renderViz(){
+  $("#viz").innerHTML = view === "matrix" ? renderMatrix() : view === "net" ? renderNet() : view === "scen" ? renderScen() : view === "notes" ? renderNotes() : view === "links" ? renderLinks() : renderList();
+  for(const b of document.querySelectorAll("[data-view]")) b.setAttribute("aria-selected", String(b.dataset.view === view));
+}
+function renderEditor(){
+  const el = $("#editor");
+  if(!sel || ["scen","notes","links"].includes(view)){ el.innerHTML = ""; return; }
+  const a = signals.get(sel.a), b = signals.get(sel.b);
+  if(!a || !b){ el.innerHTML = ""; return; }
+  const p = pairs.get(sel.k) || {};
+  const type = sel.draftType ?? p.type ?? "", str = sel.draftStr ?? p.strength ?? 2, dir = sel.draftDir ?? p.dir ?? "ab";
+  const sentence = sel.draftSentence ?? p.sentence ?? "", note = p.note ?? "";
+  el.innerHTML = `<form class="editor" id="pf">
+    <h3>${esc(a.name)} <span class="hint">×</span> ${esc(b.name)} ${p.draft && !sel.touched ? '<span class="badge">Claude draft</span>' : ""}</h3>
+    <div><div class="fl">How do they relate?</div>
+      <div class="seg">${Object.entries(TYPES).map(([k,t]) => `<label class="c-${k}"><input type="radio" name="type" value="${k}" ${type===k?"checked":""}>${t.glyph} ${t.label}</label>`).join("")}</div></div>
+    <div id="dirbox" ${type==="enable"?"":"hidden"}><div class="fl">Which way?</div>
+      <div class="seg c-enable"><label><input type="radio" name="dir" value="ab" ${dir==="ab"?"checked":""}>${esc(trunc(a.name,40))} enables ${esc(trunc(b.name,40))}</label>
+      <label><input type="radio" name="dir" value="ba" ${dir==="ba"?"checked":""}>${esc(trunc(b.name,40))} enables ${esc(trunc(a.name,40))}</label></div></div>
+    <div><div class="fl">Strength</div>
+      <div class="seg">${[1,2,3].map(n => `<label><input type="radio" name="str" value="${n}" ${+str===n?"checked":""}>${["Slight","Clear","Strong"][n-1]}</label>`).join("")}</div></div>
+    <div><label class="fl" for="sent">Cause and effect, in one line</label>
+      <textarea id="sent" rows="2" placeholder="Increased … leads to …">${esc(sentence)}</textarea></div>
+    <div><label class="fl" for="pnote">Evidence or note</label>
+      <textarea id="pnote" rows="2" placeholder="Where did this link come from? A source, a field visit, an interview.">${esc(note)}</textarea></div>
+    <div class="row"><button class="btn" type="submit">Save pairing</button>
+      <button class="btn ghost" type="button" data-act="clear">Clear</button>
+      ${sample ? `<button class="btn ghost" type="button" data-act="suggest" id="sug">Suggest with Claude</button>` : ""}
+      <button class="btn ghost" type="button" data-act="close">Close</button></div></form>`;
+  const f = $("#pf");
+  f.addEventListener("change", e => {
+    if(e.target.name === "type") $("#dirbox").hidden = e.target.value !== "enable";
+  });
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const fd = new FormData(f), t = fd.get("type");
+    if(!t){ toast("Choose how the two signals relate."); return; }
+    const [x,y] = [sel.a, sel.b].sort();
+    const data = {a:x, b:y, type:t, dir: t==="enable" ? (fd.get("dir")||"ab") : "ab", strength: t==="none" ? 0 : +(fd.get("str")||2),
+      sentence: $("#sent").value.trim(), note: $("#pnote").value.trim(), draft:false, by: who(), t: Date.now()};
+    pairs.set(sel.k, data); sel.draftType = sel.draftStr = sel.draftDir = sel.draftSentence = undefined; sel.touched = true;
+    renderAll(); toast("Pairing saved.");
+    await put("pairs/" + sel.k, data);
+  });
+}
+function renderAll(){ renderChips(); renderPool(); renderLegend(); renderProgress(); renderViz(); renderEditor(); }
+function renderLight(){
+  const a = document.activeElement;
+  const typing = a && a.matches && a.matches("textarea,input,select") && (a.closest("#pool") || a.closest("#viz"));
+  renderChips(); renderProgress();
+  if(!typing){ renderPool(); renderViz(); }
+  if(!a || !$("#editor").contains(a)) renderEditor();
+}
+
+/* ---------- Claude ---------- */
+const typeKeys = Object.keys(TYPES);
+function ctxHtml(s){ return (s.ctx&&s.ctx.length)?`<div class="fl" style="display:block;margin-top:8px">Evidence from scanning logs</div><ul class="ctx">${s.ctx.map(c=>`<li>${esc(c)}</li>`).join("")}</ul>`:""; }
+function ctxText(s){ return (s.ctx&&s.ctx.length)?" | Evidence: "+s.ctx.join(" "):""; }
+function brief(s, i){ return `${i}. ${s.name} [${s.label||"unlabelled"}]${s.note?" — "+s.note:""}${ctxText(s)}`; }
+async function suggestOne(){
+  const a = signals.get(sel.a), b = signals.get(sel.b); if(!a || !b) return;
+  const btn = $("#sug"); btn.disabled = true; btn.textContent = "Thinking…";
+  try{
+    const r = await sample.json(`You are helping a Singapore public-policy student group doing foresight work for the Ministry of National Development.
+Problem statement: ${problem || "(not set yet)"}
+Signal A: ${brief(a,"A")}
+Signal B: ${brief(b,"B")}
+Judge how these two signals relate by 2040. Reply with JSON only: {"type":"reinforce|enable|tension|none","dir":"ab|ba","strength":1-3,"sentence":"one line in the form 'Increased X leads to Y'"}. Use dir only for type enable ("ab" means A enables B). Be honest: use "none" if the link is weak.`, {modelTier:"quick"});
+    if(!typeKeys.includes(r.type)) throw new Error("bad");
+    Object.assign(sel, {draftType:r.type, draftDir:r.dir==="ba"?"ba":"ab", draftStr:Math.min(3,Math.max(1,+r.strength||2)), draftSentence:String(r.sentence||"")});
+    renderEditor(); toast("Claude's suggestion is filled in. Check it, then save.");
+  }catch(e){ toast("Claude could not suggest a pairing just now."); btn.disabled=false; btn.textContent="Suggest with Claude"; }
+}
+async function draftAll(){
+  const L = members(), todo = pairList().filter(o => !(o.p && o.p.type));
+  if(!todo.length) return;
+  const btn = $("#draftAll"); btn.disabled = true; btn.textContent = "Drafting…";
+  try{
+    const r = await sample.json(`You are helping a Singapore public-policy student group doing foresight work for the Ministry of National Development.
+Problem statement: ${problem || "(not set yet)"}
+Shortlisted signals:
+${L.map((s,i) => brief(s, i+1)).join("\n")}
+Judge how each pair below relates by 2040. Pairs to rate (signal numbers): ${todo.map(o => (L.indexOf(o.x)+1)+"-"+(L.indexOf(o.y)+1)).join(", ")}.
+Reply with a JSON array only. Each item: {"i":number,"j":number,"type":"reinforce|enable|tension|none","dir":"ij|ji","strength":1-3,"sentence":"one line in the form 'Increased X leads to Y'"}. dir applies only to type enable ("ij" means signal i enables signal j). Use "none" for weak links rather than forcing a connection.`, {modelTier:"default"});
+    let n = 0;
+    for(const it of (Array.isArray(r) ? r : [])){
+      const A = L[it.i-1], B = L[it.j-1]; if(!A || !B || A===B || !typeKeys.includes(it.type)) continue;
+      const k = pk(A.id,B.id), ex = pairs.get(k); if(ex && ex.type) continue;
+      const [x,y] = [A.id,B.id].sort(), from = it.dir==="ji" ? B.id : A.id;
+      const data = {a:x, b:y, type:it.type, dir: from===x ? "ab":"ba", strength: it.type==="none"?0:Math.min(3,Math.max(1,+it.strength||2)), sentence:String(it.sentence||""), note:"", draft:true, by:"Claude", t:Date.now()};
+      pairs.set(k, data); n++;
+      if(db) await db.doc("pairs/"+k).set(data).catch(()=>{});
+    }
+    renderAll(); toast(n + " draft pairings added. Open any cell to confirm or change it.");
+  }catch(e){ toast("Claude could not draft the pairings just now."); }
+  btn.disabled = false; btn.textContent = "Draft unrated pairs with Claude";
+}
+
+/* ---------- events ---------- */
+function openPair(a, b){ sel = {a, b, k: pk(a,b)}; renderViz(); renderEditor(); $("#editor").scrollIntoView({block:"nearest", behavior:"smooth"}); }
+document.addEventListener("click", async e => {
+  const el = e.target.closest("[data-act],[data-view]"); if(!el) return;
+  if(el.dataset.view){ view = el.dataset.view; renderAll(); return; }
+  if(el.dataset.act === "assign"){
+    scen.assign = scen.assign || {}; const id = el.dataset.id, v = el.dataset.v;
+    if(scen.assign[id] === v) delete scen.assign[id]; else scen.assign[id] = v;
+    renderViz(); saveScen(); return;
+  }
+  if(el.dataset.act === "draftScen"){ draftScen(); return; }
+  if(el.dataset.act === "suggestAx"){ suggestAx(); return; }
+  if(el.dataset.act === "delnote"){
+    if(el.dataset.arm !== "1"){ el.dataset.arm = "1"; el.textContent = "sure?"; setTimeout(() => { el.dataset.arm = ""; el.textContent = "delete"; }, 3000); return; }
+    const nid = el.dataset.nid; notes.delete(nid); renderAll(); delDoc("notes/" + nid); return;
+  }
+  if(el.dataset.act === "lkchip"){
+    const id2 = el.dataset.id, v = el.dataset.v, cur = (links.get(id2) || {}).mnd || [];
+    saveLink(id2, {mnd: cur.includes(v) ? cur.filter(t => t !== v) : [...cur, v]}); renderViz(); return;
+  }
+  if(el.dataset.act === "draftLinks"){ draftLinks(); return; }
+  const act = el.dataset.act, id = el.dataset.id;
+  if(act === "toggle") toggle(id);
+  else if(act === "remove") toggle(id);
+  else if(act === "open"){ open.has(id) ? open.delete(id) : open.add(id); renderPool(); }
+  else if(act === "pair") openPair(el.dataset.a, el.dataset.b);
+  else if(act === "focus"){ focus = focus === id ? null : id; renderViz(); }
+  else if(act === "next"){ const o = pairList().find(o => !(o.p && o.p.type)); if(o) openPair(o.x.id, o.y.id); }
+  else if(act === "close"){ sel = null; renderViz(); renderEditor(); }
+  else if(act === "suggest") suggestOne();
+  else if(act === "clear"){ pairs.delete(sel.k); const k = sel.k; renderAll(); if(db) db.doc("pairs/"+k).delete().catch(()=>{}); }
+  else if(act === "del"){
+    if(el.dataset.arm !== "1"){ el.dataset.arm = "1"; el.textContent = "sure?"; setTimeout(() => { el.dataset.arm = ""; el.textContent = "delete"; }, 3000); return; }
+    signals.delete(id); picks.delete(id); pend.delete(id); recompute(); renderAll();
+    if(db){ db.doc("signals/"+id).delete().catch(()=>{}); db.doc("picks/"+id).delete().catch(()=>{}); }
+  }
+});
+document.addEventListener("keydown", e => { if((e.key==="Enter"||e.key===" ") && e.target.matches("svg .node")){ e.preventDefault(); e.target.dispatchEvent(new MouseEvent("click",{bubbles:true})); } });
+$("#draftAll").addEventListener("click", draftAll);
+document.addEventListener("change", e => {
+  const t = e.target;
+  if(t.dataset && t.dataset.lk){ saveLink(t.dataset.id, {[t.dataset.lk]: t.dataset.lk === "why" ? t.value.trim() : +t.value}); if(t.dataset.lk !== "why") renderViz(); return; }
+  if(t.dataset && t.dataset.ps){ psParts[t.dataset.ps] = t.value.trim(); put("meta/psparts", psParts); renderViz(); return; }
+  if(t.dataset && t.dataset.p){ setPath(scen, t.dataset.p, t.value.trim()); if(t.tagName === "SELECT") renderViz(); saveScen(); }
+});
+$("#q").addEventListener("input", e => { filt.q = e.target.value; renderPool(); });
+for(const [id,key] of [["#fLabel","label"],["#fOwner","owner"],["#fKind","kind"]]) $(id).addEventListener("change", e => { filt[key] = e.target.value; renderPool(); });
+$("#problem").addEventListener("change", e => { problem = e.target.value.trim(); put("meta/problem", {text: problem}); });
+$("#who").value = who();
+$("#who").addEventListener("change", e => { try{ localStorage.setItem("sp-name", e.target.value.trim()); }catch(_){} });
+$("#addForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  if(!db){ toast("Shared storage is not available in this view."); return; }
+  const owner = $("#who").value.trim();
+  const lines = $("#bulk").value.split("\n").map(l => l.trim()).filter(Boolean);
+  if(!lines.length){ toast("Paste at least one signal."); return; }
+  let n = 0;
+  for(const l of lines){
+    const [name, label, ...rest] = l.split("|").map(s => s.trim());
+    if(!name) continue;
+    const lab = LABELS.find(x => x.toLowerCase() === (label||"").toLowerCase()) || "";
+    try{ await db.collection("signals").add({name, label:lab, owner, note: rest.join(" | "), order: 5000 + Date.now() % 1e6 + n}); n++; }
+    catch(err){ toast(err && err.code === "invalid_argument" ? "You need Contributor access to add signals." : "Could not add that signal."); break; }
+  }
+  if(n){ $("#bulk").value = ""; toast(n + " signal" + (n===1?"":"s") + " added to the pool."); }
+});
+
+document.addEventListener("submit", async e => {
+  const f = e.target.closest && e.target.closest("form.nf"); if(!f) return;
+  e.preventDefault();
+  const text = f.elements.text.value.trim(), by = f.elements.by.value.trim();
+  if(!text){ toast("Write a note first."); return; }
+  if(!by){ toast("Add your name so the group knows who wrote it."); return; }
+  if(!db){ toast("Shared storage is not available in this view."); return; }
+  try{ localStorage.setItem("sp-name", by); }catch(_){}
+  $("#who").value = by;
+  f.elements.text.value = "";
+  try{ await db.collection("notes").add({df: f.dataset.df, text, by, t: Date.now()}); toast("Note posted."); }
+  catch(err){ f.elements.text.value = text; toast(err && err.code === "invalid_argument" ? "You need Contributor access to post notes." : "Could not post the note. Try again."); }
+});
+
+/* ---------- boot ---------- */
+renderAll();
+(async () => {
+  try{
+    const c = window.claude;
+    if(!c || !c.use) throw 0;
+    db = await c.use("db");
+    sample = await c.use("sample").catch(() => null);
+  }catch(e){}
+  if(!db){ const b=$("#banner"); b.hidden=false; b.textContent="Shared storage is not available in this view, so signals and pairings cannot be loaded or saved. Open the page from your claude.ai gallery while signed in."; return; }
+  renderProgress();
+  const err = () => {};
+  db.collection("signals").onSnapshot(s => { signals = new Map(s.docs.map(d => [d.id, {id:d.id, ...d.data()}])); renderLight(); }, err);
+  db.collection("pairs").onSnapshot(s => { pairs = new Map(s.docs.map(d => [d.id, d.data()])); renderLight(); }, err);
+  db.collection("picks").onSnapshot(s => { picks = new Map(s.docs.map(d => [d.id, {id:d.id, ...d.data()}])); recompute(); renderLight(); }, err);
+  db.collection("notes").onSnapshot(s => { notes = new Map(s.docs.map(d => [d.id, {id:d.id, ...d.data()}])); renderLight(); }, err);
+  db.collection("links").onSnapshot(s => { links = new Map(s.docs.map(d => [d.id, {id:d.id, ...d.data()}])); renderLight(); }, err);
+  db.doc("meta/psparts").onSnapshot(s => { psParts = (s.exists && s.data()) || {}; renderLight(); }, err);
+  db.doc("meta/scenario").onSnapshot(s => { scen = (s.exists && s.data()) || {}; const a = document.activeElement; if(view === "scen" && !(a && a.closest && a.closest("#viz") && a.matches("input,textarea"))) renderViz(); }, err);
+  db.doc("meta/problem").onSnapshot(s => { const t = (s.exists && s.data().text) || ""; if(document.activeElement !== $("#problem")){ $("#problem").value = t; } problem = t; }, err);
+})();
+})();
+</script>
+
+</body></html>
