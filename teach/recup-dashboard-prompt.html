@@ -71,194 +71,119 @@ Generate the baseline dashboard.
 
 <textarea>
 
-Create an interactive, production-ready web application using React, Tailwind CSS, and D3.js (or React Flow prefered) to visualize a Causal Loop Diagram (CLD) for a RECUP circular reusable cup system map.
+Create ONE self-contained HTML file for a classroom activity: an interactive Causal Loop Diagram (CLD) for a RECUP circular reusable cup system.
 
-This application features:
-D3 Force Simulation & Interactive Canvas: Real-time force-directed positioning with node dragging, smooth pan/zoom, layout locking, and custom curved Bezier paths for directed edges.
-Dynamic Loop Focus Engine: Highlights reinforcing loops (R1R1​) and balancing loops (B1−B4B1​−B4​) with dimming effects for non-loop elements, animated marching-ants causal flows, and step-by-step sequence numbers.
-Interactive Node Inspector Drawer: Detailed panel displaying incoming drivers, outgoing impacts, polarity relationships, and connected loops.
-Node Search & Category Filters: Search bar and dropdowns for isolating system domains (Network & Economics, Consumer Operations, Supply Chain & Stock, Material & Quality, Environment & Climate).
-Causal Impact Simulator: Ability to simulate systemic ripple effects through positive (++) and negative (−−) causal chains.
-==================================================
-P1: GLOBAL INTEGRATED SYSTEM MAP (CLD)
-==================================================
+STACK (fixed, do not substitute): D3.js v7 + plain JavaScript + hand-written CSS. No React, no Tailwind, no localStorage. Light and dark mode.
 
----
+BUILD ORDER: P1 first, confirm the self-test passes, then P2, P3, Student Rules, Assumptions & Methods. Do not drop features. Output the complete file.
 
-### DATA STRUCTURE
-
-Embed this structured data directly into the app state:
-JSON
+=== DATA (embed verbatim, do not add, remove or reorder) ===
 {
-  "nodes": [
-    { "id": "N1", "label": "Partner Density", "category": "Network & Economics" },
-    { "id": "N2", "label": "Return Convenience", "category": "Consumer Operations" },
-    { "id": "N3", "label": "Adoption Volume", "category": "Consumer Operations" },
-    { "id": "N4", "label": "Vendor Financial Savings", "category": "Network & Economics" },
-    { "id": "N5", "label": "Available Circulating Inventory", "category": "Supply Chain & Stock" },
-    { "id": "N6", "label": "Hoarded Cup Stock", "category": "Consumer Operations" },
-    { "id": "N7", "label": "Cup Wear", "category": "Material & Quality" },
-    { "id": "N8", "label": "Replacement Demand", "category": "Supply Chain & Stock" },
-    { "id": "N9", "label": "PP Feedstock Deficit", "category": "Material & Quality" },
-    { "id": "N10", "label": "Manufacturing Cost", "category": "Network & Economics" },
-    { "id": "N11", "label": "Replacement Cup Supply", "category": "Supply Chain & Stock" },
-    { "id": "N12", "label": "Washing & Logistics Energy", "category": "Environment & Climate" },
-    { "id": "N13", "label": "System GHG Emissions", "category": "Environment & Climate" },
-    { "id": "N14", "label": "Average Global Temp", "category": "Environment & Climate" },
-    { "id": "N15", "label": "Coffee Yield Loss", "category": "Environment & Climate" },
-    { "id": "N16", "label": "Coffee Bean Price", "category": "Network & Economics" },
-    { "id": "N17", "label": "Café Operating Margin", "category": "Network & Economics" },
-    { "id": "N18", "label": "Extending Cup EoL Past 1,000 Washes", "category": "Material & Quality" },
-    { "id": "N19", "label": "Surface Micro-Degradation", "category": "Material & Quality" },
-    { "id": "N20", "label": "Consumer Hygiene Concerns", "category": "Consumer Operations" }
-  ],
-  "edges": [
-    { "source": "N1", "target": "N2", "polarity": "+" },
-    { "source": "N2", "target": "N3", "polarity": "+" },
-    { "source": "N3", "target": "N4", "polarity": "+" },
-    { "source": "N4", "target": "N1", "polarity": "+" },
-    { "source": "N3", "target": "N6", "polarity": "+" },
-    { "source": "N6", "target": "N5", "polarity": "-" },
-    { "source": "N5", "target": "N2", "polarity": "+" },
-    { "source": "N3", "target": "N7", "polarity": "+" },
-    { "source": "N7", "target": "N8", "polarity": "+" },
-    { "source": "N7", "target": "N18", "polarity": "+" },
-    { "source": "N8", "target": "N9", "polarity": "+" },
-    { "source": "N9", "target": "N10", "polarity": "+" },
-    { "source": "N10", "target": "N11", "polarity": "-" },
-    { "source": "N11", "target": "N5", "polarity": "+" },
-    { "source": "N3", "target": "N12", "polarity": "+" },
-    { "source": "N12", "target": "N13", "polarity": "+" },
-    { "source": "N13", "target": "N14", "polarity": "+" },
-    { "source": "N14", "target": "N15", "polarity": "-" },
-    { "source": "N15", "target": "N16", "polarity": "-" },
-    { "source": "N16", "target": "N17", "polarity": "-" },
-    { "source": "N17", "target": "N1", "polarity": "+" },
-    { "source": "N9", "target": "N18", "polarity": "+" },
-    { "source": "N18", "target": "N19", "polarity": "+" },
-    { "source": "N18", "target": "N12", "polarity": "+" },
-    { "source": "N19", "target": "N20", "polarity": "+" },
-    { "source": "N20", "target": "N3", "polarity": "-" },
-    { "source": "N19", "target": "N7", "polarity": "+" },
-    { "source": "N11", "target": "N18", "polarity": "-" },
-    { "source": "N8", "target": "N18", "polarity": "+" },
-    { "source": "N17", "target": "N18", "polarity": "-" },
-    { "source": "N18", "target": "N17", "polarity": "-" }
-  ],
-  "loops": [
-    {
-      "id": "R1",
-      "name": "Network Expansion Loop",
-      "type": "Reinforcing",
-      "description": "Higher partner density improves return convenience, driving adoption volume and vendor savings, which incentivizes more partners to join.",
-      "nodes": ["N1", "N2", "N3", "N4", "N1"]
-    },
-    {
-      "id": "B1",
-      "name": "Cup Hoarding Constraint",
-      "type": "Balancing",
-      "description": "Increased adoption leads to cup hoarding, which reduces circulating stock, lowers return convenience, and dampens overall adoption.",
-      "nodes": ["N3", "N6", "N5", "N2", "N3"]
-    },
-    {
-      "id": "B2",
-      "name": "PP Material Scarcity Constraint",
-      "type": "Balancing",
-      "description": "High adoption wears cups out, creating replacement demand and PP feedstock deficits, raising manufacturing costs and constraining supply.",
-      "nodes": ["N3", "N7", "N8", "N9", "N10", "N11", "N5", "N2", "N3"]
-    },
-    {
-      "id": "B3",
-      "name": "Coffee-Climate Feedback",
-      "type": "Balancing",
-      "description": "Logistics energy drives GHG emissions and climate change, impacting coffee yields and bean prices, which squeezes café margins and network density.",
-      "nodes": ["N3", "N12", "N13", "N14", "N15", "N16", "N17", "N1", "N2", "N3"]
-    },
-    {
-      "id": "B4",
-      "name": "Hygiene Degradation",
-      "type": "Balancing",
-      "description": "Over-extending cup lifespans causes surface micro-degradation, raising consumer hygiene concerns and reducing adoption volume.",
-      "nodes": ["N3", "N7", "N18", "N19", "N20", "N3"]
-    }
-  ]
+"nodes":[
+{"id":"N1","label":"Partner Density","category":"Network & Economics"},
+{"id":"N2","label":"Return Convenience","category":"Consumer Operations"},
+{"id":"N3","label":"Adoption Volume","category":"Consumer Operations"},
+{"id":"N4","label":"Vendor Financial Savings","category":"Network & Economics"},
+{"id":"N5","label":"Available Circulating Inventory","category":"Supply Chain & Stock"},
+{"id":"N6","label":"Hoarded Cup Stock","category":"Consumer Operations"},
+{"id":"N7","label":"Cup Wear","category":"Material & Quality"},
+{"id":"N8","label":"Replacement Demand","category":"Supply Chain & Stock"},
+{"id":"N9","label":"PP Feedstock Deficit","category":"Material & Quality"},
+{"id":"N10","label":"Manufacturing Cost","category":"Network & Economics"},
+{"id":"N11","label":"Replacement Cup Supply","category":"Supply Chain & Stock"},
+{"id":"N12","label":"Washing & Logistics Energy","category":"Environment & Climate"},
+{"id":"N13","label":"System GHG Emissions","category":"Environment & Climate"},
+{"id":"N14","label":"Average Global Temp","category":"Environment & Climate"},
+{"id":"N15","label":"Coffee Yield Loss","category":"Environment & Climate"},
+{"id":"N16","label":"Coffee Bean Price","category":"Network & Economics"},
+{"id":"N17","label":"Café Operating Margin","category":"Network & Economics"},
+{"id":"N18","label":"Extending Cup EoL Past 1,000 Washes","category":"Material & Quality"},
+{"id":"N19","label":"Surface Micro-Degradation","category":"Material & Quality"},
+{"id":"N20","label":"Consumer Hygiene Concerns","category":"Consumer Operations"}],
+"edges":[
+{"source":"N1","target":"N2","polarity":"+"},{"source":"N2","target":"N3","polarity":"+"},
+{"source":"N3","target":"N4","polarity":"+"},{"source":"N4","target":"N1","polarity":"+"},
+{"source":"N3","target":"N6","polarity":"+"},{"source":"N6","target":"N5","polarity":"-"},
+{"source":"N5","target":"N2","polarity":"+"},{"source":"N3","target":"N7","polarity":"+"},
+{"source":"N7","target":"N8","polarity":"+"},{"source":"N7","target":"N18","polarity":"+"},
+{"source":"N8","target":"N9","polarity":"+"},{"source":"N9","target":"N10","polarity":"+"},
+{"source":"N10","target":"N11","polarity":"-"},{"source":"N11","target":"N5","polarity":"+"},
+{"source":"N3","target":"N12","polarity":"+"},{"source":"N12","target":"N13","polarity":"+"},
+{"source":"N13","target":"N14","polarity":"+"},{"source":"N14","target":"N15","polarity":"+"},
+{"source":"N15","target":"N16","polarity":"+"},{"source":"N16","target":"N17","polarity":"-"},
+{"source":"N17","target":"N1","polarity":"+"},{"source":"N9","target":"N18","polarity":"+"},
+{"source":"N18","target":"N19","polarity":"+"},{"source":"N18","target":"N12","polarity":"+"},
+{"source":"N19","target":"N20","polarity":"+"},{"source":"N20","target":"N3","polarity":"-"},
+{"source":"N11","target":"N18","polarity":"-"},{"source":"N8","target":"N18","polarity":"+"}],
+"loops":[
+{"id":"R1","name":"Network Expansion Loop","type":"Reinforcing","description":"Higher partner density improves return convenience, driving adoption volume and vendor savings, which incentivizes more partners to join.","nodes":["N1","N2","N3","N4","N1"]},
+{"id":"B1","name":"Cup Hoarding Constraint","type":"Balancing","description":"Increased adoption leads to cup hoarding, which reduces circulating stock, lowers return convenience, and dampens adoption.","nodes":["N3","N6","N5","N2","N3"]},
+{"id":"B2","name":"PP Material Scarcity Constraint","type":"Balancing","description":"High adoption wears cups out, creating replacement demand and PP feedstock deficits, raising manufacturing costs and constraining supply.","nodes":["N3","N7","N8","N9","N10","N11","N5","N2","N3"]},
+{"id":"B3","name":"Coffee-Climate Feedback","type":"Balancing","description":"Logistics energy drives GHG emissions and climate change, impacting coffee yields and bean prices, which squeezes café margins and network density.","nodes":["N3","N12","N13","N14","N15","N16","N17","N1","N2","N3"]},
+{"id":"B4","name":"Hygiene Degradation","type":"Balancing","description":"Over-extending cup lifespans causes surface micro-degradation, raising hygiene concerns and reducing adoption volume.","nodes":["N3","N7","N18","N19","N20","N3"]}]
 }
+Modelling note: the edge N19→N7 is intentionally excluded so no loop is nested inside another. [AI assumption, show in Methods panel]
+
+=== LOOP RULES ===
+- A loop's "nodes" array is an ordered closed path (last node = first node). Its edges are every consecutive pair (A,B), including the closing pair. Each pair must exist in "edges".
+- Self-test on load: for each loop, check all pairs exist and check polarity: count "-" edges; odd = Balancing, even = Reinforcing. Show a visible "Self-test: PASS/FAIL" badge and list failures. Also show it in the console.
+
+=== P1 FEATURES ===
+D3 force simulation, node drag, pan/zoom, layout lock, curved directed edges with +/− badges. Loop focus buttons (R1, B1–B4): highlight that loop's edges and nodes, dim everything else, animate marching-ants along its edges in order, show step numbers on edges and nodes. Node inspector drawer (incoming drivers, outgoing impacts, polarity, connected loops). Search bar. Category filter dropdown. Reset button.
+
+=== RIPPLE SIMULATOR (use EXACTLY these algorithms; no other) ===
+Node drawer buttons: "++ Positive surge", "−− Negative shock". Source node starts with sign s = +1 or −1.
+MODE A, Loop ripple (used when a loop is focused). Walk the focused loop's ordered edges once, from the source node's position in the loop, back to the source. At each step multiply the running sign by the edge polarity (+ = ×1, − = ×−1). Animate one step per 600 ms, coloring each node "increases" (+) or "decreases" (−). Final message: "Signal returns to source as <same/opposite> sign, so this loop is <reinforcing/balancing>." It must match the loop's labelled type. A source not in the loop shows "Source is not in this loop".
+MODE B, System ripple (used when no loop is focused). Breadth-first by depth, maximum depth 6. Each node is assigned a sign the FIRST time it is reached (smallest depth). If another path reaches the same node at the SAME depth with the opposite sign, mark the node "mixed" (grey). Never overwrite a node at a deeper depth. The source node is never re-colored. List Increase / Decrease / Mixed nodes in a panel.
+Do NOT use all-simple-path enumeration. Do NOT use a visited-once DFS. Both algorithms must always terminate.
+
+=== P2: SSP1-2.6 ("Taking the Green Road" / Aggressive Fossil Fuel Phase-Out) ===
+Show B2 triggering B4: PP Feedstock Deficit → Extended Cup EoL Past 1,000 Washes → Surface Micro-Degradation → Consumer Hygiene Concerns → Adoption Decline.
+Visually emphasise that B2 triggers B4.
+
+RESEARCH EVIDENCE (show every bullet in full as a "Research evidence" card on this tab, tagged [P] with its citation. Do not summarise or drop any bullet):
+- Increasing the recycling of post-consumer plastics (to 55%) and minimizing landfilling (to a maximum of 10%) could deliver significant environmental benefits. If these targets were implemented across Europe and North America, the environmental cost of plastics could be reduced by over $7.9 billion in net terms, accounting for the increased environmental impacts of waste collection and management, and in addition to the direct economic gains from the recovered value of recycled plastics and recovered energy (Trucost, 2026).
+- The chemical and plastics industries account for around 7% of global greenhouse gas emissions. By 2030 this could reach a level equivalent to around 300 new coal-fired power plants. Plastics are made by taking crude oil out of the ground and processing it, which accounts for 4–8% of annual global oil consumption. By 2050, according to experts, growing demand for plastics could push this figure as high as 20% (Steilemann, 2022).
+
+NARRATIVE (assumption): Under SSP1-2.6, plastic feedstock is potentially reduced as fossil fuels are phased out, driving up the cost of cup replacement. Cup lifespan needs to be extended (e.g. more than 1,000 washing cycles), but adoption will increase as society becomes more sustainability-conscious.
+METHOD NOTE (show on this tab and in the Assumptions & Methods panel): "Climate scenario narratives can be developed qualitatively using the storyline approach of Shepherd et al. (2018). The narratives on this page are assumptions, not outputs of that method." Link: https://link.springer.com/article/10.1007/s10584-018-2317-9
+
+Sliders: "Fossil Plastic Production Cap Strictness (%)" 0–90, default 55 (lower fossil production means lower plastic supply, since plastic is a by-product of crude oil refining); "Target Cup Washing Lifespan (Washes)" 500–2000 step 50, default 1000.
+Formulas (use exactly):
+ Demand D = 60 × 1000 ÷ Lifespan
+ Supply S = 100 × (1 − Cap ÷ 100)
+ Deficit% = max(0, (D − S) ÷ D) × 100
+ UnitCost = 0.45 × (1 + Deficit ÷ 100 × 1.65)
+ Hygiene = min(100, 20 + 60 × max(0, (Lifespan − 1000) ÷ 1000))
+ Capacity = round(100000 × (1 − Hoarding% ÷ 100) × (1 − WashLoss% ÷ 100) × (1 − 0.5 × Deficit ÷ 100) × (1 − 0.6 × (Hygiene − 20) ÷ 100))
+Cards: Feedstock Deficit, Replacement Cup Unit Cost, Net System Circulation Capacity, Consumer Hygiene Concerns.
+
+=== P3: SSP3-7.0 ("Regional Rivalry" / Fragmented High-Emissions Infrastructure) ===
+Show the B3 loop (N3 → N12 → N13 → N14 → N15 → N16 → N17 → N1 → N2 → N3) and the assumed chain: Coffee Yield Loss → Bean Price Increase → Café Margin Reduction → Cup Life Extension Strategy → Surface Micro-Degradation → Hygiene Concerns → Adoption Decline. Show how a fossil-heavy grid damages the broader coffee ecosystem.
+
+RESEARCH EVIDENCE (show every bullet in full as a "Research evidence" card on this tab, tagged [P] with its citation. Do not summarise or drop any bullet):
+- Shrinking suitable land: rising temperatures and shifting rainfall mean that up to 50% of current land suitable for growing high-grade Arabica coffee could become unusable by 2050. Massive land suitability losses: modelling for 2050 under SSP3-7.0 shows a 20% reduction in land suitable for Arabica coffee and a 9% reduction for Robusta globally (Abigaba et al., 2024) https://link.springer.com/article/10.1007/s10457-024-01025-3
+- Extreme heat and "coffee-harming" days: major producers like Brazil, Vietnam, Colombia, Ethiopia and Indonesia have experienced dozens of additional days annually with temperatures exceeding 30°C (86°F), the upper threshold for Arabica health (The Guardian, 2026).
+- Premium specialty Arabicas are projected to experience the sharpest price hikes and could become a luxury good, while commercial roasters increasingly substitute them with cheaper, marginally more resilient Robusta beans. The current market price for Arabica beans, which make up around 70 per cent of the coffee market, is roughly $2.70 US per pound, against around $1.49 US a year earlier. Coffee commodity prices are up roughly 80 per cent during the drought. Using drought impact as the climate analogue for extreme climate change under SSP3-7.0, the projected price increase will be more than 80 per cent (Univ. of Waterloo, 2024) https://uwaterloo.ca/climate-institute/news/climate-change-brewing-your-coffees-price-surge-explained
+
+NARRATIVE (assumption): Under SSP3-7.0, a fragmented, high-emissions global economy increases climate risks across coffee-producing regions. Reduced coffee yields contribute to higher coffee bean prices and lower operating margins for cafés and bakeries. To maintain profitability, operators may extend cup end-of-life beyond recommended replacement thresholds rather than purchasing replacement cups. This increases surface micro-degradation and may raise consumer hygiene concerns, reducing user adoption and constraining partner network growth.
+METHOD NOTE (show on this tab and in the Assumptions & Methods panel): "Climate scenario narratives can be developed qualitatively using the storyline approach of Shepherd et al. (2018). The narratives on this page are assumptions, not outputs of that method." Link: https://link.springer.com/article/10.1007/s10584-018-2317-9
+SCENARIO ASSUMPTION (show explicitly on this tab and in the Assumptions & Methods panel): Coffee bean prices increase by approximately 80% under severe climate stress. This is a scenario assumption informed by drought-related coffee market observations and must not be interpreted as a direct mathematical consequence of reported land-suitability losses. Do not derive the price increase mathematically from land suitability loss alone.
+
+Sliders: "Coffee bean price increase (%)" 0–150, default 80; "Extending Cup EoL Past 1,000 Washes (%)" 0–100, default 45. Under the second slider show: "Attempts to improve operating margins will cause unintended consequences."
+Formulas (use exactly):
+ Price = Slider + ExtraCoffeeShock(rules)
+ Margin% = 12 − 0.05 × Price + 0.015 × Push − MarginHit(rules)
+ Hygiene = min(100, 20 + 0.6 × Push)
+ Vulnerability = clamp(100 − 7 × Margin + 0.3 × Hygiene, 0, 100)
+ AdoptionChange% = −0.5 × (Hygiene − 20)
+Cards: Café Operating Margin, Consumer Hygiene Concerns, Partner Network Vulnerability, Net Adoption Change.
 
 
-==================================================
-P2: SSP1-2.6 PP FEEDSTOCK SCARCITY LOOP SIMULATOR
-==================================================
-Focus on Scenario SSP1-2.6 ("Taking the Green Road" / Aggressive Fossil Fuel Phase-Out).
-Key info:
-Increasing the recycling of post-consumer plastics (to 55%) and minimizing landfilling (to a maximum of 10%) could deliver significant environmental benefits. If these targets were implemented across Europe and North America, the environmental cost of plastics could be reduced by over $7.9 billion in net terms, accounting for the increased environmental impacts associated with waste collection and management, and in addition to the direct economic gains associated with the recovered value of recycled plastics and recovered energy (Trucost, 2026)
-The chemical and plastics industries account for around 7% of global greenhouse gas emissions. By 2030, this could reach a level equivalent to around 300 new coal-fired power plants. Closely related to this is the topic of resource: we make plastics by taking crude oil out of the ground and processing it. This accounts for 4-8% of our annual global oil consumption. By 2050, according to experts, growing demand for plastics could push this figure as high as 20%. (Steilemann, 2022)
-Narrative (Assumption): Storyline for SSP1-2.6 impacting RECUP systems is that there is a potential plastic feedstock reduced as FF phased out driving the cost of cup replacement. The cup lifespan needs to be extended (e.g. more than 1000 washing cycles). But the adoption will increase as society is more sustainability conscious. Note: this narratives are assumption, to get the actual storyline on the impact of SSP1-2.6 climate scenario, researchers can employ “storyline’ approach developed by Shephard et al (2018) (https://link.springer.com/article/10.1007/s10584-018-2317-9)
-Causal Loop Visual: Show the specific B-loop (B2) and (B4) where scaling up RECUP system is limited by PP feedstock constraint or caps.
+=== STUDENT RULES ===
+Editable cards with fields Rule, Assumption, Calculation, a type (Rule / Constraint / Climate shock / Assumption), an optional numeric effect (hoarding %, washing capacity loss %, extra coffee price %, café margin hit in points) and an Active toggle. Add and Delete buttons. Active rules with a numeric effect MUST change P2/P3 outputs live.
+Starter rules: Cup Hoarding (effect hoarding 20, active); Industrial Washing Constraint (washing loss 25, active); Coffee Supply Shock (extra price 40, inactive).
 
-SHOW TWO INTERACTING BALANCING LOOPS
-B2 Material Scarcity Constraint and B4 Cup Longevity / Hygiene Constraint
-Visually emphasise how B2 triggers B4.
-PP Feedstock Deficit
-→ Extended Cup EoL Past 1000 Washes
-→ Surface Micro-Degradation
-→ Consumer Hygiene Concerns
-→ Adoption Volume Decline
-
-Interactive Simulation Controls:
-Slider 1: "Fossil Plastic Production Cap Strictness (%)" And calculate properly where low FF production means low plastic production (since plastic is the byproduct of crude oil refining)
-Slider 2: "Target Cup Washing Lifespan (Washes)"
-Dynamic Output Cards: Show live impact metrics for "Feedstock Deficit", "Replacement Cup Unit Cost", and "Net System Circulation Capacity", “Consumer Hygiene Concerns”.
-
-Scenario Assumption:
-Storyline for SSP3-7.0 impacting RECUP systems is that a fragmented,
-high-emissions global economy increases climate risks across coffee-producing
-regions. Reduced coffee yields contribute to higher coffee bean prices and
-lower operating margins for cafes and bakeries. To maintain profitability, operators may extend cup end-of-life beyond recommended replacement thresholds rather than purchasing replacement cups. This increases surface micro-degradation and may contribute to greater
-consumer hygiene concerns, reducing user adoption and constraining partner
-network growth. Note: These narratives are assumptions. To develop more rigorous climate
-storylines, researchers can employ the “storyline approach” developed by
-Shepherd et al. (2018). Display this assumption explicitly in the Assumptions & Methods panel.
-
-==================================================
-P3: SSP3-7.0 GHG & COFFEE CLIMATE LOOP SIMULATOR
-==================================================
-Focus on Scenario SSP3-7.0 ("Regional Rivalry" / Fragmented High-Emissions Infrastructure).
-Key info:
-Shrinking Suitable Land: Rising temperatures and shifting rainfall mean that up to 50% of current land suitable for growing high-grade Arabica coffee could become unusable by 2050. Massive Land Suitability Losses: Modeling for the year 2050 under SSP3-7.0 shows a 20% reduction in land suitable for Arabica coffee and a 9% reduction for Robusta globally (Abigaba et al. 2024) [https://link.springer.com/article/10.1007/s10457-024-01025-3].
-Extreme Heat & "Coffee-Harming" Days: Major producers like Brazil, Vietnam, Colombia, Ethiopia, and Indonesia have experienced dozens of additional days annually with temperatures exceeding 30°C (86°F), the upper threshold for Arabica health (The Guardian, 2026).
-Premium specialty Arabicas are projected to experience the sharpest price hikes and could transition into a luxury good, while commercial roasters increasingly substitute them with cheaper, marginally more resilient Robusta beans. The current market price for Arabica beans, which make up around 70 per cent of the coffee market, is roughly $2.70 US per pound. This time last year, it was around $1.49 US. Coffee commodity prices are up roughly 80 per cent during the drought. Using drought impact as the climate analog of extreme climate change under SSP3-70, the projected price increase will be more thant 80 per cent (Univ of Waterloo, 2024) [https://uwaterloo.ca/climate-institute/news/climate-change-brewing-your-coffees-price-surge-explained].
-
-
-
-Causal Loop Visual: Show a fossil-heavy grid damages the broader coffee ecosystem (B3 loop):
-B3 Coffee-Climate Feedback (SSP3-7.0 Scenario): N3 -> N12 -> N13 -> N14 -> N15 -> N16 -> N17 -> N1 -> N2 -> N3
-ASSUMED SSP3-7.0 CAUSAL CHAIN
-Coffee Yield Loss
-→ Coffee Bean Price Increase
-→ Café Operating Margin Reduction
-→ Cup Life Extension Strategy
-→ Surface Micro-Degradation
-→ Hygiene Concerns
-→ Adoption Decline
-
-Interactive Simulation Controls:
-Slider 1: "Coffee bean price increase (%)"
-Slider 2: "Extending Cup EoL Past 1,000 Washes" (Note: Attempts to improve operating margins will cause unintended consequences)
-Dynamic Output Cards: Show live impact metrics for "Café Operating Margin", “Consumer Hygiene Concerns", and "Partner Network Vulnerability".
-
-Use 80% coffee price increase as a scenario assumption derived from the cited study.
-Do not attempt to derive coffee price increase mathematically from land suitability loss alone.
-
-Scenario Assumption:
-Coffee bean prices increase by approximately 80% under severe climate stress.
-This is a scenario assumption informed by drought-related coffee market observations and should not be interpreted as a direct mathematical consequence of reported land-suitability losses. Display this assumption explicitly in the Assumptions & Methods panel.
-
-
-
-
-==================================================
-STUDENT EDITABLE RULES SECTION
-==================================================
 Students may:
 1. Revise existing rules
 2. Replace existing rules
@@ -288,45 +213,17 @@ Coffee Supply Shock
 Assumption: Climate impacts reduce global coffee yield.
 Calculation: Coffee Yield −15%, Coffee Price +40%, Café Margin −20%
 
-==================================================
-ASSUMPTIONS & METHODS PANEL (MANDATORY)
-==================================================
-For every calculated metric:
-1. Display the formula used.
-2. Display all assumptions.
-3. Label the source of every assumption.
-Sources:
-[P] Prompt Specification
-[S] Student Rule
-[AI] AI-generated assumption
 
-Example:
-Metric:
-Return Rate
-Formula:
-Base Return Rate × (1 − Hoarding Rate)
-Assumptions:
-20% Hoarding Rate
-Source:
-[S]
--------------------------------------
-Metric:
-PP Resin Deficit
-Formula:
-Replacement Demand − Available Supply
-Assumptions:
-Virgin PP Production −25%
-Source:
-[P]
--------------------------------------
-Metric:
-Coffee Bean Price Index
-Formula:
-Base Price × Yield Shock
-Assumptions:
-Coffee Yield Loss
-Source:
-[AI]
+=== ASSUMPTIONS & METHODS PANEL ===
+For every calculated metric show Formula, all Assumptions, and a source tag: [P] Prompt Specification, [S] Student Rule, [AI] AI-generated assumption. Values update live. Formulas shown must match the code exactly. Show the SSP3-7.0 notice and the SSP1-2.6 narrative explicitly.
+
+=== ACCEPTANCE TESTS (run silently and fix before finishing) ===
+Defaults with the two starter rules active must show:
+ P2: Deficit 25.0%; Unit Cost $0.64; Hygiene 20; Capacity 52,500.
+ P3: Margin 8.7%; Hygiene 47; Vulnerability 53; Adoption change −13.5%.
+ Self-test: PASS for all 5 loops (R1 reinforcing, B1–B4 balancing).
+ Ripple Mode A on B1 from N3 with ++: ends with "opposite sign, balancing". On R1 from N1 with ++: "same sign, reinforcing".
+ Removing no edges or nodes; no leftover mentions of other AI tools; no @apply; no undefined CSS classes.
 
 
 </textarea>
