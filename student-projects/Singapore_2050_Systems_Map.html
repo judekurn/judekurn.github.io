@@ -1,0 +1,762 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Singapore 2050 Systems Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single-column analytical report; wide tables scroll inside their own frames */
+:root{
+  --bg:#EEF2EF; --surface:#FFFFFF; --sunk:#E3E9E5; --ink:#13201C; --muted:#5B6B65; --line:#CFD9D3; --accent:#0B6E5B;
+  --pos:#1F6E4F; --neg:#C2412A;
+  --crit:#C2412A; --mega:#1F5FA8; --wild:#9A6A07; --back:#6B7872;
+  --crit-t:rgba(194,65,42,.08); --mega-t:rgba(31,95,168,.07); --wild-t:rgba(154,106,7,.08); --back-t:rgba(107,120,114,.06);
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1614; --surface:#17211E; --sunk:#1E2A26; --ink:#E4ECE8; --muted:#93A39D; --line:#2B3934; --accent:#3FC3A3;
+  --pos:#5FCB9A; --neg:#F07A5F; --crit:#F07A5F; --mega:#6FA6EC; --wild:#E0B04A; --back:#93A39D;
+  --crit-t:rgba(240,122,95,.10); --mega-t:rgba(111,166,236,.09); --wild-t:rgba(224,176,74,.09); --back-t:rgba(147,163,157,.06); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1614; --surface:#17211E; --sunk:#1E2A26; --ink:#E4ECE8; --muted:#93A39D; --line:#2B3934; --accent:#3FC3A3;
+  --pos:#5FCB9A; --neg:#F07A5F; --crit:#F07A5F; --mega:#6FA6EC; --wild:#E0B04A; --back:#93A39D;
+  --crit-t:rgba(240,122,95,.10); --mega-t:rgba(111,166,236,.09); --wild-t:rgba(224,176,74,.09); --back-t:rgba(147,163,157,.06); color-scheme:dark}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px;display:grid;gap:40px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;letter-spacing:-.01em;margin:0}
+h1{font-size:clamp(30px,4.4vw,48px);line-height:1.05}
+h2{font-size:24px;display:flex;align-items:baseline;gap:12px}
+h2 .no{font-family:var(--f-mono);font-size:13px;color:var(--accent);font-weight:500}
+h3{font-size:18px}
+p{margin:0;max-width:72ch}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .small{font-size:13px} .r{text-align:right} .strong{font-weight:600}
+section{display:grid;gap:14px}
+.stats{display:flex;flex-wrap:wrap;gap:10px 28px}
+.stat{display:grid;gap:2px}.stat b{font-family:var(--f-mono);font-size:28px;font-weight:500;line-height:1}
+.stat b.R{color:var(--crit)}.stat b.B{color:var(--mega)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th{font-weight:500;font-size:12px;color:var(--muted);text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:var(--surface)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+.pol{font-weight:600}.pol.pos{color:var(--pos)}.pol.neg{color:var(--neg)}
+.path{font-family:var(--f-mono);font-size:12px;margin-top:4px;line-height:1.9}
+.path .nd{background:var(--sunk);border-radius:4px;padding:1px 5px}
+.path .pol{margin:0 4px}
+.badge{display:inline-block;font-family:var(--f-mono);font-weight:600;font-size:12px;padding:2px 7px;border-radius:5px}
+.badge.R{background:var(--crit-t);color:var(--crit)}.badge.B{background:var(--mega-t);color:var(--mega)}
+.lname{font-weight:600}
+.q{font-size:12px;font-weight:600;white-space:nowrap}
+.formula{font-family:var(--f-mono);font-size:13px;background:var(--sunk);border-radius:8px;padding:12px 14px;display:grid;gap:6px;overflow-x:auto}
+.mapwrap{padding:12px;overflow:auto;max-height:80vh}
+pre.mermaid{margin:0;background:transparent;min-width:900px}
+details{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+summary{cursor:pointer;padding:12px 14px;font-weight:600}
+details .scroll{border-top:1px solid var(--line)}
+.src{font-family:var(--f-mono);font-size:12px;white-space:pre;margin:0;padding:14px;background:var(--sunk);max-height:340px;overflow:auto}
+.copy{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:6px 10px;cursor:pointer}
+.df{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.dfc{padding:18px;display:grid;gap:10px;align-content:start;border-top:3px solid var(--crit)}
+.dfc.edge{border-top-color:var(--wild)}
+.dfc .sc{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.axis{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;font-size:13px}
+.axis span{background:var(--sunk);border-radius:6px;padding:8px 10px}
+.axis i{font-style:normal;color:var(--muted)}
+svg .ax{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+svg .axl{font-size:12px;font-weight:600;fill:var(--ink)}
+svg .ql{font-family:var(--f-display);font-size:12.5px;font-weight:700}
+svg .dl{font-family:var(--f-mono);font-size:10.5px;fill:var(--ink)}
+ul{margin:0;padding-left:20px;display:grid;gap:6px;max-width:80ch}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+</style>
+
+<div class="wrap">
+<header style="display:grid;gap:14px">
+  <div class="eyebrow">Horizon scanning → systems map → driving forces · 25 weak signals.xlsx</div>
+  <h1>Singapore 2050 Systems Map</h1>
+  <p style="font-size:17px"><b>Focal issue:</b> How can Singapore navigate changing demographic, social, and technological demands for urban space by 2050 to maintain a high quality of life (QOL)?</p>
+  <div class="stats">
+    <div class="stat"><b>25</b><span class="eyebrow">Signals</span></div>
+    <div class="stat"><b>6</b><span class="eyebrow">Auxiliary nodes</span></div>
+    <div class="stat"><b>79</b><span class="eyebrow">Causal links (22 negative)</span></div>
+    <div class="stat"><b class="R">18</b><span class="eyebrow">Reinforcing loops</span></div>
+    <div class="stat"><b class="B">25</b><span class="eyebrow">Balancing loops</span></div>
+  </div>
+</header>
+
+<section>
+  <h2><span class="no">01</span>Selected driving forces</h2>
+  <p>Three signals fall in the High Impact / High Uncertainty quadrant. All three sit in the land and kerb subsystems, which hold most of the map's feedback. A fourth signal sits just below the impact line and belongs in any scenario set.</p>
+  <div class="df">
+    <article class="panel dfc">
+      <div class="eyebrow">S9 · Driving force</div>
+      <h3>Competition for limited urban land</h3>
+      <div class="sc">I 5.00 · U 4.27 · in 18 loops</div>
+      <p class="small">The hub of the map. It is a Strong signal, but how it resolves is open. Reclamation, floating space and time-shared kerbs push scarcity down, while ecological resistance and heritage conservation push it back up. Mixed upstream polarities add uncertainty.</p>
+      <div class="axis"><span>Land valve holds: reclamation and alternatives keep pace</span><i>vs</i><span>Squeeze: sand, ecology and stability limits bind together</span></div>
+      <div class="small muted">Loops: <a href="#B12">B12</a>, <a href="#B13">B13</a>, <a href="#B14">B14</a>, <a href="#B18">B18</a>, <a href="#B20">B20</a>, <a href="#B22">B22</a>, <a href="#B23">B23</a>, <a href="#B25">B25</a>, <a href="#R4">R4</a>, <a href="#R5">R5</a>, <a href="#R8">R8</a>, <a href="#R9">R9</a>, <a href="#R11">R11</a>, <a href="#R13">R13</a>, <a href="#R15">R15</a>, <a href="#R16">R16</a>, <a href="#R17">R17</a>, <a href="#R18">R18</a></div>
+    </article>
+    <article class="panel dfc">
+      <div class="eyebrow">S14 · Driving force</div>
+      <h3>Dynamically allocated kerbside</h3>
+      <div class="sc">I 3.43 · U 5.00 · in 11 loops</div>
+      <p class="small">The most uncertain signal on the map, a Black Jellyfish with four upstream drivers of mixed polarity. It anchors two flywheels: with on-demand AVs (R10) and with sensors and robots (R3, R12, R14). It is also the release valve for path and land pressure (B2, B14).</p>
+      <div class="axis"><span>Time-shared streets free land for people</span><i>vs</i><span>Sensor-enforced kerbs locked to AVs and logistics</span></div>
+      <div class="small muted">Loops: <a href="#B2">B2</a>, <a href="#B14">B14</a>, <a href="#B23">B23</a>, <a href="#B24">B24</a>, <a href="#B25">B25</a>, <a href="#R3">R3</a>, <a href="#R10">R10</a>, <a href="#R12">R12</a>, <a href="#R14">R14</a>, <a href="#R17">R17</a>, <a href="#R18">R18</a></div>
+    </article>
+    <article class="panel dfc">
+      <div class="eyebrow">S24 · Driving force</div>
+      <h3>Resistance to ecological trade-offs</h3>
+      <div class="sc">I 3.43 · U 3.18 · in 12 loops</div>
+      <p class="small">It appears in eight reinforcing loops, more than any other signal except S9. It can move land conflict offshore, onto water, or inland to forests. Public values, not engineering, decide whether it brakes or escalates.</p>
+      <div class="axis"><span>Nature-first: lower yields, higher density, less reclamation</span><i>vs</i><span>Growth-first: trade-offs accepted, conflict escalates</span></div>
+      <div class="small muted">Loops: <a href="#B11">B11</a>, <a href="#B18">B18</a>, <a href="#B19">B19</a>, <a href="#B22">B22</a>, <a href="#R2">R2</a>, <a href="#R5">R5</a>, <a href="#R8">R8</a>, <a href="#R9">R9</a>, <a href="#R11">R11</a>, <a href="#R13">R13</a>, <a href="#R15">R15</a>, <a href="#R16">R16</a></div>
+    </article>
+    <article class="panel dfc edge">
+      <div class="eyebrow">S12 · Boundary case</div>
+      <h3>Floating & amphibious development</h3>
+      <div class="sc">I 2.91 · U 4.45 · in 10 loops</div>
+      <p class="small">Just under the impact line, but it appears in ten loops as the main substitute for reclamation. It is worth carrying as a scenario variable alongside S9 and S24.</p>
+      <div class="small muted">Loops: <a href="#B13">B13</a>, <a href="#B18">B18</a>, <a href="#B19">B19</a>, <a href="#B20">B20</a>, <a href="#B22">B22</a>, <a href="#R2">R2</a>, <a href="#R11">R11</a>, <a href="#R13">R13</a>, <a href="#R15">R15</a>, <a href="#R16">R16</a></div>
+    </article>
+  </div>
+  <p class="small muted">S9 and S24 are strongly coupled through loops R5, R8 and R9. If you build a 2×2 scenario frame, use S14 for one axis and either S9 or S24 for the other, not both.</p>
+</section>
+
+<section>
+  <h2><span class="no">02</span>System map</h2>
+  <p class="small muted">Rounded, dashed nodes are auxiliary. Red links are negative (the variables move in opposite directions). Scroll inside the frame to see the full map.</p>
+  <div class="panel mapwrap"><pre class="mermaid">flowchart LR
+  subgraph G0[&quot;Ageing &amp; care&quot;]
+    S10[&quot;S10: Population ageing&quot;]
+    S11[&quot;S11: Active Ageing Centre expansion&quot;]
+    S13[&quot;S13: Home care robot subsidies&quot;]
+    S16[&quot;S16: Places of worship as care spaces&quot;]
+    S21[&quot;S21: Companion robots in care institutions&quot;]
+    S22[&quot;S22: Homes as care platforms&quot;]
+    A3([&quot;A3: Seniors living alone / unattended-death risk&quot;])
+  end
+  subgraph G1[&quot;Third space &amp; social life&quot;]
+    S1[&quot;S1: Youth loneliness &amp; isolation&quot;]
+    S8[&quot;S8: Limited late-night low-cost gathering access&quot;]
+    A1([&quot;A1: Open-access third-space supply&quot;])
+    S25[&quot;S25: Sensor-enabled spaces reduce anonymity&quot;]
+  end
+  subgraph G2[&quot;Paths, kerbs &amp; mobility&quot;]
+    S3[&quot;S3: Service robots on shared paths&quot;]
+    S4[&quot;S4: Human-robot-drone delivery systems&quot;]
+    S5[&quot;S5: Mobility corridors gain social functions&quot;]
+    S14[&quot;S14: Dynamically allocated kerbside&quot;]
+    S17[&quot;S17: Walkability vs usability gap&quot;]
+    S23[&quot;S23: On-demand AVs alongside fixed routes&quot;]
+    A2([&quot;A2: Shared path &amp; street space pressure&quot;])
+    A6([&quot;A6: Kerbside pick-up/drop-off (PUDO) demand&quot;])
+  end
+  subgraph G3[&quot;Climate exposure&quot;]
+    S6[&quot;S6: Rising heat on outdoor gathering&quot;]
+    S7[&quot;S7: Extreme weather disrupts first-last mile&quot;]
+    A5([&quot;A5: Sea-level rise &amp; coastal flood exposure&quot;])
+  end
+  subgraph G4[&quot;Land, reclamation &amp; ecology&quot;]
+    S9[&quot;S9: Competition for limited urban land&quot;]
+    S12[&quot;S12: Floating &amp; amphibious development&quot;]
+    S18[&quot;S18: Alternative reclamation methods&quot;]
+    S19[&quot;S19: Reclamation sand supply &amp; cost pressure&quot;]
+    S20[&quot;S20: Ground-stability risk on reclaimed land&quot;]
+    S24[&quot;S24: Resistance to ecological trade-offs&quot;]
+    A4([&quot;A4: New land creation by reclamation&quot;])
+  end
+  subgraph G5[&quot;Urban character &amp; heritage&quot;]
+    S2[&quot;S2: Demand for community-centred urban character&quot;]
+    S15[&quot;S15: Heritage tourism crowding&quot;]
+  end
+  S10 --&gt;|&quot;+&quot;| S11
+  S10 --&gt;|&quot;+&quot;| A3
+  S10 --&gt;|&quot;+&quot;| S17
+  S10 --&gt;|&quot;+&quot;| S16
+  S10 --&gt;|&quot;+&quot;| S21
+  S10 --&gt;|&quot;+&quot;| S23
+  A3 --&gt;|&quot;+&quot;| S13
+  A3 --&gt;|&quot;+&quot;| S22
+  S13 --&gt;|&quot;-&quot;| A3
+  S22 --&gt;|&quot;-&quot;| A3
+  S11 --&gt;|&quot;-&quot;| A3
+  S16 --&gt;|&quot;-&quot;| A3
+  S21 --&gt;|&quot;+&quot;| S13
+  S13 --&gt;|&quot;+&quot;| S22
+  S22 --&gt;|&quot;+&quot;| S25
+  S11 --&gt;|&quot;+&quot;| S9
+  S11 --&gt;|&quot;+&quot;| A1
+  S16 --&gt;|&quot;+&quot;| A1
+  A1 --&gt;|&quot;-&quot;| S1
+  S1 --&gt;|&quot;+&quot;| A1
+  S8 --&gt;|&quot;-&quot;| A1
+  S9 --&gt;|&quot;-&quot;| A1
+  S6 --&gt;|&quot;-&quot;| A1
+  S25 --&gt;|&quot;-&quot;| A1
+  S5 --&gt;|&quot;+&quot;| A1
+  S2 --&gt;|&quot;+&quot;| A1
+  S3 --&gt;|&quot;+&quot;| A2
+  S4 --&gt;|&quot;+&quot;| S3
+  S4 --&gt;|&quot;+&quot;| A6
+  S5 --&gt;|&quot;+&quot;| A2
+  S15 --&gt;|&quot;+&quot;| A2
+  A2 --&gt;|&quot;+&quot;| S17
+  A2 --&gt;|&quot;+&quot;| S14
+  S14 --&gt;|&quot;-&quot;| A2
+  A2 --&gt;|&quot;-&quot;| S5
+  S23 --&gt;|&quot;+&quot;| A6
+  A6 --&gt;|&quot;+&quot;| S14
+  S14 --&gt;|&quot;+&quot;| S23
+  S14 --&gt;|&quot;+&quot;| S25
+  S3 --&gt;|&quot;+&quot;| S25
+  S9 --&gt;|&quot;+&quot;| S14
+  S14 --&gt;|&quot;-&quot;| S9
+  S17 --&gt;|&quot;+&quot;| S23
+  S23 --&gt;|&quot;-&quot;| S17
+  S6 --&gt;|&quot;+&quot;| S17
+  S7 --&gt;|&quot;+&quot;| S17
+  S6 --&gt;|&quot;-&quot;| S5
+  S7 --&gt;|&quot;+&quot;| S23
+  S9 --&gt;|&quot;+&quot;| A4
+  A4 --&gt;|&quot;-&quot;| S9
+  A4 --&gt;|&quot;+&quot;| S19
+  S19 --&gt;|&quot;-&quot;| A4
+  S19 --&gt;|&quot;+&quot;| S18
+  S18 --&gt;|&quot;+&quot;| A4
+  S18 --&gt;|&quot;+&quot;| S20
+  A4 --&gt;|&quot;+&quot;| S20
+  S20 --&gt;|&quot;-&quot;| A4
+  A5 --&gt;|&quot;+&quot;| S19
+  A5 --&gt;|&quot;+&quot;| S12
+  A5 --&gt;|&quot;+&quot;| S7
+  S9 --&gt;|&quot;+&quot;| S12
+  S12 --&gt;|&quot;-&quot;| S9
+  S19 --&gt;|&quot;+&quot;| S12
+  S9 --&gt;|&quot;+&quot;| S24
+  S24 --&gt;|&quot;+&quot;| S9
+  A4 --&gt;|&quot;+&quot;| S24
+  S24 --&gt;|&quot;-&quot;| A4
+  S24 --&gt;|&quot;+&quot;| S12
+  S12 --&gt;|&quot;+&quot;| S24
+  S9 --&gt;|&quot;+&quot;| S2
+  S2 --&gt;|&quot;+&quot;| S9
+  S2 --&gt;|&quot;+&quot;| S15
+  S15 --&gt;|&quot;-&quot;| S2
+  S25 --&gt;|&quot;+&quot;| S14
+  S3 --&gt;|&quot;+&quot;| S4
+  A2 --&gt;|&quot;-&quot;| S3
+  A3 --&gt;|&quot;+&quot;| S11
+  A3 --&gt;|&quot;+&quot;| S16
+  A1 --&gt;|&quot;-&quot;| S8
+  classDef aux stroke-dasharray: 5 4
+  class A1,A2,A3,A4,A5,A6 aux
+  linkStyle 8,9,10,11,18,20,21,22,23,33,34,41,43,46,49,51,56,61,66,72,75,78 stroke:#C2412A,stroke-width:1.6px</pre></div>
+  <details>
+    <summary>Mermaid source</summary>
+    <div style="padding:0 14px 14px;display:grid;gap:10px">
+      <div><button class="copy" id="copy-mm" type="button">Copy Mermaid source</button> <span id="copy-msg" class="small muted" aria-live="polite"></span></div>
+      <pre class="src" id="mm-src">flowchart LR
+  subgraph G0[&quot;Ageing &amp; care&quot;]
+    S10[&quot;S10: Population ageing&quot;]
+    S11[&quot;S11: Active Ageing Centre expansion&quot;]
+    S13[&quot;S13: Home care robot subsidies&quot;]
+    S16[&quot;S16: Places of worship as care spaces&quot;]
+    S21[&quot;S21: Companion robots in care institutions&quot;]
+    S22[&quot;S22: Homes as care platforms&quot;]
+    A3([&quot;A3: Seniors living alone / unattended-death risk&quot;])
+  end
+  subgraph G1[&quot;Third space &amp; social life&quot;]
+    S1[&quot;S1: Youth loneliness &amp; isolation&quot;]
+    S8[&quot;S8: Limited late-night low-cost gathering access&quot;]
+    A1([&quot;A1: Open-access third-space supply&quot;])
+    S25[&quot;S25: Sensor-enabled spaces reduce anonymity&quot;]
+  end
+  subgraph G2[&quot;Paths, kerbs &amp; mobility&quot;]
+    S3[&quot;S3: Service robots on shared paths&quot;]
+    S4[&quot;S4: Human-robot-drone delivery systems&quot;]
+    S5[&quot;S5: Mobility corridors gain social functions&quot;]
+    S14[&quot;S14: Dynamically allocated kerbside&quot;]
+    S17[&quot;S17: Walkability vs usability gap&quot;]
+    S23[&quot;S23: On-demand AVs alongside fixed routes&quot;]
+    A2([&quot;A2: Shared path &amp; street space pressure&quot;])
+    A6([&quot;A6: Kerbside pick-up/drop-off (PUDO) demand&quot;])
+  end
+  subgraph G3[&quot;Climate exposure&quot;]
+    S6[&quot;S6: Rising heat on outdoor gathering&quot;]
+    S7[&quot;S7: Extreme weather disrupts first-last mile&quot;]
+    A5([&quot;A5: Sea-level rise &amp; coastal flood exposure&quot;])
+  end
+  subgraph G4[&quot;Land, reclamation &amp; ecology&quot;]
+    S9[&quot;S9: Competition for limited urban land&quot;]
+    S12[&quot;S12: Floating &amp; amphibious development&quot;]
+    S18[&quot;S18: Alternative reclamation methods&quot;]
+    S19[&quot;S19: Reclamation sand supply &amp; cost pressure&quot;]
+    S20[&quot;S20: Ground-stability risk on reclaimed land&quot;]
+    S24[&quot;S24: Resistance to ecological trade-offs&quot;]
+    A4([&quot;A4: New land creation by reclamation&quot;])
+  end
+  subgraph G5[&quot;Urban character &amp; heritage&quot;]
+    S2[&quot;S2: Demand for community-centred urban character&quot;]
+    S15[&quot;S15: Heritage tourism crowding&quot;]
+  end
+  S10 --&gt;|&quot;+&quot;| S11
+  S10 --&gt;|&quot;+&quot;| A3
+  S10 --&gt;|&quot;+&quot;| S17
+  S10 --&gt;|&quot;+&quot;| S16
+  S10 --&gt;|&quot;+&quot;| S21
+  S10 --&gt;|&quot;+&quot;| S23
+  A3 --&gt;|&quot;+&quot;| S13
+  A3 --&gt;|&quot;+&quot;| S22
+  S13 --&gt;|&quot;-&quot;| A3
+  S22 --&gt;|&quot;-&quot;| A3
+  S11 --&gt;|&quot;-&quot;| A3
+  S16 --&gt;|&quot;-&quot;| A3
+  S21 --&gt;|&quot;+&quot;| S13
+  S13 --&gt;|&quot;+&quot;| S22
+  S22 --&gt;|&quot;+&quot;| S25
+  S11 --&gt;|&quot;+&quot;| S9
+  S11 --&gt;|&quot;+&quot;| A1
+  S16 --&gt;|&quot;+&quot;| A1
+  A1 --&gt;|&quot;-&quot;| S1
+  S1 --&gt;|&quot;+&quot;| A1
+  S8 --&gt;|&quot;-&quot;| A1
+  S9 --&gt;|&quot;-&quot;| A1
+  S6 --&gt;|&quot;-&quot;| A1
+  S25 --&gt;|&quot;-&quot;| A1
+  S5 --&gt;|&quot;+&quot;| A1
+  S2 --&gt;|&quot;+&quot;| A1
+  S3 --&gt;|&quot;+&quot;| A2
+  S4 --&gt;|&quot;+&quot;| S3
+  S4 --&gt;|&quot;+&quot;| A6
+  S5 --&gt;|&quot;+&quot;| A2
+  S15 --&gt;|&quot;+&quot;| A2
+  A2 --&gt;|&quot;+&quot;| S17
+  A2 --&gt;|&quot;+&quot;| S14
+  S14 --&gt;|&quot;-&quot;| A2
+  A2 --&gt;|&quot;-&quot;| S5
+  S23 --&gt;|&quot;+&quot;| A6
+  A6 --&gt;|&quot;+&quot;| S14
+  S14 --&gt;|&quot;+&quot;| S23
+  S14 --&gt;|&quot;+&quot;| S25
+  S3 --&gt;|&quot;+&quot;| S25
+  S9 --&gt;|&quot;+&quot;| S14
+  S14 --&gt;|&quot;-&quot;| S9
+  S17 --&gt;|&quot;+&quot;| S23
+  S23 --&gt;|&quot;-&quot;| S17
+  S6 --&gt;|&quot;+&quot;| S17
+  S7 --&gt;|&quot;+&quot;| S17
+  S6 --&gt;|&quot;-&quot;| S5
+  S7 --&gt;|&quot;+&quot;| S23
+  S9 --&gt;|&quot;+&quot;| A4
+  A4 --&gt;|&quot;-&quot;| S9
+  A4 --&gt;|&quot;+&quot;| S19
+  S19 --&gt;|&quot;-&quot;| A4
+  S19 --&gt;|&quot;+&quot;| S18
+  S18 --&gt;|&quot;+&quot;| A4
+  S18 --&gt;|&quot;+&quot;| S20
+  A4 --&gt;|&quot;+&quot;| S20
+  S20 --&gt;|&quot;-&quot;| A4
+  A5 --&gt;|&quot;+&quot;| S19
+  A5 --&gt;|&quot;+&quot;| S12
+  A5 --&gt;|&quot;+&quot;| S7
+  S9 --&gt;|&quot;+&quot;| S12
+  S12 --&gt;|&quot;-&quot;| S9
+  S19 --&gt;|&quot;+&quot;| S12
+  S9 --&gt;|&quot;+&quot;| S24
+  S24 --&gt;|&quot;+&quot;| S9
+  A4 --&gt;|&quot;+&quot;| S24
+  S24 --&gt;|&quot;-&quot;| A4
+  S24 --&gt;|&quot;+&quot;| S12
+  S12 --&gt;|&quot;+&quot;| S24
+  S9 --&gt;|&quot;+&quot;| S2
+  S2 --&gt;|&quot;+&quot;| S9
+  S2 --&gt;|&quot;+&quot;| S15
+  S15 --&gt;|&quot;-&quot;| S2
+  S25 --&gt;|&quot;+&quot;| S14
+  S3 --&gt;|&quot;+&quot;| S4
+  A2 --&gt;|&quot;-&quot;| S3
+  A3 --&gt;|&quot;+&quot;| S11
+  A3 --&gt;|&quot;+&quot;| S16
+  A1 --&gt;|&quot;-&quot;| S8
+  classDef aux stroke-dasharray: 5 4
+  class A1,A2,A3,A4,A5,A6 aux
+  linkStyle 8,9,10,11,18,20,21,22,23,33,34,41,43,46,49,51,56,61,66,72,75,78 stroke:#C2412A,stroke-width:1.6px</pre>
+    </div>
+  </details>
+</section>
+
+<section>
+  <h2><span class="no">03</span>Loop detail</h2>
+  <p>All 43 closed loops were found by exhaustive cycle search on the directed graph. A loop with an even number of negative links is Reinforcing (R); an odd number makes it Balancing (B).</p>
+  <div class="panel scroll"><table style="min-width:900px">
+    <thead><tr><th>Loop</th><th style="width:28%">Structure</th><th>Narrative</th><th style="width:28%">Singapore policy reading</th></tr></thead>
+    <tbody><tr id="B1"><td><span class="badge B">B1</span></td><td><div class="lname">Youth space self-correction</div><div class="path"><span class="nd">A1</span><span class="pol neg">−</span> <span class="nd">S1</span><span class="pol pos">+</span> <span class="nd">A1</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Youth loneliness becomes visible (IPS 2024 poll). 2) Ground-up groups and agencies open low-cost youth spaces. 3) More open third space gives young adults places to linger and form peer groups. 4) Loneliness eases, and so does the pressure to provide more.</td><td class="small">Youth third spaces get funded only while loneliness is in the headlines. A 2050 QOL plan needs a baseline supply of free, unprogrammed space that does not depend on a crisis signal.</td></tr>
+<tr id="B2"><td><span class="badge B">B2</span></td><td><div class="lname">Smart-kerb conflict relief</div><div class="path"><span class="nd">A2</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">A2</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Path and street pressure rises. 2) Time-based kerb allocation is introduced. 3) Conflicts on fixed space ease.</td><td class="small">Dynamic kerbs are a governance tool for managing conflict, not only a transport technology.</td></tr>
+<tr id="B3"><td><span class="badge B">B3</span></td><td><div class="lname">Robot right-of-way brake</div><div class="path"><span class="nd">A2</span><span class="pol neg">−</span> <span class="nd">S3</span><span class="pol pos">+</span> <span class="nd">A2</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) More service robots use shared paths. 2) Path pressure and right-of-way conflicts rise. 3) Conflicts prompt rules that restrict where and when robots run. 4) Robot presence on paths falls back.</td><td class="small">LTA-style active mobility rules act as the governor on robot rollout. Tight rules protect pedestrians but cap the logistics and cleaning gains.</td></tr>
+<tr id="B4"><td><span class="badge B">B4</span></td><td><div class="lname">Corridor capacity tension</div><div class="path"><span class="nd">A2</span><span class="pol neg">−</span> <span class="nd">S5</span><span class="pol pos">+</span> <span class="nd">A2</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Streets and hubs take on social uses such as benches and play areas. 2) Movement capacity on paths shrinks and pressure rises. 3) Congested paths leave less room for lingering. 4) Social use is pushed back.</td><td class="small">Multifunctional corridors limit themselves unless path widths are planned for both movement and staying. This points to wider standards in new towns.</td></tr>
+<tr id="B5"><td><span class="badge B">B5</span></td><td><div class="lname">AAC outreach loop</div><div class="path"><span class="nd">A3</span><span class="pol pos">+</span> <span class="nd">S11</span><span class="pol neg">−</span> <span class="nd">A3</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) More seniors live alone (about 87,000 aged 65+ in 2024). 2) MOH scales AAC outreach and befriending. 3) Isolation and unattended-death risk fall. 4) The urgency to expand eases.</td><td class="small">AAC growth is demand-led. If the stay-alone cohort grows faster than outreach capacity, the balance fails and unattended deaths rise.</td></tr>
+<tr id="B6"><td><span class="badge B">B6</span></td><td><div class="lname">Robot monitoring response</div><div class="path"><span class="nd">A3</span><span class="pol pos">+</span> <span class="nd">S13</span><span class="pol neg">−</span> <span class="nd">A3</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Unattended deaths prompt the July 2026 parliamentary question. 2) Subsidies for home monitoring robots gain support. 3) Detection improves and risk falls. 4) Political pressure for subsidies fades.</td><td class="small">Technology is used to close a care gap. Policy should fix evidence thresholds so support does not stall once the headlines fade.</td></tr>
+<tr id="B7"><td><span class="badge B">B7</span></td><td><div class="lname">Faith-based care buffer</div><div class="path"><span class="nd">A3</span><span class="pol pos">+</span> <span class="nd">S16</span><span class="pol neg">−</span> <span class="nd">A3</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Isolated seniors become a visible concern. 2) Places of worship extend care roles, as in the prayer-and-care pilot. 3) Trusted hosts reduce isolation. 4) The pull on faith premises eases.</td><td class="small">Faith premises add care capacity without new land. Secular equivalents are needed so that seniors outside a faith community are not excluded.</td></tr>
+<tr id="B8"><td><span class="badge B">B8</span></td><td><div class="lname">Home care-platform response</div><div class="path"><span class="nd">A3</span><span class="pol pos">+</span> <span class="nd">S22</span><span class="pol neg">−</span> <span class="nd">A3</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Stay-alone seniors increase. 2) HDB homes are retrofitted as care platforms. 3) Remote connection and monitoring lower risk. 4) The retrofit push moderates.</td><td class="small">Ageing in place depends on HDB retrofit pace. The home becomes care infrastructure, which shifts the demand for space away from institutions.</td></tr>
+<tr id="B9"><td><span class="badge B">B9</span></td><td><div class="lname">Sand supply constraint</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S19</span><span class="pol neg">−</span> <span class="nd">A4</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) More reclamation raises demand for fill. 2) Supply and cost pressure on sand rises. 3) Reclamation slows. 4) Fill demand falls.</td><td class="small">Regional sand export bans cap reclamation from outside Singapore. This is a geopolitical limit on the land valve.</td></tr>
+<tr id="B10"><td><span class="badge B">B10</span></td><td><div class="lname">Ground-stability brake</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S20</span><span class="pol neg">−</span> <span class="nd">A4</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) More reclaimed sites are built. 2) Settlement and stability risk grows, as at Kansai Airport. 3) Some sites are constrained.</td><td class="small">A Black Swan engineering failure would abruptly tighten this brake and reduce confidence in reclaimed housing land.</td></tr>
+<tr id="B11"><td><span class="badge B">B11</span></td><td><div class="lname">Reclamation scrutiny brake</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol neg">−</span> <span class="nd">A4</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Reclamation expands. 2) Effects on marine habitats draw ecological resistance. 3) Scrutiny slows or shrinks reclamation. 4) New land supply falls.</td><td class="small">Environmental review acts as a governor on land creation. Expect longer timelines and lower housing yields on coastal projects.</td></tr>
+<tr id="B12"><td><span class="badge B">B12</span></td><td><div class="lname">Land-creation relief valve</div><div class="path"><span class="nd">A4</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">A4</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Competition for land intensifies. 2) Reclamation is approved (Greater Southern Waterfront, east coast). 3) New land eases competition.</td><td class="small">This is Singapore&#x27;s classic response to land scarcity. Each of the loops below weakens the valve.</td></tr>
+<tr id="B13"><td><span class="badge B">B13</span></td><td><div class="lname">Floating space relief</div><div class="path"><span class="nd">S12</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S12</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Land scarcity rises. 2) Floating and amphibious options gain interest. 3) Water-based development adds usable space and eases scarcity.</td><td class="small">Floating space is a potential relief valve that does not exist yet. Whether it works depends on engineering, cost and regulatory feasibility for HDB.</td></tr>
+<tr id="B14"><td><span class="badge B">B14</span></td><td><div class="lname">Time-sharing land relief</div><div class="path"><span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S14</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Land scarcity pushes multi-use kerbs. 2) Time-shared kerbs free land for other uses. 3) Scarcity eases.</td><td class="small">Allocating space by time is a substitute for allocating it by area. It is a cheap way to create effective land.</td></tr>
+<tr id="B15"><td><span class="badge B">B15</span></td><td><div class="lname">Heritage overtourism brake</div><div class="path"><span class="nd">S15</span><span class="pol neg">−</span> <span class="nd">S2</span><span class="pol pos">+</span> <span class="nd">S15</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) Demand for distinctive character elevates heritage districts and the UNESCO bid. 2) Tourism rises. 3) Overtourism erodes local character. 4) The character asset weakens.</td><td class="small">Heritage placemaking can undermine itself. Visitor management zones need to be designed in before the civic district is marketed.</td></tr>
+<tr id="B16"><td><span class="badge B">B16</span></td><td><div class="lname">AV access balancing</div><div class="path"><span class="nd">S17</span><span class="pol pos">+</span> <span class="nd">S23</span><span class="pol neg">−</span> <span class="nd">S17</span></div><div class="small muted">2 nodes · 1 negative link</div></td><td class="small">1) A walkability-usability gap leaves older adults stranded. 2) Demand for door-to-door on-demand AVs rises. 3) AVs close access gaps. 4) The gap and its pull on AVs shrink.</td><td class="small">On-demand AVs can mask poor walkability. If AVs succeed, investment in micro-scale walking quality may lag.</td></tr>
+<tr id="B17"><td><span class="badge B">B17</span></td><td><div class="lname">Subsidy-to-platform care chain</div><div class="path"><span class="nd">A3</span><span class="pol pos">+</span> <span class="nd">S13</span><span class="pol pos">+</span> <span class="nd">S22</span><span class="pol neg">−</span> <span class="nd">A3</span></div><div class="small muted">3 nodes · 1 negative link</div></td><td class="small">1) Unattended-death risk drives robot subsidies. 2) Subsidised robots accelerate homes as care platforms. 3) Platforms reduce risk, which lowers the push for subsidies.</td><td class="small">Care technology works as a chain from subsidy to infrastructure. A pause in subsidies would slow HDB retrofits.</td></tr>
+<tr id="B18"><td><span class="badge B">B18</span></td><td><div class="lname">Floating option dampens the conservation squeeze</div><div class="path"><span class="nd">S12</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol pos">+</span> <span class="nd">S12</span></div><div class="small muted">3 nodes · 1 negative link</div></td><td class="small">1) Land competition puts forest sites such as Maju Forest forward. 2) Resistance builds and raises interest in floating alternatives. 3) Floating development eases land competition.</td><td class="small">Water-based space could take pressure off green sites. This depends on floating projects avoiding the marine-habitat objections of their own.</td></tr>
+<tr id="B19"><td><span class="badge B">B19</span></td><td><div class="lname">Sand scarcity diverts to water, which draws scrutiny</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S19</span><span class="pol pos">+</span> <span class="nd">S12</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol neg">−</span> <span class="nd">A4</span></div><div class="small muted">4 nodes · 1 negative link</div></td><td class="small">1) Sand pressure raises interest in floating builds. 2) Floating structures raise marine-habitat concerns. 3) Ecological resistance slows reclamation. 4) Fill demand falls.</td><td class="small">Shifting from land to water moves the environmental conflict without removing it.</td></tr>
+<tr id="B20"><td><span class="badge B">B20</span></td><td><div class="lname">Sand-driven substitution</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S19</span><span class="pol pos">+</span> <span class="nd">S12</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">A4</span></div><div class="small muted">4 nodes · 1 negative link</div></td><td class="small">1) Sand scarcity pushes floating development. 2) Floating space eases land competition. 3) Less reclamation is needed. 4) Sand pressure falls.</td><td class="small">Shows how a regional supply shock could speed up adoption of amphibious housing.</td></tr>
+<tr id="B21"><td><span class="badge B">B21</span></td><td><div class="lname">Innovation-risk brake</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S19</span><span class="pol pos">+</span> <span class="nd">S18</span><span class="pol pos">+</span> <span class="nd">S20</span><span class="pol neg">−</span> <span class="nd">A4</span></div><div class="small muted">4 nodes · 1 negative link</div></td><td class="small">1) Sand pressure drives alternative methods (polders, recycled fill). 2) Newer methods carry less-proven stability records. 3) Stability risk constrains reclaimed development. 4) Less reclamation lowers sand pressure.</td><td class="small">Methods such as the Tekong polder trade supply risk for engineering risk. Monitoring regimes are a prerequisite for scaling them.</td></tr>
+<tr id="B22"><td><span class="badge B">B22</span></td><td><div class="lname">Alternatives-cap reclamation</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol pos">+</span> <span class="nd">S12</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">A4</span></div><div class="small muted">4 nodes · 1 negative link</div></td><td class="small">1) Reclamation provokes ecological resistance. 2) Resistance redirects interest to floating options. 3) Floating space eases land competition. 4) Less pressure means less reclamation.</td><td class="small">A substitution loop: every hectare of floating space reduces the case for reclamation.</td></tr>
+<tr id="B23"><td><span class="badge B">B23</span></td><td><div class="lname">Land relief to heritage crowding</div><div class="path"><span class="nd">A2</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S2</span><span class="pol pos">+</span> <span class="nd">S15</span><span class="pol pos">+</span> <span class="nd">A2</span></div><div class="small muted">5 nodes · 1 negative link</div></td><td class="small">1) Smart kerbs ease land scarcity. 2) Less land pressure weakens the sterile-city concern. 3) Heritage tourism grows more slowly. 4) Street crowding falls. 5) Kerb dynamism is needed less.</td><td class="small">Shows how an indirect gain in land efficiency reaches heritage districts.</td></tr>
+<tr id="B24"><td><span class="badge B">B24</span></td><td><div class="lname">Kerb-AV access balance</div><div class="path"><span class="nd">A2</span><span class="pol pos">+</span> <span class="nd">S17</span><span class="pol pos">+</span> <span class="nd">S23</span><span class="pol pos">+</span> <span class="nd">A6</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">A2</span></div><div class="small muted">5 nodes · 1 negative link</div></td><td class="small">1) Smart kerbs relieve path pressure. 2) Usability gaps narrow. 3) Demand for door-to-door AVs eases. 4) PUDO demand on kerbs falls. 5) Less pressure for further kerb dynamism.</td><td class="small">Improving the street environment reduces dependence on the AV-kerb system.</td></tr>
+<tr id="B25"><td><span class="badge B">B25</span></td><td><div class="lname">Long kerb-heritage-access loop</div><div class="path"><span class="nd">A2</span><span class="pol pos">+</span> <span class="nd">S17</span><span class="pol pos">+</span> <span class="nd">S23</span><span class="pol pos">+</span> <span class="nd">A6</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S2</span><span class="pol pos">+</span> <span class="nd">S15</span><span class="pol pos">+</span> <span class="nd">A2</span></div><div class="small muted">8 nodes · 1 negative link</div></td><td class="small">1) Smart kerbs ease land scarcity. 2) Heritage pressure and tourism moderate. 3) Street crowding and the usability gap shrink. 4) AV and PUDO demand fall, lowering the need for kerb dynamism.</td><td class="small">A long, slow-acting balance linking mobility, heritage and access policy. Its delay makes it weak in practice.</td></tr>
+<tr id="R1"><td><span class="badge R">R1</span></td><td><div class="lname">Third-space scarcity spiral</div><div class="path"><span class="nd">A1</span><span class="pol neg">−</span> <span class="nd">S8</span><span class="pol neg">−</span> <span class="nd">A1</span></div><div class="small muted">2 nodes · 2 negative links</div></td><td class="small">1) Libraries and community facilities close early. 2) Effective third-space supply drops. 3) A thinner supply widens the late-night access gap further.</td><td class="small">A vicious cycle for shift workers, caregivers and students. Extended or self-service hours break it at low cost.</td></tr>
+<tr id="R2"><td><span class="badge R">R2</span></td><td><div class="lname">Water-ecology escalation</div><div class="path"><span class="nd">S12</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol pos">+</span> <span class="nd">S12</span></div><div class="small muted">2 nodes · 0 negative links</div></td><td class="small">1) Resistance to land creation promotes floating alternatives. 2) Floating structures raise their own marine-habitat objections. 3) Resistance grows.</td><td class="small">Ecological concern follows development onto water. Floating projects need marine impact frameworks early.</td></tr>
+<tr id="R3"><td><span class="badge R">R3</span></td><td><div class="lname">Smart-kerb sensor lock-in</div><div class="path"><span class="nd">S14</span><span class="pol pos">+</span> <span class="nd">S25</span><span class="pol pos">+</span> <span class="nd">S14</span></div><div class="small muted">2 nodes · 0 negative links</div></td><td class="small">1) Smart kerbs need cameras and data for enforcement. 2) Sensor networks expand. 3) Denser sensing enables more dynamic kerbs.</td><td class="small">A digital-infrastructure flywheel. Each cycle reduces anonymity in public space, a QOL cost noted in the S25 row.</td></tr>
+<tr id="R4"><td><span class="badge R">R4</span></td><td><div class="lname">Heritage-land squeeze</div><div class="path"><span class="nd">S2</span><span class="pol pos">+</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S2</span></div><div class="small muted">2 nodes · 0 negative links</div></td><td class="small">1) Land pressure marginalises heritage areas. 2) Demand for character rises. 3) Conserving districts removes land from redevelopment. 4) Land pressure intensifies.</td><td class="small">Culture and housing compete for the same hectares. Each concession tightens the trade-off for the next masterplan.</td></tr>
+<tr id="R5"><td><span class="badge R">R5</span></td><td><div class="lname">Conservation squeeze</div><div class="path"><span class="nd">S24</span><span class="pol pos">+</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S24</span></div><div class="small muted">2 nodes · 0 negative links</div></td><td class="small">1) Land pressure puts green sites forward. 2) Ecological resistance builds. 3) Contested sites are withdrawn. 4) Pressure on the remaining land rises.</td><td class="small">The defining land-use tension to 2050: each protected site raises pressure on the next.</td></tr>
+<tr id="R6"><td><span class="badge R">R6</span></td><td><div class="lname">Robot logistics flywheel</div><div class="path"><span class="nd">S3</span><span class="pol pos">+</span> <span class="nd">S4</span><span class="pol pos">+</span> <span class="nd">S3</span></div><div class="small muted">2 nodes · 0 negative links</div></td><td class="small">1) Robots proven on paths make multi-agent delivery feasible. 2) Coordinated systems deploy more robots. 3) Robot presence normalises.</td><td class="small">Once the PDD and JTC testbeds scale, rollout could become self-propelling ahead of regulation.</td></tr>
+<tr id="R7"><td><span class="badge R">R7</span></td><td><div class="lname">Reclamation innovation lock-in</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S19</span><span class="pol pos">+</span> <span class="nd">S18</span><span class="pol pos">+</span> <span class="nd">A4</span></div><div class="small muted">3 nodes · 0 negative links</div></td><td class="small">1) Sand pressure drives alternative methods. 2) Alternatives sustain land creation. 3) More reclamation brings back sand pressure.</td><td class="small">Innovation keeps the reclamation pathway alive instead of replacing it.</td></tr>
+<tr id="R8"><td><span class="badge R">R8</span></td><td><div class="lname">Reclamation backlash spiral</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol pos">+</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">A4</span></div><div class="small muted">3 nodes · 0 negative links</div></td><td class="small">1) Reclamation raises ecological resistance. 2) Resistance blocks inland green sites as well. 3) Land pressure rises. 4) More reclamation is pursued.</td><td class="small">Resistance can push development offshore instead of reducing it.</td></tr>
+<tr id="R9"><td><span class="badge R">R9</span></td><td><div class="lname">Scarcity-resistance spiral</div><div class="path"><span class="nd">A4</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol neg">−</span> <span class="nd">A4</span></div><div class="small muted">3 nodes · 2 negative links</div></td><td class="small">1) Resistance slows reclamation. 2) New land supply falls. 3) Land competition intensifies. 4) More contested green sites mean more resistance.</td><td class="small">If land creation stalls, the conflict moves inland to forests and heritage sites.</td></tr>
+<tr id="R10"><td><span class="badge R">R10</span></td><td><div class="lname">AV-kerb flywheel</div><div class="path"><span class="nd">A6</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol pos">+</span> <span class="nd">S23</span><span class="pol pos">+</span> <span class="nd">A6</span></div><div class="small muted">3 nodes · 0 negative links</div></td><td class="small">1) Bookable kerbs make PUDO-based AV service viable. 2) On-demand AVs scale, as in Punggol in 2026. 3) PUDO demand rises. 4) More kerbs become dynamic.</td><td class="small">A path-dependent shift from fixed routes to dynamic first-last-mile service, with equity risks for users without apps.</td></tr>
+<tr id="R11"><td><span class="badge R">R11</span></td><td><div class="lname">Floating-ecology-land spiral</div><div class="path"><span class="nd">S12</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol pos">+</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S12</span></div><div class="small muted">3 nodes · 0 negative links</div></td><td class="small">1) Floating projects provoke marine concerns. 2) Ecological resistance withdraws sites. 3) Land competition rises. 4) Interest in floating options grows.</td><td class="small">Alternatives can keep a contested cycle going instead of resolving it.</td></tr>
+<tr id="R12"><td><span class="badge R">R12</span></td><td><div class="lname">Automation-surveillance flywheel</div><div class="path"><span class="nd">A2</span><span class="pol neg">−</span> <span class="nd">S3</span><span class="pol pos">+</span> <span class="nd">S25</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">A2</span></div><div class="small muted">4 nodes · 2 negative links</div></td><td class="small">1) Smart kerbs relieve path pressure. 2) Fewer conflicts relax robot restrictions. 3) More robots bring more cameras. 4) Sensor density enables smarter kerbs.</td><td class="small">Automation and surveillance reinforce each other. Privacy safeguards need to be built in at design stage.</td></tr>
+<tr id="R13"><td><span class="badge R">R13</span></td><td><div class="lname">Floating resistance spiral</div><div class="path"><span class="nd">A4</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S12</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol neg">−</span> <span class="nd">A4</span></div><div class="small muted">4 nodes · 2 negative links</div></td><td class="small">1) Resistance slows reclamation. 2) Land competition rises. 3) Floating options gain interest. 4) Floating projects provoke more resistance.</td><td class="small">Every alternative to land creation brings its own ecological conflict.</td></tr>
+<tr id="R14"><td><span class="badge R">R14</span></td><td><div class="lname">Automation-logistics flywheel</div><div class="path"><span class="nd">A2</span><span class="pol neg">−</span> <span class="nd">S3</span><span class="pol pos">+</span> <span class="nd">S4</span><span class="pol pos">+</span> <span class="nd">A6</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">A2</span></div><div class="small muted">5 nodes · 2 negative links</div></td><td class="small">1) Smart kerbs ease path pressure. 2) Robots expand. 3) Multi-agent delivery scales. 4) Hub and kerb demand rises. 5) More kerb dynamism follows.</td><td class="small">Logistics automation and kerb reform co-evolve. They need joint LTA, URA and IMDA governance.</td></tr>
+<tr id="R15"><td><span class="badge R">R15</span></td><td><div class="lname">Five-node land-water spiral</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S19</span><span class="pol pos">+</span> <span class="nd">S12</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol pos">+</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">A4</span></div><div class="small muted">5 nodes · 0 negative links</div></td><td class="small">1) Sand pressure promotes floating builds. 2) Marine resistance follows. 3) Contested sites raise land pressure. 4) More reclamation is sought. 5) Sand pressure rises again.</td><td class="small">Supply, ecology and scarcity are coupled. A single shock, such as a new export ban, spreads through all of them.</td></tr>
+<tr id="R16"><td><span class="badge R">R16</span></td><td><div class="lname">Five-node substitution spiral</div><div class="path"><span class="nd">A4</span><span class="pol pos">+</span> <span class="nd">S19</span><span class="pol pos">+</span> <span class="nd">S12</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S24</span><span class="pol neg">−</span> <span class="nd">A4</span></div><div class="small muted">5 nodes · 2 negative links</div></td><td class="small">1) Sand pressure promotes floating builds. 2) Land competition eases. 3) Fewer contested sites mean less resistance. 4) Reclamation proceeds. 5) Sand demand returns.</td><td class="small">A loop in which relief is temporary: easing scarcity re-opens the reclamation pathway.</td></tr>
+<tr id="R17"><td><span class="badge R">R17</span></td><td><div class="lname">Long automation-heritage loop</div><div class="path"><span class="nd">A2</span><span class="pol neg">−</span> <span class="nd">S3</span><span class="pol pos">+</span> <span class="nd">S25</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S2</span><span class="pol pos">+</span> <span class="nd">S15</span><span class="pol pos">+</span> <span class="nd">A2</span></div><div class="small muted">7 nodes · 2 negative links</div></td><td class="small">1) Smart kerbs ease land scarcity. 2) Heritage and tourism pressure moderate. 3) Street crowding falls, relaxing robot limits. 4) More robots and sensors enable smarter kerbs.</td><td class="small">A weak, slow loop showing that heritage districts are part of the automation question.</td></tr>
+<tr id="R18"><td><span class="badge R">R18</span></td><td><div class="lname">Long logistics-heritage loop</div><div class="path"><span class="nd">A2</span><span class="pol neg">−</span> <span class="nd">S3</span><span class="pol pos">+</span> <span class="nd">S4</span><span class="pol pos">+</span> <span class="nd">A6</span><span class="pol pos">+</span> <span class="nd">S14</span><span class="pol neg">−</span> <span class="nd">S9</span><span class="pol pos">+</span> <span class="nd">S2</span><span class="pol pos">+</span> <span class="nd">S15</span><span class="pol pos">+</span> <span class="nd">A2</span></div><div class="small muted">8 nodes · 2 negative links</div></td><td class="small">1) Land relief moderates heritage tourism. 2) Less crowding allows more robots. 3) Multi-agent delivery scales. 4) Kerb demand rises, driving more kerb dynamism.</td><td class="small">Indirect coupling; treat as a secondary dynamic.</td></tr></tbody></table></div>
+</section>
+
+<section>
+  <h2><span class="no">04</span>Driving force matrix & ranking</h2>
+  <div class="formula">
+    <div>Impact_raw = loops the node is in (R + B) + out-degree</div>
+    <div>Uncertainty_raw = 0.5 × (in-degree ÷ max in-degree × 5) + 0.5 × volatility</div>
+    <div>Volatility = signal strength (Happening Now/Strong 1.0 · Emerging 2.5 · Weak 4.0 · Black Jellyfish/Swan/Unconfirmed 5.0), +1.0 if upstream links have conflicting polarities (cap 5)</div>
+    <div>Both scores are min–max normalised to 1–5 across the 25 signals. Quadrant split at 3.0.</div>
+  </div>
+  <div class="panel scroll" style="padding:12px"><svg viewBox="0 0 640 500" role="img" aria-label="Driving force matrix: impact against uncertainty" style="width:100%;min-width:520px;display:block">
+<rect x="338.0" y="18" width="282.0" height="200.0" fill="var(--crit-t)"/>
+<rect x="56" y="18" width="282.0" height="200.0" fill="var(--wild-t)"/>
+<rect x="338.0" y="218.0" width="282.0" height="200.0" fill="var(--mega-t)"/>
+<rect x="56" y="218.0" width="282.0" height="200.0" fill="var(--back-t)"/>
+<line x1="56.0" x2="56.0" y1="18" y2="418" stroke="var(--line)" stroke-dasharray="2 4"/>
+<line x1="56" x2="620" y1="418.0" y2="418.0" stroke="var(--line)" stroke-dasharray="2 4"/>
+<text x="56.0" y="434" text-anchor="middle" class="ax">1.0</text>
+<text x="48" y="422.0" text-anchor="end" class="ax">1.0</text>
+<line x1="197.0" x2="197.0" y1="18" y2="418" stroke="var(--line)" stroke-dasharray="2 4"/>
+<line x1="56" x2="620" y1="318.0" y2="318.0" stroke="var(--line)" stroke-dasharray="2 4"/>
+<text x="197.0" y="434" text-anchor="middle" class="ax">2.0</text>
+<text x="48" y="322.0" text-anchor="end" class="ax">2.0</text>
+<line x1="338.0" x2="338.0" y1="18" y2="418" stroke="var(--line)"/>
+<line x1="56" x2="620" y1="218.0" y2="218.0" stroke="var(--line)"/>
+<text x="338.0" y="434" text-anchor="middle" class="ax">3.0</text>
+<text x="48" y="222.0" text-anchor="end" class="ax">3.0</text>
+<line x1="479.0" x2="479.0" y1="18" y2="418" stroke="var(--line)" stroke-dasharray="2 4"/>
+<line x1="56" x2="620" y1="118.0" y2="118.0" stroke="var(--line)" stroke-dasharray="2 4"/>
+<text x="479.0" y="434" text-anchor="middle" class="ax">4.0</text>
+<text x="48" y="122.0" text-anchor="end" class="ax">4.0</text>
+<line x1="620.0" x2="620.0" y1="18" y2="418" stroke="var(--line)" stroke-dasharray="2 4"/>
+<line x1="56" x2="620" y1="18.0" y2="18.0" stroke="var(--line)" stroke-dasharray="2 4"/>
+<text x="620.0" y="434" text-anchor="middle" class="ax">5.0</text>
+<text x="48" y="22.0" text-anchor="end" class="ax">5.0</text>
+<line x1="338.0" x2="338.0" y1="18" y2="418" stroke="var(--muted)"/>
+<line x1="56" x2="620" y1="218.0" y2="218.0" stroke="var(--muted)"/>
+<text x="612" y="36" text-anchor="end" class="ql" fill="var(--crit)">High impact · High uncertainty</text>
+<text x="64" y="36" class="ql" fill="var(--wild)">Low impact · High uncertainty</text>
+<text x="612" y="408" text-anchor="end" class="ql" fill="var(--mega)">High impact · Low uncertainty</text>
+<text x="64" y="408" class="ql" fill="var(--back)">Low impact · Low uncertainty</text>
+<text x="338.0" y="492" text-anchor="middle" class="axl">Impact (loops + out-degree) →</text>
+<text transform="translate(14 218.0) rotate(-90)" text-anchor="middle" class="axl">Uncertainty (in-degree + volatility) →</text>
+<g><title>S14: Dynamically allocated kerbside (I 3.43, U 5.00)</title><circle cx="398.6" cy="18.0" r="5.5" fill="var(--crit)" stroke="var(--surface)" stroke-width="1.5"/><text x="398.6" y="7.0" text-anchor="middle" class="dl">S14</text></g>
+<g><title>S17: Walkability vs usability gap (I 1.52, U 4.64)</title><circle cx="129.3" cy="54.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="129.3" y="43.0" text-anchor="middle" class="dl">S17</text></g>
+<g><title>S12: Floating &amp; amphibious development (I 2.91, U 4.45)</title><circle cx="325.3" cy="73.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="325.3" y="62.0" text-anchor="middle" class="dl">S12</text></g>
+<g><title>S9: Competition for limited urban land (I 5.00, U 4.27)</title><circle cx="620.0" cy="91.0" r="5.5" fill="var(--crit)" stroke="var(--surface)" stroke-width="1.5"/><text x="620.0" y="80.0" text-anchor="middle" class="dl">S9</text></g>
+<g><title>S20: Ground-stability risk on reclaimed land (I 1.35, U 4.09)</title><circle cx="105.4" cy="109.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="105.4" y="98.0" text-anchor="middle" class="dl">S20</text></g>
+<g><title>S2: Demand for community-centred urban character (I 2.39, U 4.09)</title><circle cx="252.0" cy="109.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="252.0" y="98.0" text-anchor="middle" class="dl">S2</text></g>
+<g><title>S19: Reclamation sand supply &amp; cost pressure (I 2.57, U 4.09)</title><circle cx="277.4" cy="109.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="277.4" y="86.0" text-anchor="middle" class="dl">S19</text></g>
+<g><title>S4: Human-robot-drone delivery systems (I 1.70, U 3.64)</title><circle cx="154.7" cy="154.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="154.7" y="143.0" text-anchor="middle" class="dl">S4</text></g>
+<g><title>S23: On-demand AVs alongside fixed routes (I 1.87, U 3.64)</title><circle cx="178.7" cy="154.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="178.7" y="131.0" text-anchor="middle" class="dl">S23</text></g>
+<g><title>S16: Places of worship as care spaces (I 1.35, U 3.55)</title><circle cx="105.4" cy="163.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="105.4" y="128.0" text-anchor="middle" class="dl">S16</text></g>
+<g><title>S13: Home care robot subsidies (I 1.52, U 3.55)</title><circle cx="129.3" cy="163.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="129.3" y="116.0" text-anchor="middle" class="dl">S13</text></g>
+<g><title>S22: Homes as care platforms (I 1.52, U 3.55)</title><circle cx="129.3" cy="163.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="129.3" y="80.0" text-anchor="middle" class="dl">S22</text></g>
+<g><title>S3: Service robots on shared paths (I 2.39, U 3.27)</title><circle cx="252.0" cy="191.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="252.0" y="180.0" text-anchor="middle" class="dl">S3</text></g>
+<g><title>S24: Resistance to ecological trade-offs (I 3.43, U 3.18)</title><circle cx="398.6" cy="200.0" r="5.5" fill="var(--crit)" stroke="var(--surface)" stroke-width="1.5"/><text x="398.6" y="189.0" text-anchor="middle" class="dl">S24</text></g>
+<g><title>S1: Youth loneliness &amp; isolation (I 1.17, U 3.09)</title><circle cx="80.0" cy="209.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="80.0" y="198.0" text-anchor="middle" class="dl">S1</text></g>
+<g><title>S18: Alternative reclamation methods (I 1.52, U 3.09)</title><circle cx="129.3" cy="209.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="129.3" y="186.0" text-anchor="middle" class="dl">S18</text></g>
+<g><title>S15: Heritage tourism crowding (I 2.04, U 3.09)</title><circle cx="202.6" cy="209.0" r="5.5" fill="var(--wild)" stroke="var(--surface)" stroke-width="1.5"/><text x="202.6" y="198.0" text-anchor="middle" class="dl">S15</text></g>
+<g><title>S5: Mobility corridors gain social functions (I 1.35, U 2.73)</title><circle cx="105.4" cy="245.0" r="5.5" fill="var(--back)" stroke="var(--surface)" stroke-width="1.5"/><text x="105.4" y="234.0" text-anchor="middle" class="dl">S5</text></g>
+<g><title>S25: Sensor-enabled spaces reduce anonymity (I 1.70, U 2.36)</title><circle cx="154.7" cy="282.0" r="5.5" fill="var(--back)" stroke="var(--surface)" stroke-width="1.5"/><text x="154.7" y="271.0" text-anchor="middle" class="dl">S25</text></g>
+<g><title>S21: Companion robots in care institutions (I 1.00, U 2.27)</title><circle cx="56.0" cy="291.0" r="5.5" fill="var(--back)" stroke="var(--surface)" stroke-width="1.5"/><text x="56.0" y="280.0" text-anchor="middle" class="dl">S21</text></g>
+<g><title>S7: Extreme weather disrupts first-last mile (I 1.17, U 2.27)</title><circle cx="80.0" cy="291.0" r="5.5" fill="var(--back)" stroke="var(--surface)" stroke-width="1.5"/><text x="80.0" y="268.0" text-anchor="middle" class="dl">S7</text></g>
+<g><title>S11: Active Ageing Centre expansion (I 1.52, U 1.91)</title><circle cx="129.3" cy="327.0" r="5.5" fill="var(--back)" stroke="var(--surface)" stroke-width="1.5"/><text x="129.3" y="316.0" text-anchor="middle" class="dl">S11</text></g>
+<g><title>S6: Rising heat on outdoor gathering (I 1.35, U 1.82)</title><circle cx="105.4" cy="336.0" r="5.5" fill="var(--back)" stroke="var(--surface)" stroke-width="1.5"/><text x="105.4" y="301.0" text-anchor="middle" class="dl">S6</text></g>
+<g><title>S8: Limited late-night low-cost gathering access (I 1.17, U 1.45)</title><circle cx="80.0" cy="373.0" r="5.5" fill="var(--back)" stroke="var(--surface)" stroke-width="1.5"/><text x="80.0" y="362.0" text-anchor="middle" class="dl">S8</text></g>
+<g><title>S10: Population ageing (I 1.87, U 1.00)</title><circle cx="178.7" cy="418.0" r="5.5" fill="var(--back)" stroke="var(--surface)" stroke-width="1.5"/><text x="178.7" y="407.0" text-anchor="middle" class="dl">S10</text></g>
+</svg></div>
+  <div class="panel scroll"><table style="min-width:860px">
+    <thead><tr><th class="r">#</th><th>Signal</th><th class="r">Loops</th><th class="r">R/B</th><th class="r">Out</th><th class="r">In</th><th class="r">Volatility</th><th class="r">Impact</th><th class="r">Uncertainty</th><th>Quadrant</th></tr></thead>
+    <tbody><tr><td class="mono r">1</td><td><span class="mono muted">S9</span> Competition for limited urban land</td><td class="mono r">18</td><td class="mono r">10/8</td><td class="mono r">6</td><td class="mono r">6</td><td class="mono r">1.0+1</td><td class="mono r strong">5.00</td><td class="mono r strong">4.27</td><td><span class="q" style="color:var(--crit)">High I / High U</span></td></tr>
+<tr><td class="mono r">2</td><td><span class="mono muted">S14</span> Dynamically allocated kerbside</td><td class="mono r">11</td><td class="mono r">6/5</td><td class="mono r">4</td><td class="mono r">4</td><td class="mono r">5.0</td><td class="mono r strong">3.43</td><td class="mono r strong">5.00</td><td><span class="q" style="color:var(--crit)">High I / High U</span></td></tr>
+<tr><td class="mono r">3</td><td><span class="mono muted">S12</span> Floating &amp; amphibious development</td><td class="mono r">10</td><td class="mono r">5/5</td><td class="mono r">2</td><td class="mono r">4</td><td class="mono r">4.0</td><td class="mono r strong">2.91</td><td class="mono r strong">4.45</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">4</td><td><span class="mono muted">S19</span> Reclamation sand supply &amp; cost pressure</td><td class="mono r">7</td><td class="mono r">3/4</td><td class="mono r">3</td><td class="mono r">2</td><td class="mono r">5.0</td><td class="mono r strong">2.57</td><td class="mono r strong">4.09</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">5</td><td><span class="mono muted">S24</span> Resistance to ecological trade-offs</td><td class="mono r">12</td><td class="mono r">8/4</td><td class="mono r">3</td><td class="mono r">3</td><td class="mono r">2.5</td><td class="mono r strong">3.43</td><td class="mono r strong">3.18</td><td><span class="q" style="color:var(--crit)">High I / High U</span></td></tr>
+<tr><td class="mono r">6</td><td><span class="mono muted">S2</span> Demand for community-centred urban character</td><td class="mono r">6</td><td class="mono r">3/3</td><td class="mono r">3</td><td class="mono r">2</td><td class="mono r">4.0+1</td><td class="mono r strong">2.39</td><td class="mono r strong">4.09</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">7</td><td><span class="mono muted">S17</span> Walkability vs usability gap</td><td class="mono r">3</td><td class="mono r">0/3</td><td class="mono r">1</td><td class="mono r">5</td><td class="mono r">2.5+1</td><td class="mono r strong">1.52</td><td class="mono r strong">4.64</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">8</td><td><span class="mono muted">S3</span> Service robots on shared paths</td><td class="mono r">6</td><td class="mono r">5/1</td><td class="mono r">3</td><td class="mono r">2</td><td class="mono r">2.5+1</td><td class="mono r strong">2.39</td><td class="mono r strong">3.27</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">9</td><td><span class="mono muted">S23</span> On-demand AVs alongside fixed routes</td><td class="mono r">4</td><td class="mono r">1/3</td><td class="mono r">2</td><td class="mono r">4</td><td class="mono r">2.5</td><td class="mono r strong">1.87</td><td class="mono r strong">3.64</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">10</td><td><span class="mono muted">S20</span> Ground-stability risk on reclaimed land</td><td class="mono r">2</td><td class="mono r">0/2</td><td class="mono r">1</td><td class="mono r">2</td><td class="mono r">5.0</td><td class="mono r strong">1.35</td><td class="mono r strong">4.09</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">11</td><td><span class="mono muted">S4</span> Human-robot-drone delivery systems</td><td class="mono r">3</td><td class="mono r">3/0</td><td class="mono r">2</td><td class="mono r">1</td><td class="mono r">5.0</td><td class="mono r strong">1.70</td><td class="mono r strong">3.64</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">12</td><td><span class="mono muted">S15</span> Heritage tourism crowding</td><td class="mono r">5</td><td class="mono r">2/3</td><td class="mono r">2</td><td class="mono r">1</td><td class="mono r">4.0</td><td class="mono r strong">2.04</td><td class="mono r strong">3.09</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">13</td><td><span class="mono muted">S13</span> Home care robot subsidies</td><td class="mono r">2</td><td class="mono r">0/2</td><td class="mono r">2</td><td class="mono r">2</td><td class="mono r">4.0</td><td class="mono r strong">1.52</td><td class="mono r strong">3.55</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">14</td><td><span class="mono muted">S22</span> Homes as care platforms</td><td class="mono r">2</td><td class="mono r">0/2</td><td class="mono r">2</td><td class="mono r">2</td><td class="mono r">4.0</td><td class="mono r strong">1.52</td><td class="mono r strong">3.55</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">15</td><td><span class="mono muted">S16</span> Places of worship as care spaces</td><td class="mono r">1</td><td class="mono r">0/1</td><td class="mono r">2</td><td class="mono r">2</td><td class="mono r">4.0</td><td class="mono r strong">1.35</td><td class="mono r strong">3.55</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">16</td><td><span class="mono muted">S18</span> Alternative reclamation methods</td><td class="mono r">2</td><td class="mono r">1/1</td><td class="mono r">2</td><td class="mono r">1</td><td class="mono r">4.0</td><td class="mono r strong">1.52</td><td class="mono r strong">3.09</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">17</td><td><span class="mono muted">S1</span> Youth loneliness &amp; isolation</td><td class="mono r">1</td><td class="mono r">0/1</td><td class="mono r">1</td><td class="mono r">1</td><td class="mono r">4.0</td><td class="mono r strong">1.17</td><td class="mono r strong">3.09</td><td><span class="q" style="color:var(--wild)">Low I / High U</span></td></tr>
+<tr><td class="mono r">18</td><td><span class="mono muted">S5</span> Mobility corridors gain social functions</td><td class="mono r">1</td><td class="mono r">0/1</td><td class="mono r">2</td><td class="mono r">2</td><td class="mono r">2.5</td><td class="mono r strong">1.35</td><td class="mono r strong">2.73</td><td><span class="q" style="color:var(--back)">Low I / Low U</span></td></tr>
+<tr><td class="mono r">19</td><td><span class="mono muted">S25</span> Sensor-enabled spaces reduce anonymity</td><td class="mono r">3</td><td class="mono r">3/0</td><td class="mono r">2</td><td class="mono r">3</td><td class="mono r">1.0</td><td class="mono r strong">1.70</td><td class="mono r strong">2.36</td><td><span class="q" style="color:var(--back)">Low I / Low U</span></td></tr>
+<tr><td class="mono r">20</td><td><span class="mono muted">S7</span> Extreme weather disrupts first-last mile</td><td class="mono r">0</td><td class="mono r">0/0</td><td class="mono r">2</td><td class="mono r">1</td><td class="mono r">2.5</td><td class="mono r strong">1.17</td><td class="mono r strong">2.27</td><td><span class="q" style="color:var(--back)">Low I / Low U</span></td></tr>
+<tr><td class="mono r">21</td><td><span class="mono muted">S11</span> Active Ageing Centre expansion</td><td class="mono r">1</td><td class="mono r">0/1</td><td class="mono r">3</td><td class="mono r">2</td><td class="mono r">1.0</td><td class="mono r strong">1.52</td><td class="mono r strong">1.91</td><td><span class="q" style="color:var(--back)">Low I / Low U</span></td></tr>
+<tr><td class="mono r">22</td><td><span class="mono muted">S21</span> Companion robots in care institutions</td><td class="mono r">0</td><td class="mono r">0/0</td><td class="mono r">1</td><td class="mono r">1</td><td class="mono r">2.5</td><td class="mono r strong">1.00</td><td class="mono r strong">2.27</td><td><span class="q" style="color:var(--back)">Low I / Low U</span></td></tr>
+<tr><td class="mono r">23</td><td><span class="mono muted">S6</span> Rising heat on outdoor gathering</td><td class="mono r">0</td><td class="mono r">0/0</td><td class="mono r">3</td><td class="mono r">0</td><td class="mono r">2.5</td><td class="mono r strong">1.35</td><td class="mono r strong">1.82</td><td><span class="q" style="color:var(--back)">Low I / Low U</span></td></tr>
+<tr><td class="mono r">24</td><td><span class="mono muted">S10</span> Population ageing</td><td class="mono r">0</td><td class="mono r">0/0</td><td class="mono r">6</td><td class="mono r">0</td><td class="mono r">1.0</td><td class="mono r strong">1.87</td><td class="mono r strong">1.00</td><td><span class="q" style="color:var(--back)">Low I / Low U</span></td></tr>
+<tr><td class="mono r">25</td><td><span class="mono muted">S8</span> Limited late-night low-cost gathering access</td><td class="mono r">1</td><td class="mono r">1/0</td><td class="mono r">1</td><td class="mono r">1</td><td class="mono r">1.0</td><td class="mono r strong">1.17</td><td class="mono r strong">1.45</td><td><span class="q" style="color:var(--back)">Low I / Low U</span></td></tr></tbody></table></div>
+  <p class="small muted">Ranked by Impact + Uncertainty. Population ageing (S10), rising heat (S6) and late-night access (S8) score low because they are exogenous drivers. They push the system but no loop feeds back to them, and their trajectories are near-certain. Treat them as megatrends that hold across every scenario, not as unimportant.</p>
+</section>
+
+<section>
+  <h2><span class="no">05</span>Node register & causal links</h2>
+  <details>
+    <summary>Nodes (31) with evidence for auxiliary nodes</summary>
+    <div class="scroll"><table style="min-width:760px"><thead><tr><th>ID</th><th>Node</th><th>Signal strength (sheet) / evidence</th><th class="r">Out</th><th class="r">In</th><th class="r">Loops</th></tr></thead><tbody><tr><td class="mono">S1</td><td>Youth loneliness &amp; isolation</td><td class="small">Weak</td><td class="mono r">1</td><td class="mono r">1</td><td class="mono r">1</td></tr>
+<tr><td class="mono">S2</td><td>Demand for community-centred urban character</td><td class="small">Weak</td><td class="mono r">3</td><td class="mono r">2</td><td class="mono r">6</td></tr>
+<tr><td class="mono">S3</td><td>Service robots on shared paths</td><td class="small">Emerging</td><td class="mono r">3</td><td class="mono r">2</td><td class="mono r">6</td></tr>
+<tr><td class="mono">S4</td><td>Human-robot-drone delivery systems</td><td class="small">Black Jellyfish</td><td class="mono r">2</td><td class="mono r">1</td><td class="mono r">3</td></tr>
+<tr><td class="mono">S5</td><td>Mobility corridors gain social functions</td><td class="small">Emerging</td><td class="mono r">2</td><td class="mono r">2</td><td class="mono r">1</td></tr>
+<tr><td class="mono">S6</td><td>Rising heat on outdoor gathering</td><td class="small">Black Elephant (status: Emerging)</td><td class="mono r">3</td><td class="mono r">0</td><td class="mono r">0</td></tr>
+<tr><td class="mono">S7</td><td>Extreme weather disrupts first-last mile</td><td class="small">Emerging</td><td class="mono r">2</td><td class="mono r">1</td><td class="mono r">0</td></tr>
+<tr><td class="mono">S8</td><td>Limited late-night low-cost gathering access</td><td class="small">Happening now</td><td class="mono r">1</td><td class="mono r">1</td><td class="mono r">1</td></tr>
+<tr><td class="mono">S9</td><td>Competition for limited urban land</td><td class="small">Strong</td><td class="mono r">6</td><td class="mono r">6</td><td class="mono r">18</td></tr>
+<tr><td class="mono">S10</td><td>Population ageing</td><td class="small">Happening now</td><td class="mono r">6</td><td class="mono r">0</td><td class="mono r">0</td></tr>
+<tr><td class="mono">S11</td><td>Active Ageing Centre expansion</td><td class="small">(blank) status: Happening Now</td><td class="mono r">3</td><td class="mono r">2</td><td class="mono r">1</td></tr>
+<tr><td class="mono">S12</td><td>Floating &amp; amphibious development</td><td class="small">Weak (conditional)</td><td class="mono r">2</td><td class="mono r">4</td><td class="mono r">10</td></tr>
+<tr><td class="mono">S13</td><td>Home care robot subsidies</td><td class="small">Weak</td><td class="mono r">2</td><td class="mono r">2</td><td class="mono r">2</td></tr>
+<tr><td class="mono">S14</td><td>Dynamically allocated kerbside</td><td class="small">Black Jellyfish</td><td class="mono r">4</td><td class="mono r">4</td><td class="mono r">11</td></tr>
+<tr><td class="mono">S15</td><td>Heritage tourism crowding</td><td class="small">Weak</td><td class="mono r">2</td><td class="mono r">1</td><td class="mono r">5</td></tr>
+<tr><td class="mono">S16</td><td>Places of worship as care spaces</td><td class="small">Weak</td><td class="mono r">2</td><td class="mono r">2</td><td class="mono r">1</td></tr>
+<tr><td class="mono">S17</td><td>Walkability vs usability gap</td><td class="small">Emerging</td><td class="mono r">1</td><td class="mono r">5</td><td class="mono r">3</td></tr>
+<tr><td class="mono">S18</td><td>Alternative reclamation methods</td><td class="small">Weak (conditional)</td><td class="mono r">2</td><td class="mono r">1</td><td class="mono r">2</td></tr>
+<tr><td class="mono">S19</td><td>Reclamation sand supply &amp; cost pressure</td><td class="small">Unconfirmed</td><td class="mono r">3</td><td class="mono r">2</td><td class="mono r">7</td></tr>
+<tr><td class="mono">S20</td><td>Ground-stability risk on reclaimed land</td><td class="small">Black Swan</td><td class="mono r">1</td><td class="mono r">2</td><td class="mono r">2</td></tr>
+<tr><td class="mono">S21</td><td>Companion robots in care institutions</td><td class="small">Emerging</td><td class="mono r">1</td><td class="mono r">1</td><td class="mono r">0</td></tr>
+<tr><td class="mono">S22</td><td>Homes as care platforms</td><td class="small">Weak</td><td class="mono r">2</td><td class="mono r">2</td><td class="mono r">2</td></tr>
+<tr><td class="mono">S23</td><td>On-demand AVs alongside fixed routes</td><td class="small">Emerging</td><td class="mono r">2</td><td class="mono r">4</td><td class="mono r">4</td></tr>
+<tr><td class="mono">S24</td><td>Resistance to ecological trade-offs</td><td class="small">Emerging</td><td class="mono r">3</td><td class="mono r">3</td><td class="mono r">12</td></tr>
+<tr><td class="mono">S25</td><td>Sensor-enabled spaces reduce anonymity</td><td class="small">(blank) status: Happening Now</td><td class="mono r">2</td><td class="mono r">3</td><td class="mono r">3</td></tr>
+<tr><td class="mono">A1</td><td>Open-access third-space supply</td><td class="small">Bridges S1, S8, S16, S2: the sheet rows describe free/low-cost third spaces (IPS 2024 poll on youth loneliness; early library/CC closures; MUIS prayer-and-care pilot).</td><td class="mono r">2</td><td class="mono r">9</td><td class="mono r">2</td></tr>
+<tr><td class="mono">A2</td><td>Shared path &amp; street space pressure</td><td class="small">Bridges S3, S4, S5, S15: sheet rows report competition and right-of-way conflict on shared paths (EDB/IMDA PDD robot testbed 2026; Yuen et al. 2024).</td><td class="mono r">4</td><td class="mono r">4</td><td class="mono r">10</td></tr>
+<tr><td class="mono">A3</td><td>Seniors living alone / unattended-death risk</td><td class="small">MOH: about 87,000 residents aged 65+ lived alone in 2024; MOH now tracks seniors who die alone at home (source cited in S13 row).</td><td class="mono r">4</td><td class="mono r">5</td><td class="mono r">5</td></tr>
+<tr><td class="mono">A4</td><td>New land creation by reclamation</td><td class="small">S9 row: Greater Southern Waterfront and east-coast reclamation in URA Master Plan 2025; S21/S22 rows: reliance on imported fill.</td><td class="mono r">4</td><td class="mono r">5</td><td class="mono r">14</td></tr>
+<tr><td class="mono">A5</td><td>Sea-level rise &amp; coastal flood exposure</td><td class="small">Third National Climate Change Study (V3, 2024): mean sea level may rise up to 1.15 m by 2100; PUB raised minimum platform level for new reclamation from 3 m to 4 m above mean sea level in 2011.</td><td class="mono r">3</td><td class="mono r">0</td><td class="mono r">0</td></tr>
+<tr><td class="mono">A6</td><td>Kerbside pick-up/drop-off (PUDO) demand</td><td class="small">S23 row: Grab &amp; WeRide on-demand AVs in Punggol (July 2026) operate between designated PUDO points; S17 row flags kerb conflicts.</td><td class="mono r">1</td><td class="mono r">2</td><td class="mono r">5</td></tr></tbody></table></div>
+  </details>
+  <details>
+    <summary>Causal links (79) with polarity and rationale</summary>
+    <div class="scroll"><table style="min-width:860px"><thead><tr><th>From</th><th>±</th><th>To</th><th>Variables</th><th>Rationale</th></tr></thead><tbody><tr><td class="mono">S10</td><td class="mono pol pos">+</td><td class="mono">S11</td><td class="small">Population ageing → Active Ageing Centre expansion</td><td class="small">More older residents drives AAC network growth (223 centres by Apr 2025).</td></tr>
+<tr><td class="mono">S10</td><td class="mono pol pos">+</td><td class="mono">A3</td><td class="small">Population ageing → Seniors living alone / unattended-death risk</td><td class="small">Ageing raises the number of seniors living alone.</td></tr>
+<tr><td class="mono">S10</td><td class="mono pol pos">+</td><td class="mono">S17</td><td class="small">Population ageing → Walkability vs usability gap</td><td class="small">More older users exposes the gap between distance-based walkability and real usability.</td></tr>
+<tr><td class="mono">S10</td><td class="mono pol pos">+</td><td class="mono">S16</td><td class="small">Population ageing → Places of worship as care spaces</td><td class="small">Rising care demand pulls faith premises into senior care.</td></tr>
+<tr><td class="mono">S10</td><td class="mono pol pos">+</td><td class="mono">S21</td><td class="small">Population ageing → Companion robots in care institutions</td><td class="small">Care-home demand drives MOH robot adoption trials.</td></tr>
+<tr><td class="mono">S10</td><td class="mono pol pos">+</td><td class="mono">S23</td><td class="small">Population ageing → On-demand AVs alongside fixed routes</td><td class="small">On-demand AVs pitched as improving access for older adults.</td></tr>
+<tr><td class="mono">A3</td><td class="mono pol pos">+</td><td class="mono">S13</td><td class="small">Seniors living alone / unattended-death risk → Home care robot subsidies</td><td class="small">Unattended deaths prompted the July 2026 parliamentary question on robot subsidies.</td></tr>
+<tr><td class="mono">A3</td><td class="mono pol pos">+</td><td class="mono">S22</td><td class="small">Seniors living alone / unattended-death risk → Homes as care platforms</td><td class="small">Stay-alone seniors are the target users of home care-platform retrofits.</td></tr>
+<tr><td class="mono">S13</td><td class="mono pol neg">−</td><td class="mono">A3</td><td class="small">Home care robot subsidies → Seniors living alone / unattended-death risk</td><td class="small">In-home monitoring robots reduce undetected-death risk.</td></tr>
+<tr><td class="mono">S22</td><td class="mono pol neg">−</td><td class="mono">A3</td><td class="small">Homes as care platforms → Seniors living alone / unattended-death risk</td><td class="small">Remote family/health connection reduces isolation risk.</td></tr>
+<tr><td class="mono">S11</td><td class="mono pol neg">−</td><td class="mono">A3</td><td class="small">Active Ageing Centre expansion → Seniors living alone / unattended-death risk</td><td class="small">AAC outreach and befriending reduce isolation (MOH).</td></tr>
+<tr><td class="mono">S16</td><td class="mono pol neg">−</td><td class="mono">A3</td><td class="small">Places of worship as care spaces → Seniors living alone / unattended-death risk</td><td class="small">Trusted faith hosts reduce senior isolation.</td></tr>
+<tr><td class="mono">S21</td><td class="mono pol pos">+</td><td class="mono">S13</td><td class="small">Companion robots in care institutions → Home care robot subsidies</td><td class="small">Institutional trials build the evidence base for home-robot subsidies.</td></tr>
+<tr><td class="mono">S13</td><td class="mono pol pos">+</td><td class="mono">S22</td><td class="small">Home care robot subsidies → Homes as care platforms</td><td class="small">Subsidised robots accelerate home care-platform adoption.</td></tr>
+<tr><td class="mono">S22</td><td class="mono pol pos">+</td><td class="mono">S25</td><td class="small">Homes as care platforms → Sensor-enabled spaces reduce anonymity</td><td class="small">Care platforms add sensors and monitoring to homes.</td></tr>
+<tr><td class="mono">S11</td><td class="mono pol pos">+</td><td class="mono">S9</td><td class="small">Active Ageing Centre expansion → Competition for limited urban land</td><td class="small">AACs claim scarce heartland/void-deck floor space.</td></tr>
+<tr><td class="mono">S11</td><td class="mono pol pos">+</td><td class="mono">A1</td><td class="small">Active Ageing Centre expansion → Open-access third-space supply</td><td class="small">AACs function as neighbourhood living rooms (senior third space).</td></tr>
+<tr><td class="mono">S16</td><td class="mono pol pos">+</td><td class="mono">A1</td><td class="small">Places of worship as care spaces → Open-access third-space supply</td><td class="small">Faith premises add third spaces without new land.</td></tr>
+<tr><td class="mono">A1</td><td class="mono pol neg">−</td><td class="mono">S1</td><td class="small">Open-access third-space supply → Youth loneliness &amp; isolation</td><td class="small">More open, low-cost lingering space reduces youth isolation.</td></tr>
+<tr><td class="mono">S1</td><td class="mono pol pos">+</td><td class="mono">A1</td><td class="small">Youth loneliness &amp; isolation → Open-access third-space supply</td><td class="small">Recognised youth loneliness drives ground-up youth spaces (sheet impact).</td></tr>
+<tr><td class="mono">S8</td><td class="mono pol neg">−</td><td class="mono">A1</td><td class="small">Limited late-night low-cost gathering access → Open-access third-space supply</td><td class="small">Early closures cut effective third-space supply.</td></tr>
+<tr><td class="mono">S9</td><td class="mono pol neg">−</td><td class="mono">A1</td><td class="small">Competition for limited urban land → Open-access third-space supply</td><td class="small">Land competition squeezes free community space.</td></tr>
+<tr><td class="mono">S6</td><td class="mono pol neg">−</td><td class="mono">A1</td><td class="small">Rising heat on outdoor gathering → Open-access third-space supply</td><td class="small">Heat makes outdoor gathering space unusable in daytime.</td></tr>
+<tr><td class="mono">S25</td><td class="mono pol neg">−</td><td class="mono">A1</td><td class="small">Sensor-enabled spaces reduce anonymity → Open-access third-space supply</td><td class="small">Monitored spaces deter candid lingering.</td></tr>
+<tr><td class="mono">S5</td><td class="mono pol pos">+</td><td class="mono">A1</td><td class="small">Mobility corridors gain social functions → Open-access third-space supply</td><td class="small">Corridors and hubs used as social space add third-space supply.</td></tr>
+<tr><td class="mono">S2</td><td class="mono pol pos">+</td><td class="mono">A1</td><td class="small">Demand for community-centred urban character → Open-access third-space supply</td><td class="small">Community-centred planning adds gathering places.</td></tr>
+<tr><td class="mono">S3</td><td class="mono pol pos">+</td><td class="mono">A2</td><td class="small">Service robots on shared paths → Shared path &amp; street space pressure</td><td class="small">Robots become a new class of path user.</td></tr>
+<tr><td class="mono">S4</td><td class="mono pol pos">+</td><td class="mono">S3</td><td class="small">Human-robot-drone delivery systems → Service robots on shared paths</td><td class="small">Multi-agent delivery puts more robots on paths.</td></tr>
+<tr><td class="mono">S4</td><td class="mono pol pos">+</td><td class="mono">A6</td><td class="small">Human-robot-drone delivery systems → Kerbside pick-up/drop-off (PUDO) demand</td><td class="small">Hub handovers and loading add kerb demand.</td></tr>
+<tr><td class="mono">S5</td><td class="mono pol pos">+</td><td class="mono">A2</td><td class="small">Mobility corridors gain social functions → Shared path &amp; street space pressure</td><td class="small">Benches/play reduce movement capacity of paths.</td></tr>
+<tr><td class="mono">S15</td><td class="mono pol pos">+</td><td class="mono">A2</td><td class="small">Heritage tourism crowding → Shared path &amp; street space pressure</td><td class="small">Visitor crowding on narrow heritage streets.</td></tr>
+<tr><td class="mono">A2</td><td class="mono pol pos">+</td><td class="mono">S17</td><td class="small">Shared path &amp; street space pressure → Walkability vs usability gap</td><td class="small">Path friction worsens usability for older adults and PWDs.</td></tr>
+<tr><td class="mono">A2</td><td class="mono pol pos">+</td><td class="mono">S14</td><td class="small">Shared path &amp; street space pressure → Dynamically allocated kerbside</td><td class="small">Pressure on fixed space drives time-based allocation.</td></tr>
+<tr><td class="mono">S14</td><td class="mono pol neg">−</td><td class="mono">A2</td><td class="small">Dynamically allocated kerbside → Shared path &amp; street space pressure</td><td class="small">Dynamic allocation relieves conflicts on shared space.</td></tr>
+<tr><td class="mono">A2</td><td class="mono pol neg">−</td><td class="mono">S5</td><td class="small">Shared path &amp; street space pressure → Mobility corridors gain social functions</td><td class="small">Congested paths leave less room for social uses.</td></tr>
+<tr><td class="mono">S23</td><td class="mono pol pos">+</td><td class="mono">A6</td><td class="small">On-demand AVs alongside fixed routes → Kerbside pick-up/drop-off (PUDO) demand</td><td class="small">On-demand AVs need more PUDO points.</td></tr>
+<tr><td class="mono">A6</td><td class="mono pol pos">+</td><td class="mono">S14</td><td class="small">Kerbside pick-up/drop-off (PUDO) demand → Dynamically allocated kerbside</td><td class="small">PUDO demand makes fixed kerb functions unsustainable.</td></tr>
+<tr><td class="mono">S14</td><td class="mono pol pos">+</td><td class="mono">S23</td><td class="small">Dynamically allocated kerbside → On-demand AVs alongside fixed routes</td><td class="small">Bookable kerbs make PUDO-based AV service viable.</td></tr>
+<tr><td class="mono">S14</td><td class="mono pol pos">+</td><td class="mono">S25</td><td class="small">Dynamically allocated kerbside → Sensor-enabled spaces reduce anonymity</td><td class="small">Smart kerbs rely on cameras and data for enforcement.</td></tr>
+<tr><td class="mono">S3</td><td class="mono pol pos">+</td><td class="mono">S25</td><td class="small">Service robots on shared paths → Sensor-enabled spaces reduce anonymity</td><td class="small">Patrol robots carry cameras into public space.</td></tr>
+<tr><td class="mono">S9</td><td class="mono pol pos">+</td><td class="mono">S14</td><td class="small">Competition for limited urban land → Dynamically allocated kerbside</td><td class="small">Scarce land pushes multi-use kerbs.</td></tr>
+<tr><td class="mono">S14</td><td class="mono pol neg">−</td><td class="mono">S9</td><td class="small">Dynamically allocated kerbside → Competition for limited urban land</td><td class="small">Time-shared kerbs free land for other uses.</td></tr>
+<tr><td class="mono">S17</td><td class="mono pol pos">+</td><td class="mono">S23</td><td class="small">Walkability vs usability gap → On-demand AVs alongside fixed routes</td><td class="small">Unusable walking routes push demand for door-to-door AVs.</td></tr>
+<tr><td class="mono">S23</td><td class="mono pol neg">−</td><td class="mono">S17</td><td class="small">On-demand AVs alongside fixed routes → Walkability vs usability gap</td><td class="small">On-demand AVs close access gaps for older adults.</td></tr>
+<tr><td class="mono">S6</td><td class="mono pol pos">+</td><td class="mono">S17</td><td class="small">Rising heat on outdoor gathering → Walkability vs usability gap</td><td class="small">Thermal discomfort widens the usability gap.</td></tr>
+<tr><td class="mono">S7</td><td class="mono pol pos">+</td><td class="mono">S17</td><td class="small">Extreme weather disrupts first-last mile → Walkability vs usability gap</td><td class="small">Storms make short routes temporarily unusable.</td></tr>
+<tr><td class="mono">S6</td><td class="mono pol neg">−</td><td class="mono">S5</td><td class="small">Rising heat on outdoor gathering → Mobility corridors gain social functions</td><td class="small">Heat suppresses daytime social use of corridors.</td></tr>
+<tr><td class="mono">S7</td><td class="mono pol pos">+</td><td class="mono">S23</td><td class="small">Extreme weather disrupts first-last mile → On-demand AVs alongside fixed routes</td><td class="small">Bad weather shifts trips to motorised modes.</td></tr>
+<tr><td class="mono">S9</td><td class="mono pol pos">+</td><td class="mono">A4</td><td class="small">Competition for limited urban land → New land creation by reclamation</td><td class="small">Land pressure drives reclamation (GSW, east coast).</td></tr>
+<tr><td class="mono">A4</td><td class="mono pol neg">−</td><td class="mono">S9</td><td class="small">New land creation by reclamation → Competition for limited urban land</td><td class="small">New land eases competition.</td></tr>
+<tr><td class="mono">A4</td><td class="mono pol pos">+</td><td class="mono">S19</td><td class="small">New land creation by reclamation → Reclamation sand supply &amp; cost pressure</td><td class="small">More reclamation raises fill demand and cost exposure.</td></tr>
+<tr><td class="mono">S19</td><td class="mono pol neg">−</td><td class="mono">A4</td><td class="small">Reclamation sand supply &amp; cost pressure → New land creation by reclamation</td><td class="small">Sand constraints slow or shrink reclamation.</td></tr>
+<tr><td class="mono">S19</td><td class="mono pol pos">+</td><td class="mono">S18</td><td class="small">Reclamation sand supply &amp; cost pressure → Alternative reclamation methods</td><td class="small">Supply risk drives sand-free methods (polders, recycled fill).</td></tr>
+<tr><td class="mono">S18</td><td class="mono pol pos">+</td><td class="mono">A4</td><td class="small">Alternative reclamation methods → New land creation by reclamation</td><td class="small">Alternative methods sustain land creation.</td></tr>
+<tr><td class="mono">S18</td><td class="mono pol pos">+</td><td class="mono">S20</td><td class="small">Alternative reclamation methods → Ground-stability risk on reclaimed land</td><td class="small">Newer methods have shorter performance records.</td></tr>
+<tr><td class="mono">A4</td><td class="mono pol pos">+</td><td class="mono">S20</td><td class="small">New land creation by reclamation → Ground-stability risk on reclaimed land</td><td class="small">More reclaimed sites, more settlement exposure.</td></tr>
+<tr><td class="mono">S20</td><td class="mono pol neg">−</td><td class="mono">A4</td><td class="small">Ground-stability risk on reclaimed land → New land creation by reclamation</td><td class="small">Stability risk constrains development on reclaimed sites.</td></tr>
+<tr><td class="mono">A5</td><td class="mono pol pos">+</td><td class="mono">S19</td><td class="small">Sea-level rise &amp; coastal flood exposure → Reclamation sand supply &amp; cost pressure</td><td class="small">Higher platform levels (4 m) need more fill per hectare.</td></tr>
+<tr><td class="mono">A5</td><td class="mono pol pos">+</td><td class="mono">S12</td><td class="small">Sea-level rise &amp; coastal flood exposure → Floating &amp; amphibious development</td><td class="small">Flood exposure raises interest in amphibious design.</td></tr>
+<tr><td class="mono">A5</td><td class="mono pol pos">+</td><td class="mono">S7</td><td class="small">Sea-level rise &amp; coastal flood exposure → Extreme weather disrupts first-last mile</td><td class="small">V3 projects more intense rainfall and flooding.</td></tr>
+<tr><td class="mono">S9</td><td class="mono pol pos">+</td><td class="mono">S12</td><td class="small">Competition for limited urban land → Floating &amp; amphibious development</td><td class="small">Land scarcity drives water-based options.</td></tr>
+<tr><td class="mono">S12</td><td class="mono pol neg">−</td><td class="mono">S9</td><td class="small">Floating &amp; amphibious development → Competition for limited urban land</td><td class="small">Floating development adds usable space.</td></tr>
+<tr><td class="mono">S19</td><td class="mono pol pos">+</td><td class="mono">S12</td><td class="small">Reclamation sand supply &amp; cost pressure → Floating &amp; amphibious development</td><td class="small">Floating builds avoid sand dependence.</td></tr>
+<tr><td class="mono">S9</td><td class="mono pol pos">+</td><td class="mono">S24</td><td class="small">Competition for limited urban land → Resistance to ecological trade-offs</td><td class="small">More sites like Maju Forest put forward for development.</td></tr>
+<tr><td class="mono">S24</td><td class="mono pol pos">+</td><td class="mono">S9</td><td class="small">Resistance to ecological trade-offs → Competition for limited urban land</td><td class="small">Contested sites remove developable land, raising pressure.</td></tr>
+<tr><td class="mono">A4</td><td class="mono pol pos">+</td><td class="mono">S24</td><td class="small">New land creation by reclamation → Resistance to ecological trade-offs</td><td class="small">Reclamation affects marine habitats.</td></tr>
+<tr><td class="mono">S24</td><td class="mono pol neg">−</td><td class="mono">A4</td><td class="small">Resistance to ecological trade-offs → New land creation by reclamation</td><td class="small">Ecological scrutiny slows reclamation.</td></tr>
+<tr><td class="mono">S24</td><td class="mono pol pos">+</td><td class="mono">S12</td><td class="small">Resistance to ecological trade-offs → Floating &amp; amphibious development</td><td class="small">Resistance to land creation raises interest in alternatives.</td></tr>
+<tr><td class="mono">S12</td><td class="mono pol pos">+</td><td class="mono">S24</td><td class="small">Floating &amp; amphibious development → Resistance to ecological trade-offs</td><td class="small">Floating structures also raise marine-habitat concerns.</td></tr>
+<tr><td class="mono">S9</td><td class="mono pol pos">+</td><td class="mono">S2</td><td class="small">Competition for limited urban land → Demand for community-centred urban character</td><td class="small">Land pressure marginalises heritage areas (sterile-city concern).</td></tr>
+<tr><td class="mono">S2</td><td class="mono pol pos">+</td><td class="mono">S9</td><td class="small">Demand for community-centred urban character → Competition for limited urban land</td><td class="small">Conserving districts removes land from redevelopment.</td></tr>
+<tr><td class="mono">S2</td><td class="mono pol pos">+</td><td class="mono">S15</td><td class="small">Demand for community-centred urban character → Heritage tourism crowding</td><td class="small">Heritage districts and UNESCO bid attract tourists.</td></tr>
+<tr><td class="mono">S15</td><td class="mono pol neg">−</td><td class="mono">S2</td><td class="small">Heritage tourism crowding → Demand for community-centred urban character</td><td class="small">Overtourism erodes local community character.</td></tr>
+<tr><td class="mono">S25</td><td class="mono pol pos">+</td><td class="mono">S14</td><td class="small">Sensor-enabled spaces reduce anonymity → Dynamically allocated kerbside</td><td class="small">Sensor and camera networks are the enabling layer for smart, time-based kerbs.</td></tr>
+<tr><td class="mono">S3</td><td class="mono pol pos">+</td><td class="mono">S4</td><td class="small">Service robots on shared paths → Human-robot-drone delivery systems</td><td class="small">Robots proven on paths make multi-agent delivery systems feasible (PDD testbed).</td></tr>
+<tr><td class="mono">A2</td><td class="mono pol neg">−</td><td class="mono">S3</td><td class="small">Shared path &amp; street space pressure → Service robots on shared paths</td><td class="small">Path conflict triggers right-of-way rules that restrict robot deployment (sheet S3 row).</td></tr>
+<tr><td class="mono">A3</td><td class="mono pol pos">+</td><td class="mono">S11</td><td class="small">Seniors living alone / unattended-death risk → Active Ageing Centre expansion</td><td class="small">MOH is scaling AAC outreach to reach stay-alone seniors.</td></tr>
+<tr><td class="mono">A3</td><td class="mono pol pos">+</td><td class="mono">S16</td><td class="small">Seniors living alone / unattended-death risk → Places of worship as care spaces</td><td class="small">Prayer-and-care pilots target isolated seniors.</td></tr>
+<tr><td class="mono">A1</td><td class="mono pol neg">−</td><td class="mono">S8</td><td class="small">Open-access third-space supply → Limited late-night low-cost gathering access</td><td class="small">More open third space narrows the late-night access gap.</td></tr></tbody></table></div>
+  </details>
+</section>
+
+<section>
+  <h2><span class="no">06</span>Assumptions & limits</h2>
+  <ul class="small">
+    <li>The links are an analytical judgment made from the sheet's Description, Significance and Consequences columns. They are not measured data. Each link has a one-line rationale, so the group can challenge it.</li>
+    <li>Loop counts are concentrated in the land and reclamation subsystem, where two-way relationships are dense. This is the main reason S9, S24 and S12 lead on Impact. Removing or adding a single two-way link there shifts their scores noticeably.</li>
+    <li>Signal-strength mappings: Black Elephant (S6) is treated as Emerging, following its Current Status. Blank entries for S11 and S25 use their "Happening Now" status. The conditional "Weak, if…" entries for S12 and S18 count as Weak.</li>
+    <li>Auxiliary nodes are structural only and are excluded from the driving-force ranking.</li>
+  </ul>
+  <div class="small">Sources for auxiliary nodes:
+    <a href="https://www.moh.gov.sg/newsroom/data-on-seniors-aged-65-and-above-living-alone-and-plans-for-new-initiatives-to-prevent-unattended-deaths/">MOH, seniors living alone</a> ·
+    <a href="https://www.moh.gov.sg/newsroom/tracking-and-publishing-number-of-seniors-who-die-alone-in-their-homes/">MOH, tracking seniors who die alone</a> ·
+    <a href="https://pub.gov.sg/Public/KeyInitiatives/Flood-Resilience/Coastal-Protection">PUB, coastal protection</a> ·
+    <a href="https://www.businesstoday.com.my/2024/01/05/singapores-mean-sea-level-may-rise-1-15m-by-2100-higher-than-predicted/">V3 sea-level projection</a></div>
+</section>
+</div>
+
+<script>
+document.getElementById("copy-mm").addEventListener("click",function(){
+  var t=document.getElementById("mm-src").textContent,m=document.getElementById("copy-msg");
+  try{navigator.clipboard.writeText(t).then(function(){m.textContent="Copied"},function(){sel()})}catch(e){sel()}
+  function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById("mm-src"));var s=getSelection();s.removeAllRanges();s.addRange(r);m.textContent="Selected — press Ctrl/Cmd+C"}
+});
+</script>
+
+<!--claude-mermaid-runtime-begin:3477-->
+<style>.mermaid-diagram{margin-block:4px}.mermaid-diagram svg{display:block;margin:0 auto;max-width:100%;height:auto}</style>
+<script src="/_runtime/mermaid-11.16.1.min.js"></script>
+<script>(function(){
+var CFG={"palettes":{"light":{"surface":"#f4efe4","text":"#42392e","line":"#8a7f6d","border":"#7a6c52","bg":"#fffdf8"},"dark":{"surface":"#262b34","text":"#f2f3f5","line":"#a8adb8","border":"#9aa4b8","bg":"#1f232b"}}};
+if(typeof mermaid==='undefined')return;
+var pres=Array.prototype.slice.call(document.querySelectorAll('pre.mermaid')).filter(function(p){if(p.hasAttribute('data-claude-mermaid-claimed'))return false;p.setAttribute('data-claude-mermaid-claimed','1');return true;});
+if(!pres.length)return;
+var mq=window.matchMedia?window.matchMedia('(prefers-color-scheme: dark)'):null;
+var root=document.documentElement;
+var items=pres.map(function(pre){
+var mount=document.createElement('div');mount.className='mermaid-diagram';
+return {pre:pre,mount:mount,src:pre.textContent||''};
+});
+var seq=0;
+var renderGen=0;
+var lastKey='';
+function pageBg(fallback){
+var els=[document.body,document.documentElement];
+for(var i=0;i<els.length;i++){
+var c=els[i]&&getComputedStyle(els[i]).backgroundColor;
+if(c&&c!=='transparent'&&c!=='rgba(0, 0, 0, 0)')return c;
+}
+return fallback;
+}
+function render(){
+var theme=root.getAttribute('data-theme');
+var dark=theme==='dark'||(!!(mq&&mq.matches)&&theme!=='light');
+var pal=dark?CFG.palettes.dark:CFG.palettes.light;
+var bg=pageBg(pal.bg);
+var key=(dark?'d':'l')+'|'+bg;
+if(key===lastKey)return;
+lastKey=key;
+var gen=++renderGen;
+var font=getComputedStyle(document.body).fontFamily||'sans-serif';
+var nat={useMaxWidth:false};
+mermaid.initialize({
+startOnLoad:false,securityLevel:'strict',theme:'base',
+flowchart:nat,sequence:nat,er:nat,state:nat,class:nat,pie:nat,
+gantt:nat,journey:nat,timeline:nat,gitGraph:nat,mindmap:nat,xyChart:nat,
+quadrantChart:nat,sankey:nat,c4:nat,requirement:nat,block:nat,
+packet:nat,kanban:nat,architecture:nat,radar:nat,
+themeVariables:{background:bg,mainBkg:pal.surface,primaryColor:pal.surface,
+primaryTextColor:pal.text,lineColor:pal.line,primaryBorderColor:pal.border,
+nodeBorder:pal.border,clusterBorder:pal.border,edgeLabelBackground:bg,
+clusterBkg:'rgba(127,127,127,0.07)',titleColor:pal.text,
+darkMode:dark,rowOdd:bg,rowEven:'rgba(127,127,127,0.07)',
+attributeBackgroundColorOdd:bg,attributeBackgroundColorEven:'rgba(127,127,127,0.07)',
+fontSize:'16px',fontFamily:font},
+themeCSS:'.node rect, .node circle, .node polygon, .node path, .cluster rect { stroke-width: 2px; }'
+});
+items.forEach(function(it){
+var id='claude-mermaid-'+seq++;
+mermaid.render(id,it.src).then(function(r){
+if(gen!==renderGen)return;
+var prev=it.pre.previousElementSibling;
+if(prev&&prev.className==='mermaid-diagram'&&prev!==it.mount)return;
+it.mount.innerHTML=r.svg;
+if(!it.mount.parentNode)it.pre.parentNode.insertBefore(it.mount,it.pre);
+it.pre.style.display='none';
+},function(){
+var scratch=document.getElementById(id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+scratch=document.getElementById('d'+id);
+if(scratch)scratch.parentNode.removeChild(scratch);
+if(gen!==renderGen)return;
+if(it.mount.parentNode)it.mount.parentNode.removeChild(it.mount);
+it.pre.style.display='';
+});
+});
+}
+render();
+if(mq&&mq.addEventListener)mq.addEventListener('change',render);
+if(typeof MutationObserver!=='undefined')new MutationObserver(render).observe(root,{attributes:true,attributeFilter:['data-theme']});
+})();</script>
+<!--claude-mermaid-runtime-end-->
+
+</body></html>

@@ -1,0 +1,579 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Singapore 2050 Foresight Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: planning-workbench — overview strip, then matrix | wheel side by side, refinement bench below, ranking ledger last */
+:root{
+  --bg:#EEF2EF; --surface:#FFFFFF; --sunk:#E3E9E5; --ink:#13201C; --muted:#5B6B65; --line:#CFD9D3; --accent:#0B6E5B; --accent-ink:#FFFFFF;
+  --q-crit:#C2412A; --q-mega:#1F5FA8; --q-wild:#9A6A07; --q-back:#6B7872;
+  --q-crit-t:rgba(194,65,42,.08); --q-mega-t:rgba(31,95,168,.07); --q-wild-t:rgba(154,106,7,.08); --q-back-t:rgba(107,120,114,.06);
+  --d-soc:#C24E17; --d-tech:#2457C5; --d-eco:#A1660A; --d-env:#1E8040; --d-pol:#7A3FD0; --d-leg:#B8236A;
+  --fric:#C2412A;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1614; --surface:#17211E; --sunk:#1E2A26; --ink:#E4ECE8; --muted:#93A39D; --line:#2B3934; --accent:#3FC3A3; --accent-ink:#06201A;
+  --q-crit:#F07A5F; --q-mega:#6FA6EC; --q-wild:#E0B04A; --q-back:#93A39D;
+  --q-crit-t:rgba(240,122,95,.10); --q-mega-t:rgba(111,166,236,.09); --q-wild-t:rgba(224,176,74,.09); --q-back-t:rgba(147,163,157,.06);
+  --d-soc:#F08A55; --d-tech:#7BA4F5; --d-eco:#E2A94A; --d-env:#5FCB82; --d-pol:#B48CF2; --d-leg:#F07AB1; --fric:#F07A5F; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0F1614; --surface:#17211E; --sunk:#1E2A26; --ink:#E4ECE8; --muted:#93A39D; --line:#2B3934; --accent:#3FC3A3; --accent-ink:#06201A;
+  --q-crit:#F07A5F; --q-mega:#6FA6EC; --q-wild:#E0B04A; --q-back:#93A39D;
+  --q-crit-t:rgba(240,122,95,.10); --q-mega-t:rgba(111,166,236,.09); --q-wild-t:rgba(224,176,74,.09); --q-back-t:rgba(147,163,157,.06);
+  --d-soc:#F08A55; --d-tech:#7BA4F5; --d-eco:#E2A94A; --d-env:#5FCB82; --d-pol:#B48CF2; --d-leg:#F07AB1; --fric:#F07A5F; color-scheme:dark }
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:14px;line-height:1.5}
+.wrap{max-width:1320px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;letter-spacing:-.01em}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.dot{transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+@media (prefers-reduced-motion: reduce){.dot{transition:none}}
+button,select,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabs::-webkit-scrollbar{height:6px}.tabs::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.field{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+.field:focus{border-color:var(--accent);outline:none}
+.flash{animation:flash 1.2s ease-out}
+@keyframes flash{0%{background:var(--q-crit-t)}100%{background:transparent}}
+#boot{padding:40px;color:var(--muted)}
+</style>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config={corePlugins:{preflight:false},theme:{extend:{colors:{
+ bg:'var(--bg)',surface:'var(--surface)',sunk:'var(--sunk)',ink:'var(--ink)',muted:'var(--muted)',line:'var(--line)',accent:'var(--accent)',
+ crit:'var(--q-crit)',mega:'var(--q-mega)',wild:'var(--q-wild)',back:'var(--q-back)',fric:'var(--fric)'}}}};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/lucide-react@0.344.0/dist/umd/lucide-react.min.js"></script>
+<script src="https://unpkg.com/htm@3.1.1/dist/htm.umd.js"></script>
+
+<div id="root"><div id="boot">Loading the foresight workbench…</div></div>
+
+<script>
+// ===== DATA: the 25 drivers from "25 weak signals.xlsx" =====
+// w = futures wheel: [first-order text, [second-order text, second-order text]]
+const DRIVERS = [
+{id:"youth",title:"Youth loneliness and social isolation",domain:"Social",raw:"Weak",maturity:"Weak Signal",scanner:"Cheryl",
+desc:"A 2024 Institute of Policy Studies (IPS) poll found that Singaporeans aged 21 to 34 face the highest levels of loneliness and social isolation of any age group.",
+impact:"Medium Impact. Increased recognition of youth loneliness may result in more ground-up initiatives and more support for youth focused spaces.",
+w:[["Demand for low-spend youth third spaces",["Youth linger at malls and void decks","Noise conflict with older residents at void decks"]],
+["Ground-up youth initiatives grow",["Pressure on community space booking","Programmes depend on volunteer capacity"]],
+["Loneliness reframed as an all-age issue",["Mental-health support moves into neighbourhoods","Intergenerational gathering spaces replace age-specific ones"]]]},
+
+{id:"sterile",title:"Demand for distinctive, community-centred urban character",domain:"Social",domainNote:"Domain blank in sheet; inferred Social",raw:"Weak",maturity:"Weak Signal",scanner:"Jimmy",
+desc:"The term 'sterile city' took off on Google search trends after 2025, used to refer to a city which is typically centrally planned and lacking a 'soul' and a thriving community.",
+impact:"High. Singapore increasingly appears in discussions as a sterile city; effort should be made to incorporate heritage and culture districts to improve quality of life.",
+w:[["Heritage and culture districts prioritised",["Heritage competes with housing for land","Trade-off between conservation and redevelopment yield"]],
+["Ground-up place-making gains a voice",["Contested ownership of public space","Licensing rules loosen for street activity"]],
+["Masterplans add identity measures",["New QOL indicators beyond amenity counts","Sense of belonging helps retain talent"]]]},
+
+{id:"robotpaths",title:"Service robots become users of shared public paths",domain:"Technological",raw:"Emerging",maturity:"Emerging",scanner:"Syakirah",
+desc:"Delivery, cleaning and security robots are moving toward trials to complement human operations. They can work after office hours, patrol hard-to-reach spaces, and clean more frequently.",
+impact:"High impact: more competition and conflicts on shared paths, requiring new right of way rules and infrastructure; changes pedestrian experience.",
+w:[["Robots become a new class of path user",["Right of way conflict with pedestrians and cyclists","Older pedestrians feel less safe on shared paths"]],
+["After-hours cleaning and patrol robots",["Night-time surveillance of public space","Fewer cleaning jobs for older workers"]],
+["Path design adapts for robots",["Wider paths compete with greenery for land","New regulation and licensing for robot operators"]]]},
+
+{id:"multiagent",title:"Coordinated human–robot–drone delivery systems",domain:"Technological",raw:"Black Jellyfish (Unknown Known)",maturity:"Black Jellyfish",scanner:"Syakirah",
+desc:"Future logistics chains could divide tasks among humans, drones and robots. The PDD physical AI testbed is beginning to test delivery robots in public spaces.",
+impact:"High impact: reduces rider movements but requires micro-hubs, charging points, drone launch/landing areas, robot-compatible paths and operating rules; may alter neighbourhood space demands.",
+w:[["Neighbourhood delivery micro-hubs and charging points",["Micro-hubs compete for void-deck and land space","Noise and safety conflict near homes"]],
+["Drone launch and landing zones",["Privacy concerns over overhead cameras","Regulation of low-altitude airspace"]],
+["Fewer rider trips on roads and paths",["Displacement of delivery workers","Doorstep delivery for seniors living alone"]]]},
+
+{id:"corridors",title:"Mobility corridors acquire social and recreational functions",domain:"Political",raw:"Emerging",maturity:"Emerging",scanner:"Syakirah",
+desc:"Streets and transport hubs can serve more than movement: social interaction, rest, recreation and community activities.",
+impact:"Medium impact: improves social connection and neighbourhood liveability but may reduce movement capacity or create conflicts over when and how space is used.",
+w:[["Streets double as social space",["Benches and play areas reduce path capacity","Conflict over when space is for movement"]],
+["Transport hubs host community activities",["Third-space supply grows near MRT stations","Town councils manage time-of-day use"]],
+["Corridors designed for older adults and children",["Shade and seating along corridors","Stronger social connection for seniors"]]]},
+
+{id:"heat",title:"Rising heat changes outdoor gathering conditions",domain:"Environmental",domainNote:"Sheet lists Environmental / Technological",raw:"Black Elephant (Known Unknown)",maturity:"Emerging",maturityNote:"Black Elephant is not on the maturity scale; mapped to Emerging per the sheet's Current Status",scanner:"Syakirah",
+desc:"Thermal comfort becomes a deciding factor, like physical distance, for whether people walk or cycle a short distance or use another form of transport.",
+impact:"High impact: people divert to shaded corridors, daytime active travel drops, demand for sheltered links rises. MND and HDB planners must prioritise shade continuity and cooling.",
+w:[["Shade continuity decides whether people walk",["Demand for sheltered links and covered walkways","Thermal comfort becomes a routing variable"]],
+["Daytime outdoor gathering declines",["Third spaces move indoors to malls","Seniors and outdoor workers face heat stress"]],
+["Cooling becomes a planning baseline",["Trees and greenery compete for land","Higher cooling energy costs for estates"]]]},
+
+{id:"weather",title:"Extreme weather disrupts first- and last-mile reliability",domain:"Environmental",raw:"Emerging",maturity:"Emerging",scanner:"Syakirah",
+desc:"Intense rain and heat make first- and last-mile routes less usable and less comfortable for short periods, even with current infrastructure.",
+impact:"Weak impact: additional demand for physical infrastructure, real-time weather information and alternative routes; people may rely more on indoor and motorised modes.",
+w:[["Short journeys unreliable during storms",["Commuters switch to taxis in downpours","Real-time rain alerts for journeys"]],
+["Drainage upgrades on key routes",["PUB and LTA coordinate works","Ponding hotspots mapped"]],
+["Indoor routes preferred in bad weather",["Underground links through malls","Footfall concentrates in enclosed concourses"]]]},
+
+{id:"latenight",title:"Limited late-night, free and low-cost gathering access",domain:"Economic",raw:"Happening now",maturity:"Happening Now",scanner:"Cheryl",
+desc:"Many libraries and community facilities close early.",
+impact:"High. Impacts the usability and function of third spaces for students, shift workers, caregivers and people seeking companionship outside office hours.",
+w:[["Few free places open after 10pm",["Shift workers lack rest spots","Students study at fast-food outlets"]],
+["Extended library hours trialled",["Higher staffing bills","Self-service keycard entry"]],
+["Unmet demand from late-hours users",["Informal late gatherings at void decks","Paid cafés fill the gap"]]]},
+
+{id:"land",title:"Intensifying competition for limited urban land",domain:"Economic",domainNote:"Domain blank in sheet; inferred Economic",raw:"Strong",maturity:"Happening Now",scanner:"Jimmy",
+desc:"Singapore has limited space and is reaching the frontiers of development. Land is being reclaimed from Tanjong Pagar port and the east coast for the Greater Southern Waterfront housing project.",
+impact:"High. Land planning will always compete against other land uses; areas designated for culture and heritage may be marginalised.",
+w:[["Housing displaces other land uses",["Heritage and culture sites marginalised","Green spaces, trees and habitat lost"]],
+["More reclamation and underground land",["Reliance on imported reclamation sand","Higher construction cost per hectare"]],
+["Multi-use, time-shared land",["Kerb and path space reallocated by time of day","Third spaces and eldercare stacked into mixed-use towers"]]]},
+
+{id:"ageing",title:"Population ageing",domain:"Social",raw:"Happening now",maturity:"Happening Now",scanner:"Cheryl",
+desc:"Citizens aged 65 and above reached 21.4% in 2026 and are estimated to exceed 25% by 2035. The proportion of residents above 65 in 2050 is estimated at 23–34%.",
+impact:"High Impact. More emphasis on accessible infrastructure, daytime programmes and cognitive activities; risks alienating youth, working adults or immigrants.",
+w:[["Accessible neighbourhoods required",["Barrier-free paths and sheltered links","On-demand transport for older adults"]],
+["Care moves into homes and heartlands",["Robots and sensors support seniors living alone","Caregiver strain grows"]],
+["Senior-oriented third spaces expand",["Risk of age segregation in public space","Land demand for eldercare facilities"]]]},
+
+{id:"aac",title:"Expansion of neighbourhood Active Ageing Centres",domain:"Legislative",raw:"(blank) — Current Status: Happening Now",maturity:"Happening Now",scanner:"Cheryl",
+desc:"Singapore had 223 Active Ageing Centres in April 2025, up from about 150 when Age Well SG began, with expanded access planned for more than 20,000 seniors.",
+impact:"High Impact. Senior-oriented spaces, possible age segregation, emphasis on spaces in the heartlands.",
+w:[["AACs become neighbourhood living rooms",["Seniors gain companionship and routine","Other age groups use them less"]],
+["Health and social functions co-locate",["Data sharing between care providers","Running cost of a larger AAC network"]],
+["Heartland space reallocated to AACs",["Youth and community groups compete for void decks","Age segregation of third spaces"]]]},
+
+{id:"floating",title:"Floating and amphibious development alternatives",domain:"Technological",domainNote:"Sheet lists Technological / Environmental",raw:"Weak, if supported by a specific emerging project or trial",maturity:"Weak Signal",scanner:"Ruble",
+desc:"In the Netherlands, floating and amphibious buildings offer alternatives to conventional construction in flood-exposed areas, suggesting a different relationship between development and water.",
+impact:"Medium: could encourage amphibious structures, flood-adaptive housing and hybrid land-water developments; suitability depends on engineering, cost and regulatory feasibility.",
+w:[["Hybrid land–water housing",["New land without reclamation sand","Trade-off with marine habitat"]],
+["Flood-adaptive design codes",["New building regulation for HDB","Insurance and liability questions"]],
+["Water becomes usable urban space",["Floating parks and shaded gathering decks","Higher cost per housing unit"]]]},
+
+{id:"homerobots",title:"Public support and subsidies for home care robots",domain:"Political",raw:"Weak",maturity:"Weak Signal",scanner:"Victoria",
+desc:"In July 2026, NMP Dr Neo Kok Beng asked whether the Ministry would consider subsidies or pilots of small home robots to monitor the well-being of seniors.",
+impact:"Medium.",
+w:[["Robots monitor seniors living alone",["Privacy concerns about in-home sensors","Fewer undetected deaths at home"]],
+["Public subsidy for care technology",["Budget trade-off with human caregivers","Uneven uptake by low-income seniors"]],
+["Pilots test effectiveness first",["Evidence standards before subsidy","Local robotics firms scale up"]]]},
+
+{id:"kerb",title:"Dynamically allocated kerbside space",domain:"Technological",raw:"Black Jellyfish (Unknown Known)",maturity:"Black Jellyfish",scanner:"Syakirah",
+desc:"Kerbside space is being explored through flexible smart-kerb concepts that change by time, demand, activity and vehicle type.",
+impact:"High impact: eases scarce land and reduces conflicts, but may bring new enforcement, data, privacy and governance issues, and conflicts over who gets priority.",
+w:[["Kerb use changes by time of day",["Priority conflict between deliveries, ride-hail and buses","Enforcement through cameras and data"]],
+["Scarce land serves more users",["Parking land returned to pedestrians and greenery","Pick-up points for on-demand AVs"]],
+["Digital kerb booking",["Privacy of vehicle and trip data","Exclusion of users without apps"]]]},
+
+{id:"tourism",title:"Potential district crowding as a result of heritage tourism",domain:"Economic",domainNote:"Domain blank in sheet; inferred Economic",raw:"Weak",maturity:"Weak Signal",scanner:"Jimmy",
+desc:"Heritage tourism could drive tourism receipts, especially if the civic district achieves UNESCO status, diversifying Singapore from a MICE focus.",
+impact:"High. Overtourism is documented in China and Japan; without planning and transport investment, overcrowding may drive negative sentiment.",
+w:[["Civic district visitor numbers rise",["Crowding on narrow heritage streets","Backlash from residents and shopkeepers"]],
+["Tourism diversifies beyond MICE",["New tourism receipts","Visitor management zones"]],
+["Investment in civic district transport",["Peak-hour crowding at nearby stations","Hotel and retail rents climb"]]]},
+
+{id:"worship",title:"Places of worship expand neighbourhood care functions",domain:"Social",raw:"Weak",maturity:"Weak Signal",scanner:"Cheryl",
+desc:"Religious premises may extend their roles as familiar gathering places into care and support for seniors.",
+impact:"Medium Impact. Efficient use of existing buildings; risks of exclusion, uneven capacity and blurred boundaries between civic and religious provision.",
+w:[["Religious premises host senior care",["Trusted hosts reduce isolation","Uneven capacity across faith groups"]],
+["More third spaces without new land",["Better use of existing buildings","Weekday hours open to the public"]],
+["Civic and religious roles blur",["Exclusion of residents outside the faith","Need for secular third spaces"]]]},
+
+{id:"walkability",title:"Gap in perceived walkability and actual usability for users",domain:"Social",raw:"Emerging",maturity:"Emerging",scanner:"Syakirah",
+desc:"Conventional walkability measures proximity and connectivity, but older adults' mobility also depends on safety, accessibility, aesthetics, amenities and social connection.",
+impact:"Medium impact: new accessibility indicators such as social experience and perceived convenience; more investment in the quality of existing routes.",
+w:[["New accessibility indicators",["Comfort and sociability measured","Older adults' lived experience surveyed"]],
+["Micro-scale route upgrades",["Seating, shade and lighting on paths","Retrofit cost for older estates"]],
+["Distance-based planning questioned",["Trade-off between coverage and quality","Caregivers and PWDs co-design routes"]]]},
+
+{id:"altreclaim",title:"Alternative reclamation methods and materials",domain:"Economic",domainNote:"Sheet lists Economic / Political / Environmental",raw:"Weak signal if supported by a new supply disruption; otherwise a driving force",maturity:"Weak Signal",scanner:"Ruble",
+desc:"Southeast Asian countries have restricted sand exports, while illegal extraction raises concerns about the sustainability and reliability of regional sand supplies.",
+impact:"Medium: higher costs, delays, and greater interest in alternative reclamation methods.",
+w:[["Sand-free land creation methods",["Polder and dyke approaches tested","Recycled materials as fill"]],
+["Land creation becomes dearer",["Delays to new estates","Trade-off with neighbours' export policies"]],
+["Regional supply diplomacy",["Diversified supplier base","Long-term supply agreements"]]]},
+
+{id:"sand",title:"Reclamation sand supply, traceability and cost pressures",domain:"Economic",domainNote:"Sheet lists Economic / Environmental / Political",raw:"Unconfirmed; requires evidence",maturity:"Unconfirmed",scanner:"Ruble",
+desc:"Illegal sand extraction and export restrictions in parts of Southeast Asia highlight potential vulnerabilities in regional sand supply chains.",
+impact:"Could create supply uncertainty, increase procurement costs and raise environmental or reputational concerns about material sourcing.",
+w:[["Traceability of fill material required",["Certification of sand sources","Reputational risk from illegal extraction"]],
+["Procurement prices rise",["Dearer reclaimed land","Contractors pass on price increases"]],
+["Supply disruption",["Project timelines slip","Stockpiling of fill materials"]]]},
+
+{id:"ground",title:"Ground-stability risks on reclaimed development sites",domain:"Technological",raw:"Black Swan",maturity:"Black Swan",scanner:"Ruble",
+desc:"Reclaimed land can settle as underlying soils consolidate. Kansai International Airport has experienced substantial settlement, illustrating long-term engineering challenges.",
+impact:"Could increase construction and maintenance costs, require additional monitoring or constrain development on certain sites.",
+w:[["Settlement monitoring on reclaimed sites",["Instruments track ground movement","Long-term maintenance bills"]],
+["Engineering confidence shaken",["Stricter building codes","Resident trust in new estates"]],
+["Development limits on some sites",["Lower housing yield","Insurance liability disputes"]]]},
+
+{id:"companion",title:"Adoption of companion robots in mainstream care systems",domain:"Political",raw:"Emerging",maturity:"Emerging",scanner:"Victoria",
+desc:"MOH has been looking into adopting robots in nursing homes and community hospitals to increase social engagement of seniors.",
+impact:"Low.",
+w:[["Robots in nursing homes",["Social engagement for seniors","Staff fear of replacement"]],
+["Trials inform home use",["Pathway to home care robots","Evidence for future subsidies"]],
+["Cautious adoption",["Ethics of robot companionship","Privacy of recorded interactions"]]]},
+
+{id:"careplatform",title:"Homes could evolve into 'care platforms'",domain:"Environmental",raw:"Weak",maturity:"Weak Signal",scanner:"Victoria",
+desc:"NTU research proposes smart integration in homes combining communication, exercise, services, social connection, emotional support and healthcare monitoring.",
+impact:"High. Requires HDB retrofits to support connectivity, sensors, robots and remote-care infrastructure.",
+w:[["Homes integrate care services",["HDB retrofits for sensors and connectivity","Remote health monitoring"]],
+["Families connect remotely",["Less isolation for seniors living alone","Caregiver load shifts"]],
+["Home becomes data-rich",["Privacy and surveillance concerns","Exclusion of less tech-savvy seniors"]]]},
+
+{id:"av",title:"Expansion of on-demand AV models alongside fixed-route transport",domain:"Technological",raw:"Emerging",maturity:"Emerging",scanner:"Syakirah",
+desc:"On-demand AVs can be booked for specific trips between selected PUDOs instead of a fixed loop. Grab & WeRide deployed AVs in Punggol in July 2026; Waymo trial in the west.",
+impact:"High impact: more demand for PUDO points, changed travel behaviour, fewer fixed routes, better access for some groups, new kerb conflicts and equity issues.",
+w:[["First-last mile becomes dynamic",["Fewer fixed feeder bus routes","Better access for older adults in low-demand areas"]],
+["More pick-up points needed",["Kerb conflict with deliveries","Land for PUDO bays"]],
+["Equity of coverage",["Exclusion of users without smartphones","Night service for shift workers"]]]},
+
+{id:"ecology",title:"Growing resistance to ecological trade-offs in land creation",domain:"Environmental",domainNote:"Sheet lists Environmental / Social",raw:"Emerging trend",maturity:"Emerging",scanner:"Ruble",
+desc:"Concerns about development at Maju Forest and Gillman Barracks have drawn attention to the ecological costs of new housing and infrastructure. Similar concerns apply to reclamation and marine habitats.",
+impact:"Medium: could lead to more extensive environmental studies, changed project boundaries, reduced housing yields, higher mitigation costs or alternative sites.",
+w:[["Environmental studies extend timelines",["Reduced housing yield","Higher mitigation cost"]],
+["Public campaigns over forest sites",["Contested land-use decisions","Trade-off between homes and habitat"]],
+["Reclamation scrutinised for marine impact",["Alternative sites reconsidered","Biodiversity offsets required"]]]},
+
+{id:"sensors",title:"Sensor-enabled spaces may reduce anonymity and candour",domain:"Technological",raw:"(blank) — Current Status: Happening Now",maturity:"Happening Now",scanner:"Cheryl",
+desc:"Singapore's smart-city programme emphasises real-time monitoring, analytics and automation; scholarship describes surveillance as increasingly normalised in public space.",
+impact:"High. People will not talk freely and form social bonds if they fear retaliation.",
+w:[["Real-time crowd and energy optimisation",["Smarter third space management","Cooling efficiency in public buildings"]],
+["Anonymous lingering feels watched",["Self-censorship weakens social bonds","Youth avoid monitored spaces"]],
+["Surveillance becomes normal",["Privacy advocacy grows","Data governance rules tighten"]]]}
+];
+
+// ===== SCORING ENGINE =====
+const MATURITY_SCALE = {"Happening Now":1.0,"Emerging":2.5,"Weak Signal":4.0,"Black Jellyfish":5.0,"Black Swan":5.0,"Unconfirmed":5.0};
+const FRICTION = ["conflict","privacy","exclusion","trade-off","right of way","contested","segregation","enforcement","surveillance","displacement","backlash","liability","resistance","inequit","dispute"];
+const THEMES = {
+  "Land scarcity":["land","footprint","void deck","housing yield"],
+  "Shared path friction":["path","pedestrian","right of way","cyclist","walkway"],
+  "Thermal comfort":["heat","shade","thermal","cooling","sheltered","greenery","trees"],
+  "Third space availability":["third space","gathering","linger","community space","living room","void deck","hangout"],
+  "Ageing & care":["senior","elderly","older","caregiv","care","eldercare","nursing"],
+  "Social connection":["lonel","isolation","social bond","companionship","social connection","social engagement","sociability","intergenerational"],
+  "Data & privacy":["sensor","data","privacy","monitor","surveillance","camera"],
+  "First-last mile mobility":["first-last mile","transport","on-demand","trip","mobility","feeder","ride-hail","av","avs"],
+  "Logistics footprint":["delivery","deliveries","micro-hub","logistics","drone","charging","kerb loading"],
+  "Reclamation supply":["reclamation","reclaimed","sand","fill"],
+  "Coastal & flood resilience":["flood","sea level","coastal","drainage","marine","water"],
+  "Heritage & identity":["heritage","culture","identity","belonging","conservation"],
+  "Equity & exclusion":["exclusion","equity","low-income","segregation","excluded","uneven","without"],
+  "Housing cost":["cost","retrofit","affordab","per housing unit","per hectare"],
+  "Regulation & governance":["rules","regulation","enforcement","governance","licensing","codes","standards"],
+  "Ecology & greenery":["biodiversity","habitat","ecolog","green space","greenery","trees"],
+  "Kerb & pick-up space":["kerb","pick-up","pudo"],
+  "Robotics adoption":["robot","robotics"]
+};
+const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+const THEME_RX = Object.fromEntries(Object.entries(THEMES).map(([k,ws])=>[k,new RegExp("\\b("+ws.map(esc).join("|")+")","i")]));
+function tagThemes(text){ return Object.keys(THEME_RX).filter(k=>THEME_RX[k].test(text)); }
+function frictionHits(text){ const t=text.toLowerCase(); return FRICTION.filter(f=>t.includes(f)); }
+
+function score(drivers){
+  const nodesBy = drivers.map(d=>{
+    const nodes=[]; d.w.forEach(([f,kids],fi)=>{ nodes.push({text:f,order:1,fi}); kids.forEach((k,ki)=>nodes.push({text:k,order:2,fi,ki})); });
+    nodes.forEach(n=>n.themes=tagThemes(n.text)); return nodes; });
+  const out = drivers.map((d,i)=>{
+    const second = nodesBy[i].filter(n=>n.order===2).map(n=>n.text).join(" | ");
+    const hits = frictionHits(second);
+    const uplift = hits.length===0?0:hits.length===1?0.5:hits.length===2?0.75:1.0;
+    const M = MATURITY_SCALE[d.maturity];
+    const D = uplift*5; // uplift +0.5..+1.0 scaled onto the 5-point rating range
+    const uRaw = 0.6*M + 0.4*D;
+    let iRaw=0; const links={};
+    // node -> wheel convergence: each node scores 1 for every OTHER wheel holding a node with a shared theme
+    nodesBy[i].forEach(n=>{ n.matches=[]; if(!n.themes.length) return;
+      nodesBy.forEach((other,j)=>{ if(j===i) return;
+        if(other.some(m=>m.themes.some(t=>n.themes.includes(t)))){ iRaw++; n.matches.push(drivers[j].id); links[drivers[j].id]=(links[drivers[j].id]||0)+1; } }); });
+    const themeSet=[...new Set(nodesBy[i].flatMap(n=>n.themes))];
+    return {id:d.id,M,hits,uplift,D,uRaw,iRaw,links,themeSet,nodes:nodesBy[i]};
+  });
+  const norm=(vals)=>{const lo=Math.min(...vals),hi=Math.max(...vals);return vals.map(v=>hi===lo?3:1+4*(v-lo)/(hi-lo));};
+  const un=norm(out.map(o=>o.uRaw)), im=norm(out.map(o=>o.iRaw));
+  out.forEach((o,k)=>{o.U=un[k];o.I=im[k];o.quadrant=quad(o.I,o.U);});
+  return out;
+}
+function quad(I,U){ if(I>=3&&U>=3) return "critical"; if(I>=3) return "megatrend"; if(U>=3) return "wildcard"; return "background"; }
+if (typeof module!=="undefined") module.exports={DRIVERS,score};
+
+</script>
+<script>
+const {useState,useMemo,useEffect,useRef}=React;
+const html=htm.bind(React.createElement);
+const L=window.LucideReact||{};
+const Icon=({name,size=16,className=""})=>{const C=L[name];return C?React.createElement(C,{size,className,"aria-hidden":true,strokeWidth:1.8}):null;};
+
+const DOMAINS=[["Social","--d-soc"],["Technological","--d-tech"],["Economic","--d-eco"],["Environmental","--d-env"],["Political","--d-pol"],["Legislative","--d-leg"]];
+const DCOL=Object.fromEntries(DOMAINS.map(([d,v])=>[d,`var(${v})`]));
+const MATS=["Happening Now","Emerging","Weak Signal","Black Jellyfish","Black Swan","Unconfirmed"];
+const Q={
+ critical:{name:"Critical Policy Uncertainties",short:"Critical uncertainty",col:"var(--q-crit)",tint:"var(--q-crit-t)",hint:"High impact · High uncertainty",icon:"AlertTriangle"},
+ megatrend:{name:"Megatrends",short:"Megatrend",col:"var(--q-mega)",tint:"var(--q-mega-t)",hint:"High impact · Low uncertainty",icon:"TrendingUp"},
+ wildcard:{name:"Secondary Risks / Wildcards",short:"Wildcard",col:"var(--q-wild)",tint:"var(--q-wild-t)",hint:"Moderate impact · High uncertainty",icon:"Zap"},
+ background:{name:"Background Trends",short:"Background",col:"var(--q-back)",tint:"var(--q-back-t)",hint:"Lower impact · Lower uncertainty",icon:"Waves"}
+};
+const clone=o=>JSON.parse(JSON.stringify(o));
+const STORE="sg2050-foresight-edits-v1";
+const loadEdits=()=>{try{const r=localStorage.getItem(STORE);return r?JSON.parse(r):null}catch(e){return null}};
+const saveEdits=v=>{try{localStorage.setItem(STORE,JSON.stringify(v))}catch(e){}};
+const NUM=Object.fromEntries(DRIVERS.map((d,i)=>[d.id,i+1]));
+
+function wrap(t,max){const w=t.split(/\s+/);const out=[];let cur="";w.forEach(x=>{if((cur+" "+x).trim().length>max&&cur){out.push(cur);cur=x}else cur=(cur+" "+x).trim()});if(cur)out.push(cur);return out;}
+function hl(text){ // highlight friction words
+  const rx=new RegExp("("+FRICTION.map(f=>f.replace(/[-]/g,"\\-")).join("|")+")","ig");
+  return text.split(rx).map((p,i)=>i%2?html`<mark key=${i} style=${{background:"var(--q-crit-t)",color:"var(--fric)",fontWeight:600,padding:"0 2px",borderRadius:3}}>${p}</mark>`:p);
+}
+
+/* ---------- Overview ---------- */
+function Overview({drivers,scores}){
+  const dc=DOMAINS.map(([d])=>[d,drivers.filter(x=>x.domain===d).length]);
+  const mc=MATS.map(m=>[m,drivers.filter(x=>x.maturity===m).length]);
+  const qc=Object.keys(Q).map(k=>[k,scores.filter(s=>s.quadrant===k).length]);
+  return html`<section class="panel p-4 md:p-5 grid gap-5" style=${{gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))"}}>
+    <div class="flex items-center gap-4">
+      <div class="mono" style=${{fontSize:44,lineHeight:1,fontWeight:500,color:"var(--accent)"}}>${drivers.length}</div>
+      <div><div class="eyebrow">Signals scanned</div><div class="text-sm text-muted">from 25 weak signals.xlsx · 6 scanners</div></div>
+    </div>
+    <div class="min-w-0"><div class="eyebrow mb-2">Domain (STEEP+L)</div>
+      <div class="flex h-2.5 rounded-full overflow-hidden mb-2" style=${{background:"var(--sunk)"}}>${dc.map(([d,n])=>n?html`<div key=${d} title=${d+": "+n} style=${{width:(n/drivers.length*100)+"%",background:DCOL[d]}}></div>`:null)}</div>
+      <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs">${dc.map(([d,n])=>html`<span key=${d} class="inline-flex items-center gap-1.5"><span style=${{width:8,height:8,borderRadius:2,background:DCOL[d]}}></span>${d}<span class="mono text-muted">${n}</span></span>`)}</div>
+    </div>
+    <div class="min-w-0"><div class="eyebrow mb-2">Signal maturity</div>
+      <div class="grid grid-cols-3 gap-x-3 gap-y-1 text-xs">${mc.map(([m,n])=>html`<div key=${m} class="flex justify-between gap-2"><span class="truncate">${m}</span><span class="mono text-muted">${n}</span></div>`)}</div>
+    </div>
+    <div class="min-w-0"><div class="eyebrow mb-2">Matrix placement</div>
+      <div class="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">${qc.map(([k,n])=>html`<div key=${k} class="flex items-center justify-between gap-2"><span class="inline-flex items-center gap-1.5" style=${{color:Q[k].col}}><${Icon} name=${Q[k].icon} size=${13}/>${Q[k].short}</span><span class="mono">${n}</span></div>`)}</div>
+    </div>
+  </section>`;
+}
+
+/* ---------- Matrix ---------- */
+function Matrix({drivers,scores,sel,setSel,moved}){
+  const [hover,setHover]=useState(null);
+  const W=600,H=520,x0=56,x1=584,y0=16,y1=468;
+  const sx=v=>x0+(v-1)/4*(x1-x0), sy=v=>y1-(v-1)/4*(y1-y0);
+  const mx=sx(3),my=sy(3);
+  const byId=Object.fromEntries(scores.map(s=>[s.id,s]));
+  const hv=hover&&byId[hover], hd=hover&&drivers.find(d=>d.id===hover);
+  const ql=[["wildcard",x0+10,y0+20,"start"],["critical",x1-10,y0+20,"end"],["background",x0+10,y1-12,"start"],["megatrend",x1-10,y1-12,"end"]];
+  return html`<div class="relative">
+   <div style=${{overflowX:"auto"}}>
+    <svg viewBox=${`0 0 ${W} ${H}`} style=${{width:"100%",minWidth:340,display:"block"}} role="img" aria-label="Foresight matrix: importance against uncertainty">
+      <rect x=${mx} y=${y0} width=${x1-mx} height=${my-y0} fill="var(--q-crit-t)"/>
+      <rect x=${x0} y=${y0} width=${mx-x0} height=${my-y0} fill="var(--q-wild-t)"/>
+      <rect x=${mx} y=${my} width=${x1-mx} height=${y1-my} fill="var(--q-mega-t)"/>
+      <rect x=${x0} y=${my} width=${mx-x0} height=${y1-my} fill="var(--q-back-t)"/>
+      ${[1,2,3,4,5].map(v=>html`<g key=${v}>
+        <line x1=${sx(v)} x2=${sx(v)} y1=${y0} y2=${y1} stroke="var(--line)" stroke-dasharray=${v===3?"":"2 4"}/>
+        <line x1=${x0} x2=${x1} y1=${sy(v)} y2=${sy(v)} stroke="var(--line)" stroke-dasharray=${v===3?"":"2 4"}/>
+        <text x=${sx(v)} y=${y1+16} text-anchor="middle" fill="var(--muted)" font-size="11" class="mono">${v.toFixed(1)}</text>
+        <text x=${x0-8} y=${sy(v)+4} text-anchor="end" fill="var(--muted)" font-size="11" class="mono">${v.toFixed(1)}</text></g>`)}
+      <line x1=${mx} x2=${mx} y1=${y0} y2=${y1} stroke="var(--muted)" stroke-width="1.2"/>
+      <line x1=${x0} x2=${x1} y1=${my} y2=${my} stroke="var(--muted)" stroke-width="1.2"/>
+      ${ql.map(([k,x,y,a])=>html`<g key=${k}><text x=${x} y=${y} text-anchor=${a} fill=${Q[k].col} font-size="12.5" font-weight="700" style=${{fontFamily:"var(--f-display)"}}>${Q[k].name}</text>
+        <text x=${x} y=${y+(y<100?15:-15)} text-anchor=${a} fill="var(--muted)" font-size="10.5" class="mono">${Q[k].hint}</text></g>`)}
+      <text x=${(x0+x1)/2} y=${H-14} text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">Importance (network convergence) →</text>
+      <text transform=${`translate(16 ${(y0+y1)/2}) rotate(-90)`} text-anchor="middle" fill="var(--ink)" font-size="12" font-weight="600">Uncertainty →</text>
+      ${scores.map(s=>{const d=drivers.find(x=>x.id===s.id);const on=s.id===sel;const r=on?13:10;return html`<g key=${s.id} class="dot" style=${{transform:`translate(${sx(s.I)}px,${sy(s.U)}px)`,cursor:"pointer"}}
+          onClick=${()=>setSel(s.id)} onMouseEnter=${()=>setHover(s.id)} onMouseLeave=${()=>setHover(null)}
+          tabindex="0" role="button" aria-label=${d.title} onKeyDown=${e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setSel(s.id)}}}>
+          ${on?html`<circle r="19" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="3 3"/>`:null}
+          ${moved===s.id?html`<circle r="24" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".7"/>`:null}
+          <circle r=${r} fill=${DCOL[d.domain]} stroke="var(--surface)" stroke-width="2"/>
+          <text y="3.8" text-anchor="middle" font-size=${on?11:10} font-weight="600" fill="#fff" class="mono" style=${{pointerEvents:"none"}}>${NUM[s.id]}</text>
+        </g>`;})}
+    </svg>
+   </div>
+    ${hv?html`<div class="panel absolute pointer-events-none p-2.5 text-xs shadow-lg" style=${{left:12,bottom:56,maxWidth:280}}>
+      <div class="font-semibold text-sm mb-1">${NUM[hv.id]}. ${hd.title}</div>
+      <div class="mono text-muted">I ${hv.I.toFixed(2)} · U ${hv.U.toFixed(2)} · <span style=${{color:Q[hv.quadrant].col}}>${Q[hv.quadrant].short}</span></div></div>`:null}
+  </div>`;
+}
+
+/* ---------- Futures Wheel ---------- */
+function Wheel({d,s,focus,setFocus}){
+  const W=720,H=660,cx=360,cy=330,r1=148,r2=250;
+  const ang=[-90,30,150];
+  const n2=(fi,ki)=>s.nodes.find(n=>n.order===2&&n.fi===fi&&n.ki===ki);
+  const n1=fi=>s.nodes.find(n=>n.order===1&&n.fi===fi);
+  const P=(a,r)=>[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)];
+  const col=DCOL[d.domain];
+  const Box=({x,y,w,h,text,order,keyid,node})=>{
+    const lines=wrap(text,order===1?19:20);const fs=order===1?13.5:12.5;const lh=fs*1.22;
+    const fr=order===2&&frictionHits(text).length>0;const on=focus===keyid;
+    return html`<g style=${{cursor:"pointer"}} onClick=${()=>setFocus(keyid)} tabindex="0" role="button" aria-label=${"Edit node: "+text}
+      onKeyDown=${e=>{if(e.key==="Enter"){setFocus(keyid)}}}>
+      <rect x=${x-w/2} y=${y-h/2} width=${w} height=${h} rx=${order===1?10:8}
+        fill=${order===1?"var(--surface)":"var(--bg)"} stroke=${on?"var(--ink)":fr?"var(--fric)":order===1?col:"var(--line)"}
+        stroke-width=${on?2.2:order===1?1.8:1.2} stroke-dasharray=${fr&&!on?"4 3":""}/>
+      ${lines.map((l,i)=>html`<text key=${i} x=${x} y=${y-(lines.length-1)*lh/2+i*lh+fs*.35} text-anchor="middle" font-size=${fs} font-weight=${order===1?600:400} fill="var(--ink)">${l}</text>`)}
+      ${node&&node.matches&&node.matches.length?html`<g transform=${`translate(${x+w/2-4} ${y-h/2+4})`}><circle r="10" fill=${col}/><text y="3.5" text-anchor="middle" font-size="10" fill="#fff" class="mono" font-weight="600">${node.matches.length}</text></g>`:null}
+    </g>`;
+  };
+  return html`<div style=${{overflowX:"auto"}}><svg viewBox=${`0 0 ${W} ${H}`} style=${{width:"100%",minWidth:360,display:"block"}} role="img" aria-label=${"Futures wheel for "+d.title}>
+    <circle cx=${cx} cy=${cy} r=${r1} fill="none" stroke="var(--line)" stroke-dasharray="2 5"/>
+    <circle cx=${cx} cy=${cy} r=${r2} fill="none" stroke="var(--line)" stroke-dasharray="2 5"/>
+    ${ang.map((a,fi)=>{const [x,y]=P(a,r1);return html`<g key=${"sp"+fi}>
+      <line x1=${cx} y1=${cy} x2=${x} y2=${y} stroke=${col} stroke-width="2" opacity=".55"/>
+      ${[-33,33].map((o,ki)=>{const [x2,y2]=P(a+o,r2);return html`<line key=${ki} x1=${x} y1=${y} x2=${x2} y2=${y2} stroke="var(--muted)" stroke-width="1" opacity=".6"/>`;})}</g>`;})}
+    ${ang.map((a,fi)=>[-33,33].map((o,ki)=>{const [x,y]=P(a+o,r2);const n=n2(fi,ki);return html`<${Box} key=${"b"+fi+ki} x=${x} y=${y} w=${150} h=${60} text=${n.text} order=${2} keyid=${fi+"-"+ki} node=${n}/>`;}))}
+    ${ang.map((a,fi)=>{const [x,y]=P(a,r1);const n=n1(fi);return html`<${Box} key=${"a"+fi} x=${x} y=${y} w=${164} h=${66} text=${n.text} order=${1} keyid=${String(fi)} node=${n}/>`;})}
+    <circle cx=${cx} cy=${cy} r="78" fill=${col}/>
+    ${wrap(d.title,17).slice(0,5).map((l,i,a)=>html`<text key=${i} x=${cx} y=${cy-(a.length-1)*8+i*16+4} text-anchor="middle" font-size="13" font-weight="700" fill="#fff" style=${{fontFamily:"var(--f-display)"}}>${l}</text>`)}
+    <text x="12" y=${H-12} font-size="11" fill="var(--muted)" class="mono">Inner ring: 1st order · Outer ring: 2nd order · Badge: wheels this node converges with · Dashed red: policy trade-off</text>
+  </svg></div>`;
+}
+
+/* ---------- Refinement bench ---------- */
+function Refine({d,s,base,onMat,onText,focus,setFocus,onReset,edited}){
+  const refs=useRef({});
+  useEffect(()=>{const el=refs.current[focus];if(el){el.focus();el.scrollIntoView({block:"nearest",behavior:"smooth"});}},[focus]);
+  const Delta=({a,b})=>{const v=a-b;if(Math.abs(v)<.005)return null;return html`<span class="mono text-xs" style=${{color:v>0?"var(--q-crit)":"var(--q-mega)"}}>${v>0?"+":""}${v.toFixed(2)}</span>`;};
+  const row=(label,val,extra)=>html`<div class="flex items-baseline justify-between gap-3 py-1.5" style=${{borderBottom:"1px solid var(--line)"}}><span class="text-muted text-xs">${label}</span><span class="mono text-sm">${val} ${extra||""}</span></div>`;
+  return html`<div class="grid gap-5" style=${{gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))"}}>
+    <div class="min-w-0 grid gap-3 content-start">
+      <div class="flex items-center justify-between gap-2"><h3 class="m-0 text-base flex items-center gap-2"><${Icon} name="SlidersHorizontal" size=${16}/>Signal strength</h3>
+        ${edited?html`<button onClick=${onReset} class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md cursor-pointer" style=${{border:"1px solid var(--line)",background:"var(--surface)"}}><${Icon} name="RotateCcw" size=${13}/>Reset this driver</button>`:null}</div>
+      <label for="mat" class="sr-only">Signal maturity</label>
+      <select id="mat" class="field" value=${d.maturity} onChange=${e=>onMat(e.target.value)}>${MATS.map(m=>html`<option key=${m} value=${m}>${m} (${MATURITY_SCALE[m].toFixed(1)})</option>`)}</select>
+      <div class="text-xs text-muted">Sheet value: <span class="mono">${d.raw}</span>${d.maturityNote?html`<br/>${d.maturityNote}`:null}</div>
+      <div class="rounded-lg p-3" style=${{background:"var(--bg)"}}>
+        <div class="eyebrow mb-1">Score build-up</div>
+        ${row("Maturity rating M",s.M.toFixed(1))}
+        ${row("Trade-off words in 2nd-order nodes",s.hits.length?s.hits.join(", "):"none")}
+        ${row("Divergence uplift → D (×5)",`+${s.uplift.toFixed(2)} → ${s.D.toFixed(2)}`)}
+        ${row("Uncertainty raw  0.6M + 0.4D",s.uRaw.toFixed(2))}
+        ${row("Uncertainty_Norm",s.U.toFixed(2),html`<${Delta} a=${s.U} b=${base.U}/>`)}
+        ${row("Cross-wheel node matches",s.iRaw)}
+        ${row("Importance_Norm",s.I.toFixed(2),html`<${Delta} a=${s.I} b=${base.I}/>`)}
+        <div class="flex items-center justify-between pt-2 text-sm"><span class="text-muted text-xs">Quadrant</span>
+          <span class="font-semibold inline-flex items-center gap-1.5" style=${{color:Q[s.quadrant].col}}><${Icon} name=${Q[s.quadrant].icon} size=${14}/>${Q[s.quadrant].name}</span></div>
+        ${s.quadrant!==base.quadrant?html`<div class="text-xs mt-1 text-muted">Moved from ${Q[base.quadrant].name}</div>`:null}
+      </div>
+      <div class="text-xs text-muted">Converges most with: ${Object.entries(s.links).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([id,n],i)=>html`<span key=${id}>${i?", ":""}#${NUM[id]} ${DRIVERS.find(x=>x.id===id).title.split(" ").slice(0,4).join(" ")}… (${n})</span>`)}</div>
+    </div>
+    <div class="min-w-0 grid gap-3 content-start" style=${{gridColumn:"span 2 / span 2"}}>
+      <h3 class="m-0 text-base flex items-center gap-2"><${Icon} name="PenLine" size=${16}/>Edit wheel nodes</h3>
+      <p class="m-0 text-xs text-muted">Changes re-tag themes and trade-off words as you type, then re-score all 25 drivers. Scores are normalised across the set, so other dots may shift slightly.</p>
+      <div class="grid gap-3" style=${{gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))"}}>
+      ${d.w.map(([f,kids],fi)=>html`<div key=${fi} class="grid gap-2 content-start rounded-lg p-2.5" style=${{border:"1px solid var(--line)"}}>
+          <label class="eyebrow" for=${"n-"+fi}>1st order · ${fi+1}</label>
+          <textarea id=${"n-"+fi} rows="2" class="field font-medium" ref=${el=>refs.current[String(fi)]=el} onFocus=${()=>setFocus(String(fi))} value=${f} onChange=${e=>onText(fi,null,e.target.value)}></textarea>
+          ${kids.map((k,ki)=>html`<div key=${ki} class="grid gap-1 pl-3" style=${{borderLeft:"2px solid var(--line)"}}>
+            <label class="eyebrow" for=${"n-"+fi+"-"+ki}>2nd order · ${fi+1}.${ki+1}</label>
+            <textarea id=${"n-"+fi+"-"+ki} rows="2" class="field text-sm" ref=${el=>refs.current[fi+"-"+ki]=el} onFocus=${()=>setFocus(fi+"-"+ki)} value=${k} onChange=${e=>onText(fi,ki,e.target.value)}></textarea>
+            <div class="text-xs flex flex-wrap gap-1">${s.nodes.find(n=>n.order===2&&n.fi===fi&&n.ki===ki).themes.map(t=>html`<span key=${t} class="px-1.5 rounded" style=${{background:"var(--sunk)"}}>${t}</span>`)}
+              ${frictionHits(k).map(h=>html`<span key=${h} class="px-1.5 rounded font-semibold" style=${{background:"var(--q-crit-t)",color:"var(--fric)"}}>${h}</span>`)}</div>
+          </div>`)}
+        </div>`)}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------- Ledger ---------- */
+function Ledger({drivers,scores,sel,setSel}){
+  const [sort,setSort]=useState("quadrant");
+  const order={critical:0,megatrend:1,wildcard:2,background:3};
+  const rows=scores.map(s=>({s,d:drivers.find(x=>x.id===s.id)})).sort((a,b)=>sort==="quadrant"?(order[a.s.quadrant]-order[b.s.quadrant]||b.s.I-a.s.I):sort==="I"?b.s.I-a.s.I:sort==="U"?b.s.U-a.s.U:NUM[a.s.id]-NUM[b.s.id]);
+  const th=(k,l,al="left")=>html`<th class="py-2 px-2 font-medium text-xs text-muted cursor-pointer select-none" style=${{textAlign:al,whiteSpace:"nowrap"}} onClick=${()=>setSort(k)}>${l}${sort===k?" ↓":""}</th>`;
+  return html`<div style=${{overflowX:"auto"}}><table class="w-full" style=${{borderCollapse:"collapse",minWidth:680}}>
+    <thead><tr style=${{borderBottom:"1px solid var(--line)"}}>${th("n","#")}${th("n","Driver")}${th("n","Domain")}${th("n","Maturity")}${th("I","Importance","right")}${th("U","Uncertainty","right")}${th("quadrant","Quadrant")}</tr></thead>
+    <tbody>${rows.map(({s,d})=>html`<tr key=${s.id} onClick=${()=>setSel(s.id)} class="cursor-pointer" style=${{borderBottom:"1px solid var(--line)",background:s.id===sel?"var(--sunk)":"transparent"}}>
+      <td class="py-2 px-2 mono text-xs text-muted">${NUM[s.id]}</td>
+      <td class="py-2 px-2 text-sm">${d.title}</td>
+      <td class="py-2 px-2 text-xs"><span class="inline-flex items-center gap-1.5"><span style=${{width:8,height:8,borderRadius:2,background:DCOL[d.domain]}}></span>${d.domain}</span></td>
+      <td class="py-2 px-2 text-xs whitespace-nowrap">${d.maturity}</td>
+      <td class="py-2 px-2 mono text-sm text-right">${s.I.toFixed(2)}</td>
+      <td class="py-2 px-2 mono text-sm text-right">${s.U.toFixed(2)}</td>
+      <td class="py-2 px-2 text-xs whitespace-nowrap" style=${{color:Q[s.quadrant].col,fontWeight:600}}>${Q[s.quadrant].short}</td></tr>`)}</tbody></table></div>`;
+}
+
+/* ---------- App ---------- */
+function App(){
+  const base=useMemo(()=>score(DRIVERS),[]);
+  const [drivers,setDrivers]=useState(()=>{const e=loadEdits();if(e&&Array.isArray(e)&&e.length===25&&e.every((x,i)=>x.id===DRIVERS[i].id))return e;return clone(DRIVERS);});
+  const [sel,setSel]=useState("kerb");
+  const [focus,setFocus]=useState(null);
+  const [moved,setMoved]=useState(null);
+  const [showMethod,setShowMethod]=useState(false);
+  const scores=useMemo(()=>score(drivers),[drivers]);
+  useEffect(()=>saveEdits(drivers),[drivers]);
+  useEffect(()=>setFocus(null),[sel]);
+  const di=drivers.findIndex(x=>x.id===sel), d=drivers[di], s=scores[di], b=base[di];
+  const tabsRef=useRef(null);
+  useEffect(()=>{const el=tabsRef.current&&tabsRef.current.querySelector(`[data-id="${sel}"]`);if(el)el.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});},[sel]);
+  const update=fn=>{setDrivers(prev=>{const n=clone(prev);fn(n[di]);return n;});setMoved(sel);clearTimeout(window.__mv);window.__mv=setTimeout(()=>setMoved(null),1400);};
+  const edited=JSON.stringify(d)!==JSON.stringify(DRIVERS[di]);
+  const anyEdited=drivers.some((x,i)=>JSON.stringify(x)!==JSON.stringify(DRIVERS[i]));
+  return html`<div class="wrap grid gap-5">
+    <header class="grid gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="eyebrow flex items-center gap-2"><${Icon} name="Compass" size=${14}/>Strategic Foresight · Singapore Urban Policy 2050</div>
+        ${anyEdited?html`<button onClick=${()=>{setDrivers(clone(DRIVERS));}} class="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md cursor-pointer" style=${{border:"1px solid var(--line)",background:"var(--surface)"}}><${Icon} name="RotateCcw" size=${13}/>Reset all edits</button>`:null}
+      </div>
+      <h1 class="m-0" style=${{fontSize:"clamp(28px,4.2vw,46px)",lineHeight:1.05,fontWeight:700}}>Singapore 2050 Foresight Lab</h1>
+      <p class="m-0 max-w-3xl text-muted" style=${{fontSize:16}}><span class="text-ink font-medium">Problem statement:</span> How can Singapore navigate changing demographic, social, and technological demands for urban space by 2050 to maintain a high quality of life (QOL)?</p>
+    </header>
+
+    <${Overview} drivers=${drivers} scores=${scores}/>
+
+    <div class="grid gap-5" style=${{gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,520px),1fr))"}}>
+      <section class="panel p-4 min-w-0 grid gap-3 content-start">
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 class="m-0 text-lg flex items-center gap-2"><${Icon} name="Grid2x2" size=${18}/>Foresight matrix</h2>
+          <button onClick=${()=>setShowMethod(!showMethod)} class="text-xs inline-flex items-center gap-1 cursor-pointer bg-transparent border-0 p-0" style=${{color:"var(--accent)"}} aria-expanded=${showMethod}><${Icon} name="Info" size=${13}/>${showMethod?"Hide method":"How scores work"}</button>
+        </div>
+        ${showMethod?html`<div class="text-xs rounded-lg p-3 grid gap-2" style=${{background:"var(--bg)"}}>
+          <div><b>Uncertainty</b> = 0.6 × Maturity + 0.4 × Divergence. Maturity: Happening Now 1.0 · Emerging 2.5 · Weak Signal 4.0 · Black Jellyfish / Black Swan / Unconfirmed 5.0. Divergence counts distinct trade-off words in the six 2nd-order nodes (${FRICTION.join(", ")}): 1 word +0.5, 2 words +0.75, 3+ words +1.0, scaled ×5 onto the rating range.</div>
+          <div><b>Importance</b> = cross-wheel convergence. Every 1st- and 2nd-order node is tagged with shared urban themes (e.g. ${Object.keys(THEMES).slice(0,6).join(", ")}). Each node scores 1 for every other driver's wheel holding a node with a shared theme.</div>
+          <div>Both scores are min–max normalised to 1.0–5.0 across the 25 drivers. Quadrant split at 3.0.</div></div>`:null}
+        <${Matrix} drivers=${drivers} scores=${scores} sel=${sel} setSel=${setSel} moved=${moved}/>
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted">${DOMAINS.map(([dm])=>html`<span key=${dm} class="inline-flex items-center gap-1.5"><span style=${{width:9,height:9,borderRadius:99,background:DCOL[dm]}}></span>${dm}</span>`)}</div>
+      </section>
+
+      <section class="panel p-4 min-w-0 grid gap-3 content-start">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="m-0 text-lg flex items-center gap-2"><${Icon} name="Orbit" size=${18}/>Futures wheel</h2>
+          <div class="flex gap-1">
+            <button aria-label="Previous driver" onClick=${()=>setSel(drivers[(di+24)%25].id)} class="p-1.5 rounded-md cursor-pointer" style=${{border:"1px solid var(--line)",background:"var(--surface)"}}><${Icon} name="ChevronLeft" size=${15}/></button>
+            <button aria-label="Next driver" onClick=${()=>setSel(drivers[(di+1)%25].id)} class="p-1.5 rounded-md cursor-pointer" style=${{border:"1px solid var(--line)",background:"var(--surface)"}}><${Icon} name="ChevronRight" size=${15}/></button>
+          </div>
+        </div>
+        <div ref=${tabsRef} class="tabs flex gap-1.5 overflow-x-auto pb-1" role="tablist">
+          ${drivers.map((x,i)=>{const on=x.id===sel;const q=scores[i].quadrant;return html`<button key=${x.id} data-id=${x.id} role="tab" aria-selected=${on} onClick=${()=>setSel(x.id)} title=${x.title}
+            class="shrink-0 text-xs px-2.5 py-1.5 rounded-md cursor-pointer inline-flex items-center gap-1.5"
+            style=${{border:"1px solid "+(on?"var(--ink)":"var(--line)"),background:on?"var(--ink)":"var(--surface)",color:on?"var(--bg)":"var(--ink)"}}>
+            <span style=${{width:6,height:6,borderRadius:99,background:Q[q].col}}></span><span class="mono">${i+1}</span>${x.title.split(" ").slice(0,3).join(" ")}</button>`;})}
+        </div>
+        <div class="grid gap-1">
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded" style=${{background:"var(--sunk)"}}><span style=${{width:8,height:8,borderRadius:2,background:DCOL[d.domain]}}></span>${d.domain}</span>
+            <span class="px-2 py-0.5 rounded" style=${{background:"var(--sunk)"}}>${d.maturity}</span>
+            <span class="px-2 py-0.5 rounded font-semibold" style=${{background:Q[s.quadrant].tint,color:Q[s.quadrant].col}}>${Q[s.quadrant].short}</span>
+            <span class="text-muted">Scanned by ${d.scanner}</span>
+          </div>
+          <p class="m-0 text-sm">${d.desc}</p>
+          <p class="m-0 text-xs text-muted"><b class="text-ink">Initial impact:</b> ${d.impact}</p>
+          ${d.domainNote?html`<p class="m-0 text-xs text-muted">${d.domainNote}</p>`:null}
+        </div>
+        <${Wheel} d=${d} s=${s} focus=${focus} setFocus=${setFocus}/>
+      </section>
+    </div>
+
+    <section class="panel p-4 md:p-5 grid gap-3">
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 class="m-0 text-lg flex items-center gap-2"><${Icon} name="FlaskConical" size=${18}/>Student refinement · #${di+1} ${d.title}</h2>
+        <span class="text-xs text-muted">Edits stay in this browser only</span>
+      </div>
+      <${Refine} d=${d} s=${s} base=${b} focus=${focus} setFocus=${setFocus} edited=${edited}
+        onMat=${v=>update(x=>{x.maturity=v})}
+        onText=${(fi,ki,v)=>update(x=>{if(ki===null)x.w[fi][0]=v;else x.w[fi][1][ki]=v;})}
+        onReset=${()=>setDrivers(prev=>{const n=clone(prev);n[di]=clone(DRIVERS[di]);return n;})}/>
+    </section>
+
+    <section class="panel p-4 grid gap-3">
+      <h2 class="m-0 text-lg flex items-center gap-2"><${Icon} name="ListOrdered" size=${18}/>All 25 drivers</h2>
+      <${Ledger} drivers=${drivers} scores=${scores} sel=${sel} setSel=${id=>{setSel(id);window.scrollTo({top:0,behavior:"smooth"});}}/>
+    </section>
+  </div>`;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App}/>`);
+</script>
+
+</body></html>
