@@ -1197,7 +1197,7 @@
 
         <article class="pillar-card">
           <span class="label kicker">Pillar II · Field Consultancy</span>
-          <h3 class="subhead">SMU-XO Bali (SSOC202)</h3>
+          <h3 class="subhead">Project-Based Learning</h3>
           <p class="prose-muted">
             Cross-disciplinary student teams spend two weeks on-site in Ubud, Bali collaborating with <em>Mana Earthly Paradise</em> (a B-Corp eco-resort), neighboring farmers, and local communities. Co-created Causal Loop Diagrams inform actionable sustainability strategies presented directly to executive leadership.
           </p>
@@ -1208,8 +1208,8 @@
         </article>
 
         <article class="pillar-card">
-          <span class="label kicker">Pillar III · Hyperlocal Equity Walkshops</span>
-          <h3 class="subhead">SUSS Leading for Inclusion Walkshops</h3>
+          <span class="label kicker">Pillar III · Equity Walkshops</span>
+          <h3 class="subhead">Leading for Inclusion</h3>
           <p class="prose-muted">
             Experiential learning scaled to the urban neighborhood: 3-hour walking workshops in Singapore’s Chinatown immerse undergraduates in firsthand field observation of hyperlocal sustainability initiatives—demonstrating a core principle: <em>if it is not inclusive, it is not sustainable</em>.
           </p>
@@ -1453,31 +1453,31 @@
       }
     ];
 
-    const CLD_MODES = {
-      strengthen: {
-        figLabel: `Figure 1A · Strengthening Reinforcing Loop (Promoting Sustainability)`,
-        figDesc: `Students map positive feedback (+) linking Eco-Resort Visibility, Sustainable Traveler Demand, and Community Conservation—and remove dampening edges (−).`,
-        kicker: `Intervention Archetype A`,
-        title: `Strengthening Virtuous Cycles`,
-        body: `In the SSOC202 Bali consultancy for Mana Earthly Paradise, student teams map how visible sustainability practices attract eco-conscious travelers, generating revenue reinvested into local conservation and cultural heritage. Removing dampening bottlenecks (such as low operational visibility) amplifies the virtuous cycle.`,
-        context: `Applied in SMU-XO (Bali) SSOC202 (Sustainability Practices in Asia).`
-      },
-      break: {
-        figLabel: `Figure 1B · Disrupting Reinforcing Loop (Discouraging Sustainability)`,
-        figDesc: `Targeted policy or infrastructure levers such as deposit-return systems sever the reinforcing link between single-use convenience and systemic waste externalities.`,
-        kicker: `Intervention Archetype B`,
-        title: `Breaking or Weakening Viscious Cycles`,
-        body: `Rather than treating waste as an isolated consumer failure, students trace how single-use convenience reinforces landfill burdens (such as Suwung in Bali) and socio-ecological vulnerability. Identifying a Lorenz-style leverage point like Germany's RECUP deposit system disrupts the vicious cycle at minimal structural cost.`,
-        context: `Applied in COR-SSOC2234 (Sustainability Reasoning and Analysis).`
-      },
-      close: {
-        figLabel: `Figure 1C · Closing an Incomplete Loop`,
-        figDesc: `Adding a missing institutional bridge node such as a Community Cooperative or Fair-Trade Job Bank—completes an otherwise stalled sustainability pathway.`,
-        kicker: `Intervention Archetype C`,
-        title: `Closing Incomplete Loops`,
-        body: `Many well-intentioned sustainability programs stall because an essential causal connection is missing: local training improves skills, yet income and community reinvestment remain disconnected. Students design a feedback edge to close the loop.`,
-        context: `Applied in SMU-XO (Bali) SSOC202 (Sustainability Practices in Asia).`
-      }
+const CLD_MODES = {
+  strengthen: {
+    figLabel: `Figure 1A · Strengthening a Reinforcing Loop (Promoting Sustainability)`,
+    figDesc: `Students map the positive feedback (+) among eco-resort visibility, sustainable traveler demand, and community conservation, then identify the dampening links (−) that slow it down.`,
+    kicker: `Intervention Archetype A`,
+    title: `Strengthening Virtuous Cycles`,
+    body: `In the Bali consultancy for Mana Earthly Paradise, student teams map how visible sustainability practices attract eco-conscious travelers, whose spending can be reinvested in local conservation and cultural heritage. They then look for what holds the cycle back, such as low operational visibility, and propose ways to remove it.`,
+    context: `Applied in SSOC202 (Sustainability Practices in Asia).`
+  },
+  break: {
+    figLabel: `Figure 1B · Weakening a Reinforcing Loop (Discouraging Sustainability)`,
+    figDesc: `A policy or infrastructure lever, such as a deposit-return system, weakens the reinforcing link between single-use convenience and waste externalities.`,
+    kicker: `Intervention Archetype B`,
+    title: `Breaking Vicious Cycles`,
+    body: `Instead of treating waste as an individual consumer failure, students trace how single-use convenience reinforces landfill burdens (such as Suwung in Bali) and socio-ecological vulnerability. They then examine leverage points such as Germany's RECUP deposit system, which targets the link where intervention is likely to be most effective.`,
+    context: `Applied in COR-SSOC2234 (Sustainability Reasoning and Analysis).`
+  },
+  close: {
+    figLabel: `Figure 1C · Closing an Incomplete Loop`,
+    figDesc: `Adding a missing institutional link, such as a community cooperative or a fair-trade job bank, completes a pathway that would otherwise stall.`,
+    kicker: `Intervention Archetype C`,
+    title: `Closing Incomplete Loops`,
+    body: `Many well-intentioned sustainability programs stall because a key causal connection is missing. For example, local training builds skills, yet income and community reinvestment remain disconnected. Students identify the gap and design the missing link that closes the loop.`,
+    context: `Applied in SSOC202 (Sustainability Practices in Asia).`
+  }
     };
 
     let activeStream = `all`;
