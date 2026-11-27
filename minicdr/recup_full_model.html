@@ -1,0 +1,3306 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RECUP Circular Cup System — Interactive Causal Loop Diagram &amp; Scenario Lab</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root {
+      --bg-app: #f4f6f9;
+      --bg-surface: #ffffff;
+      --bg-subtle: #eef2f6;
+      --bg-elevated: #ffffff;
+      --bg-canvas: #f8fafc;
+      --grid-dot: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --border-color: #dbe3ec;
+      --border-strong: #94a3b8;
+
+      --accent: #0f766e;
+      --accent-hover: #115e59;
+      --accent-soft: rgba(15, 118, 110, 0.12);
+
+      --pos: #059669;
+      --pos-bg: #d1fae5;
+      --pos-text: #065f46;
+
+      --neg: #dc2626;
+      --neg-bg: #fee2e2;
+      --neg-text: #991b1b;
+
+      --mixed: #64748b;
+      --mixed-bg: #e2e8f0;
+      --mixed-text: #334155;
+
+      --warn: #d97706;
+      --warn-bg: #fef3c7;
+      --warn-text: #92400e;
+
+      --cat-network: #2563eb;
+      --cat-consumer: #059669;
+      --cat-supply: #d97706;
+      --cat-material: #7c3aed;
+      --cat-env: #0891b2;
+
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+      --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.12);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    [data-theme="dark"] {
+      --bg-app: #0b1120;
+      --bg-surface: #111827;
+      --bg-subtle: #1e293b;
+      --bg-elevated: #162033;
+      --bg-canvas: #0d1526;
+      --grid-dot: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border-color: #263349;
+      --border-strong: #475569;
+
+      --accent: #14b8a6;
+      --accent-hover: #2dd4bf;
+      --accent-soft: rgba(20, 184, 166, 0.16);
+
+      --pos: #10b981;
+      --pos-bg: rgba(16, 185, 129, 0.2);
+      --pos-text: #6ee7b7;
+
+      --neg: #f87171;
+      --neg-bg: rgba(248, 113, 113, 0.2);
+      --neg-text: #fca5a5;
+
+      --mixed: #94a3b8;
+      --mixed-bg: rgba(148, 163, 184, 0.22);
+      --mixed-text: #cbd5e1;
+
+      --warn: #fbbf24;
+      --warn-bg: rgba(251, 191, 36, 0.18);
+      --warn-text: #fde68a;
+
+      --cat-network: #60a5fa;
+      --cat-consumer: #34d399;
+      --cat-supply: #fbbf24;
+      --cat-material: #a78bfa;
+      --cat-env: #22d3ee;
+
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.5);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    a:hover {
+      color: var(--accent-hover);
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    /* App Shell */
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .top-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      color: #ffffff;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .brand-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .tab-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: var(--bg-subtle);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 12.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(148, 163, 184, 0.15);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-surface);
+      color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .selftest-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .selftest-badge.pass {
+      background: var(--pos-bg);
+      color: var(--pos-text);
+      border-color: var(--pos);
+    }
+
+    .selftest-badge.fail {
+      background: var(--neg-bg);
+      color: var(--neg-text);
+      border-color: var(--neg);
+    }
+
+    .icon-btn {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      padding: 6px 11px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--border-strong);
+      background: var(--bg-elevated);
+    }
+
+    .icon-btn.primary {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .icon-btn.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Self-test expandable panel */
+    .selftest-drawer {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: none;
+    }
+
+    .selftest-drawer.open {
+      display: block;
+    }
+
+    .selftest-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .selftest-item {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+      flex: 1;
+    }
+
+    .tab-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* P1 Layout */
+    .p1-workspace {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 60px);
+    }
+
+    .cld-stage {
+      position: relative;
+      flex: 1;
+      background-color: var(--bg-canvas);
+      background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+      background-size: 20px 20px;
+      overflow: hidden;
+      min-height: 620px;
+    }
+
+    #cld-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+
+    #cld-svg:active {
+      cursor: grabbing;
+    }
+
+    .cld-overlay-top {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .toolbar-group {
+      pointer-events: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 6px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .toolbar-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin: 0 4px;
+    }
+
+    .loop-btn {
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      color: var(--text-primary);
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .loop-btn:hover {
+      border-color: var(--accent);
+    }
+
+    .loop-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .loop-btn .loop-tag {
+      font-size: 10px;
+      opacity: 0.85;
+    }
+
+    .search-input, .filter-select {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 5px 9px;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .search-input:focus, .filter-select:focus {
+      border-color: var(--accent);
+    }
+
+    .search-input {
+      width: 175px;
+    }
+
+    .loop-banner {
+      position: absolute;
+      top: 66px;
+      left: 12px;
+      max-width: 520px;
+      background: var(--bg-surface);
+      border: 1px solid var(--accent);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      box-shadow: var(--shadow-md);
+      z-index: 10;
+      display: none;
+    }
+
+    .loop-banner.visible {
+      display: block;
+    }
+
+    .loop-banner-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .loop-banner-title {
+      font-weight: 700;
+      font-size: 13.5px;
+    }
+
+    .loop-banner-desc {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .cld-overlay-bottom {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .legend-card {
+      pointer-events: auto;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      font-size: 11.5px;
+      color: var(--text-secondary);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* SVG Graph Styles */
+    .edge-path {
+      fill: none;
+      stroke: var(--border-strong);
+      stroke-width: 1.8px;
+      transition: opacity 0.25s ease, stroke 0.25s ease, stroke-width 0.25s ease;
+    }
+
+    .edge-path.polarity-pos {
+      stroke: var(--pos);
+    }
+
+    .edge-path.polarity-neg {
+      stroke: var(--neg);
+    }
+
+    .edge-path.dimmed {
+      opacity: 0.14;
+    }
+
+    .edge-path.loop-active {
+      stroke-width: 3.2px;
+      stroke-dasharray: 8 5;
+      animation: marchingAnts 0.75s linear infinite;
+    }
+
+    .edge-path.ripple-active {
+      stroke-width: 3.4px;
+    }
+
+    @keyframes marchingAnts {
+      to {
+        stroke-dashoffset: -13;
+      }
+    }
+
+    .edge-badge-group {
+      transition: opacity 0.25s ease;
+      cursor: pointer;
+    }
+
+    .edge-badge-group.dimmed {
+      opacity: 0.14;
+    }
+
+    .node-group {
+      cursor: pointer;
+      transition: opacity 0.25s ease;
+    }
+
+    .node-group.dimmed {
+      opacity: 0.18;
+    }
+
+    .node-circle {
+      stroke-width: 2.5px;
+      transition: r 0.2s ease, stroke-width 0.2s ease, fill 0.25s ease, stroke 0.25s ease;
+    }
+
+    .node-group.selected .node-circle {
+      stroke-width: 4.5px;
+      filter: drop-shadow(0 0 6px rgba(15, 118, 110, 0.55));
+    }
+
+    .node-group.ripple-increase .node-circle {
+      fill: var(--pos) !important;
+      stroke: #ffffff !important;
+      stroke-width: 3.5px;
+    }
+
+    .node-group.ripple-decrease .node-circle {
+      fill: var(--neg) !important;
+      stroke: #ffffff !important;
+      stroke-width: 3.5px;
+    }
+
+    .node-group.ripple-mixed .node-circle {
+      fill: var(--mixed) !important;
+      stroke: #ffffff !important;
+      stroke-width: 3.5px;
+    }
+
+    .node-id-text {
+      fill: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .node-label-bg {
+      fill: var(--bg-surface);
+      opacity: 0.92;
+      rx: 4;
+      ry: 4;
+      pointer-events: none;
+    }
+
+    .node-label-text {
+      fill: var(--text-primary);
+      font-size: 11px;
+      font-weight: 600;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    /* Inspector Drawer */
+    .inspector-drawer {
+      width: 390px;
+      max-width: 100%;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      max-height: calc(100vh - 58px);
+    }
+
+    .drawer-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--bg-subtle);
+    }
+
+    .drawer-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .drawer-section {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      background: var(--bg-elevated);
+    }
+
+    .drawer-section-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cat-pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      color: #ffffff;
+    }
+
+    .rel-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .rel-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: var(--bg-subtle);
+      font-size: 12.5px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .rel-item:hover {
+      border-color: var(--accent);
+    }
+
+    .pol-pill {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 12px;
+      padding: 1px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .pol-pill.pos {
+      background: var(--pos-bg);
+      color: var(--pos-text);
+    }
+
+    .pol-pill.neg {
+      background: var(--neg-bg);
+      color: var(--neg-text);
+    }
+
+    .ripple-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .ripple-btn {
+      padding: 8px 10px;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      font-weight: 700;
+      font-size: 12.5px;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.1s ease, opacity 0.15s ease;
+    }
+
+    .ripple-btn:active {
+      transform: scale(0.98);
+    }
+
+    .ripple-btn.surge {
+      background: var(--pos-bg);
+      color: var(--pos-text);
+      border-color: var(--pos);
+    }
+
+    .ripple-btn.shock {
+      background: var(--neg-bg);
+      color: var(--neg-text);
+      border-color: var(--neg);
+    }
+
+    .ripple-output {
+      background: var(--bg-subtle);
+      border-radius: 7px;
+      padding: 10px;
+      font-size: 12.5px;
+      border: 1px solid var(--border-color);
+    }
+
+    .ripple-verdict {
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin-top: 8px;
+      background: var(--accent-soft);
+      color: var(--text-primary);
+      border-left: 3px solid var(--accent);
+    }
+
+    .ripple-buckets {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .bucket-box {
+      border-radius: 6px;
+      padding: 7px 9px;
+      font-size: 12px;
+    }
+
+    .bucket-box.inc {
+      background: var(--pos-bg);
+      color: var(--pos-text);
+    }
+
+    .bucket-box.dec {
+      background: var(--neg-bg);
+      color: var(--neg-text);
+    }
+
+    .bucket-box.mix {
+      background: var(--mixed-bg);
+      color: var(--mixed-text);
+    }
+
+    /* Scenario & Content Views (P2, P3, Rules, Methods) */
+    .page-container {
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 22px 20px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .hero-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hero-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .scenario-tag {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .callout-box {
+      border-radius: var(--radius-md);
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      font-size: 13px;
+    }
+
+    .callout-box.narrative {
+      border-left: 4px solid var(--accent);
+    }
+
+    .callout-box.method {
+      border-left: 4px solid #2563eb;
+    }
+
+    .callout-box.warning {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-color: var(--warn);
+      border-left: 4px solid var(--warn);
+    }
+
+    .source-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .two-col-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .panel-card h3 {
+      margin: 0 0 12px 0;
+      font-size: 15.5px;
+      font-weight: 700;
+    }
+
+    /* Sliders & KPI Cards */
+    .slider-block {
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+    }
+
+    .slider-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .slider-label {
+      font-weight: 700;
+      font-size: 13.5px;
+    }
+
+    .slider-val {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--accent);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .slider-help {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .kpi-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--text-primary);
+    }
+
+    .kpi-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Evidence Cards */
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 14px;
+    }
+
+    .evidence-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--pos);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .evidence-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--pos-text);
+    }
+
+    .evidence-text {
+      font-size: 13px;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    /* Pathway Diagram Box */
+    .pathway-svg-wrap {
+      width: 100%;
+      overflow-x: auto;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px;
+    }
+
+    /* Student Rules */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 16px;
+    }
+
+    .rule-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: opacity 0.2s ease, border-color 0.2s ease;
+    }
+
+    .rule-card.active-rule {
+      border-color: var(--accent);
+    }
+
+    .rule-card.inactive-rule {
+      opacity: 0.72;
+    }
+
+    .rule-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field-group label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .field-input, .field-textarea, .field-select {
+      width: 100%;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .field-textarea {
+      min-height: 58px;
+      resize: vertical;
+    }
+
+    .effect-row {
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 8px;
+    }
+
+    .toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+
+    .danger-btn {
+      background: var(--neg-bg);
+      color: var(--neg-text);
+      border: 1px solid var(--neg);
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Methods Table */
+    .methods-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+    }
+
+    table.methods-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      text-align: left;
+    }
+
+    table.methods-table th, table.methods-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: top;
+    }
+
+    table.methods-table th {
+      background: var(--bg-subtle);
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    code.formula-code {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      background: var(--bg-subtle);
+      padding: 3px 6px;
+      border-radius: 4px;
+      display: inline-block;
+      border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 1024px) {
+      .p1-workspace {
+        flex-direction: column;
+      }
+      .inspector-drawer {
+        width: 100%;
+        max-height: none;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+      }
+      .two-col-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="brand">
+      <div class="brand-mark">CLD</div>
+      <div>
+        <h1 class="brand-title">RECUP Circular Cup System</h1>
+        <p class="brand-subtitle">Systems Thinking &amp; Climate Scenario Classroom Lab</p>
+      </div>
+    </div>
+
+    <nav class="tab-nav" role="tablist" aria-label="Activity Sections">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="p1">
+        P1: Causal Loop Diagram
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="p2">
+        P2: SSP1-2.6 Green Road
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="p3">
+        P3: SSP3-7.0 Regional Rivalry
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="rules">
+        Student Rules <span class="tab-badge" id="active-rules-badge">2 active</span>
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="methods">
+        Assumptions &amp; Methods
+      </button>
+    </nav>
+
+    <div class="header-actions">
+      <button id="selftest-badge" class="selftest-badge pass" type="button" title="Click to inspect structural loop self-test details">
+        Self-test: PASS
+      </button>
+      <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle light or dark mode">
+        Dark Mode
+      </button>
+    </div>
+  </header>
+
+  <!-- EXPANDABLE SELF-TEST DIAGNOSTIC PANEL -->
+  <section id="selftest-drawer" class="selftest-drawer" aria-label="Loop Structural Self-Test Results">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+      <strong id="selftest-summary-text">Self-test: PASS — All 5 loops verified for edge connectivity and polarity parity.</strong>
+      <button id="selftest-close" class="icon-btn" type="button">Close</button>
+    </div>
+    <div id="selftest-list" class="selftest-grid"></div>
+  </section>
+
+  <!-- ==================== P1: CAUSAL LOOP DIAGRAM ==================== -->
+  <main id="tab-p1" class="tab-panel active" role="tabpanel">
+    <div class="p1-workspace">
+      <div class="cld-stage" id="cld-stage">
+        <!-- Top Floating Controls -->
+        <div class="cld-overlay-top">
+          <div class="toolbar-group" role="group" aria-label="Feedback Loop Focus">
+            <span class="toolbar-label">Loops:</span>
+            <button class="loop-btn" data-loop="R1" type="button">R1 <span class="loop-tag">Reinforcing</span></button>
+            <button class="loop-btn" data-loop="B1" type="button">B1 <span class="loop-tag">Balancing</span></button>
+            <button class="loop-btn" data-loop="B2" type="button">B2 <span class="loop-tag">Balancing</span></button>
+            <button class="loop-btn" data-loop="B3" type="button">B3 <span class="loop-tag">Balancing</span></button>
+            <button class="loop-btn" data-loop="B4" type="button">B4 <span class="loop-tag">Balancing</span></button>
+          </div>
+
+          <div class="toolbar-group" role="group" aria-label="Search, Filter, and Canvas Controls">
+            <input id="node-search" class="search-input" type="search" placeholder="Search nodes (e.g. N3, Hygiene)..." aria-label="Search nodes" />
+            <select id="category-filter" class="filter-select" aria-label="Filter by category">
+              <option value="ALL">All Categories (20)</option>
+              <option value="Network & Economics">Network &amp; Economics</option>
+              <option value="Consumer Operations">Consumer Operations</option>
+              <option value="Supply Chain & Stock">Supply Chain &amp; Stock</option>
+              <option value="Material & Quality">Material &amp; Quality</option>
+              <option value="Environment & Climate">Environment &amp; Climate</option>
+            </select>
+            <button id="lock-layout-btn" class="icon-btn" type="button" title="Toggle force simulation lock">Unlock/Lock: Unlocked</button>
+            <button id="reset-cld-btn" class="icon-btn" type="button">Reset</button>
+          </div>
+        </div>
+
+        <!-- Focused Loop Info Banner -->
+        <div id="loop-banner" class="loop-banner">
+          <div class="loop-banner-head">
+            <span id="loop-banner-title" class="loop-banner-title"></span>
+            <button id="clear-loop-btn" class="icon-btn" type="button" style="padding:2px 8px; font-size:11.5px;">Clear Loop</button>
+          </div>
+          <p id="loop-banner-desc" class="loop-banner-desc"></p>
+        </div>
+
+        <!-- D3 SVG Canvas -->
+        <svg id="cld-svg" aria-label="RECUP Causal Loop Diagram"></svg>
+
+        <!-- Bottom Floating Legend & Zoom Controls -->
+        <div class="cld-overlay-bottom">
+          <div class="legend-card">
+            <span class="legend-item"><span class="legend-dot" style="background:var(--cat-network)"></span>Network &amp; Economics</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--cat-consumer)"></span>Consumer Operations</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--cat-supply)"></span>Supply Chain &amp; Stock</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--cat-material)"></span>Material &amp; Quality</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--cat-env)"></span>Environment &amp; Climate</span>
+            <span class="legend-item"><span class="pol-pill pos">+</span> Same direction</span>
+            <span class="legend-item"><span class="pol-pill neg">&minus;</span> Opposite direction</span>
+          </div>
+
+          <div class="toolbar-group">
+            <button id="zoom-in-btn" class="icon-btn" type="button" title="Zoom in">+</button>
+            <button id="zoom-out-btn" class="icon-btn" type="button" title="Zoom out">&minus;</button>
+            <button id="zoom-fit-btn" class="icon-btn" type="button" title="Fit diagram to screen">Fit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT NODE INSPECTOR & RIPPLE SIMULATOR DRAWER -->
+      <aside class="inspector-drawer" aria-label="Node Inspector and Ripple Simulator">
+        <div class="drawer-header">
+          <div>
+            <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.04em;">Node Inspector</div>
+            <h2 id="inspector-node-title" style="margin:2px 0 4px; font-size:16px;">N3: Adoption Volume</h2>
+            <span id="inspector-node-cat" class="cat-pill" style="background:var(--cat-consumer);">Consumer Operations</span>
+          </div>
+        </div>
+
+        <div class="drawer-body">
+          <!-- Ripple Simulator -->
+          <div class="drawer-section">
+            <div class="drawer-section-title">
+              <span>Ripple Simulator</span>
+              <span id="ripple-mode-tag" style="font-family:var(--font-mono); color:var(--accent);">MODE B: System (Depth &le; 6)</span>
+            </div>
+            <p style="font-size:12px; color:var(--text-secondary); margin:0 0 8px;">
+              Trigger a shock from <strong id="ripple-source-label">N3</strong>. Focus a loop (R1, B1&ndash;B4) for Mode A loop tracing, or clear loop focus for Mode B system-wide BFS.
+            </p>
+            <div class="ripple-controls">
+              <button id="ripple-surge-btn" class="ripple-btn surge" type="button">++ Positive surge</button>
+              <button id="ripple-shock-btn" class="ripple-btn shock" type="button">&minus;&minus; Negative shock</button>
+            </div>
+            <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+              <button id="ripple-clear-btn" class="icon-btn" type="button" style="font-size:11.5px; padding:4px 8px;">Clear Ripple</button>
+            </div>
+            <div id="ripple-output" class="ripple-output">
+              <span style="color:var(--text-muted);">Select <strong>++ Positive surge</strong> or <strong>&minus;&minus; Negative shock</strong> to simulate causal propagation.</span>
+            </div>
+          </div>
+
+          <!-- Connected Loops -->
+          <div class="drawer-section">
+            <div class="drawer-section-title">
+              <span>Connected Feedback Loops</span>
+              <span id="inspector-loop-count" style="font-family:var(--font-mono);">5</span>
+            </div>
+            <div id="inspector-loops" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
+          </div>
+
+          <!-- Incoming Drivers -->
+          <div class="drawer-section">
+            <div class="drawer-section-title">
+              <span>Incoming Drivers (Causes)</span>
+              <span id="inspector-in-count" style="font-family:var(--font-mono);">0</span>
+            </div>
+            <ul id="inspector-incoming" class="rel-list"></ul>
+          </div>
+
+          <!-- Outgoing Impacts -->
+          <div class="drawer-section">
+            <div class="drawer-section-title">
+              <span>Outgoing Impacts (Effects)</span>
+              <span id="inspector-out-count" style="font-family:var(--font-mono);">0</span>
+            </div>
+            <ul id="inspector-outgoing" class="rel-list"></ul>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ==================== P2: SSP1-2.6 GREEN ROAD ==================== -->
+  <main id="tab-p2" class="tab-panel" role="tabpanel">
+    <div class="page-container">
+      <div class="hero-card">
+        <div class="hero-header">
+          <div>
+            <span class="scenario-tag">SCENARIO P2 &bull; SSP1-2.6</span>
+            <h2 class="page-title">SSP1-2.6 (&ldquo;Taking the Green Road&rdquo; / Aggressive Fossil Fuel Phase-Out)</h2>
+          </div>
+          <button id="p2-focus-cld-btn" class="icon-btn primary" type="button">Inspect B2 &rarr; B4 Spillover in CLD</button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+          <div class="callout-box narrative">
+            <span class="source-tag">[P]</span> <strong>Narrative (assumption):</strong> Under SSP1-2.6, plastic feedstock is potentially reduced as fossil fuels are phased out, driving up the cost of cup replacement. Cup lifespan needs to be extended (e.g. more than 1,000 washing cycles), but adoption will increase as society becomes more sustainability-conscious.
+          </div>
+          <div class="callout-box method">
+            <span class="source-tag">[P]</span> <strong>Method note:</strong> Climate scenario narratives can be developed qualitatively using the storyline approach of Shepherd et al. (2018). The narratives on this page are assumptions, not outputs of that method.
+            <a href="https://link.springer.com/article/10.1007/s10584-018-2317-9" target="_blank" rel="noopener noreferrer">https://link.springer.com/article/10.1007/s10584-018-2317-9</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Emphasis: B2 Triggering B4 -->
+      <div class="panel-card">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+          <h3 style="margin:0;">Cross-Loop Spillover: Loop B2 Triggering Loop B4</h3>
+          <span class="pol-pill neg" style="font-family:var(--font-sans);">Critical Spillover: N9 &rarr; N18</span>
+        </div>
+        <p style="margin:0 0 10px; font-size:13px; color:var(--text-secondary);">
+          Aggressive fossil fuel caps tighten virgin polypropylene supply (<strong>B2: PP Material Scarcity Constraint</strong>), pushing operators to extend cup end-of-life beyond 1,000 washes and activating <strong>B4: Hygiene Degradation</strong>:
+          <strong>PP Feedstock Deficit &rarr; Extended Cup EoL Past 1,000 Washes &rarr; Surface Micro-Degradation &rarr; Consumer Hygiene Concerns &rarr; Adoption Decline</strong>.
+        </p>
+        <div class="pathway-svg-wrap">
+          <svg id="p2-pathway-svg" viewBox="0 0 980 215" style="width:100%; min-width:740px; height:auto; display:block;"></svg>
+        </div>
+      </div>
+
+      <!-- Interactive Controls & Live Metrics -->
+      <div class="two-col-grid">
+        <div class="panel-card">
+          <h3>SSP1-2.6 Policy &amp; Operations Levers</h3>
+
+          <div class="slider-block">
+            <div class="slider-top">
+              <label class="slider-label" for="p2-cap-slider">Fossil Plastic Production Cap Strictness (%)</label>
+              <span class="slider-val" id="p2-cap-val">55%</span>
+            </div>
+            <input id="p2-cap-slider" type="range" min="0" max="90" step="1" value="55" />
+            <div class="slider-help">
+              Lower fossil production means lower plastic supply, since plastic is a by-product of crude oil refining.
+            </div>
+          </div>
+
+          <div class="slider-block">
+            <div class="slider-top">
+              <label class="slider-label" for="p2-lifespan-slider">Target Cup Washing Lifespan (Washes)</label>
+              <span class="slider-val" id="p2-lifespan-val">1,000 washes</span>
+            </div>
+            <input id="p2-lifespan-slider" type="range" min="500" max="2000" step="50" value="1000" />
+            <div class="slider-help">
+              Standard design threshold is 1,000 washes. Extending beyond 1,000 washes reduces replacement demand (D) but accelerates surface micro-degradation.
+            </div>
+          </div>
+
+          <div style="margin-top:12px; font-size:12px; color:var(--text-muted);">
+            Active Student Rule modifiers currently applied to Capacity: <strong id="p2-active-modifiers">Hoarding 20%, Washing Loss 25%</strong>.
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h3>Simulated System Outcomes (Live)</h3>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-title">Feedstock Deficit</div>
+              <div class="kpi-value" id="p2-kpi-deficit">25.0%</div>
+              <div class="kpi-sub" id="p2-kpi-deficit-sub">Demand D = 60.0 vs. Supply S = 45.0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Replacement Cup Unit Cost</div>
+              <div class="kpi-value" id="p2-kpi-cost">$0.64</div>
+              <div class="kpi-sub">Base $0.45 scaled by feedstock scarcity</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Net System Circulation Capacity</div>
+              <div class="kpi-value" id="p2-kpi-capacity">52,500</div>
+              <div class="kpi-sub">Active circulating cups across network</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Consumer Hygiene Concerns</div>
+              <div class="kpi-value" id="p2-kpi-hygiene">20</div>
+              <div class="kpi-sub">Index (0&ndash;100; baseline = 20 at &le;1,000 washes)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Research Evidence Cards -->
+      <div>
+        <h3 style="margin:0 0 10px; font-size:15.5px;">Research Evidence (SSP1-2.6 Context)</h3>
+        <div class="evidence-grid">
+          <article class="evidence-card">
+            <div class="evidence-head">
+              <span>Research evidence</span>
+              <span class="source-tag">[P] Trucost, 2026</span>
+            </div>
+            <p class="evidence-text">
+              Increasing the recycling of post-consumer plastics (to 55%) and minimizing landfilling (to a maximum of 10%) could deliver significant environmental benefits. If these targets were implemented across Europe and North America, the environmental cost of plastics could be reduced by over $7.9 billion in net terms, accounting for the increased environmental impacts of waste collection and management, and in addition to the direct economic gains from the recovered value of recycled plastics and recovered energy (Trucost, 2026).
+            </p>
+          </article>
+
+          <article class="evidence-card">
+            <div class="evidence-head">
+              <span>Research evidence</span>
+              <span class="source-tag">[P] Steilemann, 2022</span>
+            </div>
+            <p class="evidence-text">
+              The chemical and plastics industries account for around 7% of global greenhouse gas emissions. By 2030 this could reach a level equivalent to around 300 new coal-fired power plants. Plastics are made by taking crude oil out of the ground and processing it, which accounts for 4&ndash;8% of annual global oil consumption. By 2050, according to experts, growing demand for plastics could push this figure as high as 20% (Steilemann, 2022).
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== P3: SSP3-7.0 REGIONAL RIVALRY ==================== -->
+  <main id="tab-p3" class="tab-panel" role="tabpanel">
+    <div class="page-container">
+      <div class="hero-card">
+        <div class="hero-header">
+          <div>
+            <span class="scenario-tag">SCENARIO P3 &bull; SSP3-7.0</span>
+            <h2 class="page-title">SSP3-7.0 (&ldquo;Regional Rivalry&rdquo; / Fragmented High-Emissions Infrastructure)</h2>
+          </div>
+          <button id="p3-focus-cld-btn" class="icon-btn primary" type="button">Inspect Loop B3 in CLD</button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+          <div class="callout-box narrative">
+            <span class="source-tag">[P]</span> <strong>Narrative (assumption):</strong> Under SSP3-7.0, a fragmented, high-emissions global economy increases climate risks across coffee-producing regions. Reduced coffee yields contribute to higher coffee bean prices and lower operating margins for caf&eacute;s and bakeries. To maintain profitability, operators may extend cup end-of-life beyond recommended replacement thresholds rather than purchasing replacement cups. This increases surface micro-degradation and may raise consumer hygiene concerns, reducing user adoption and constraining partner network growth.
+          </div>
+          <div class="callout-box warning">
+            <span class="source-tag">[P]</span> <strong>Scenario Assumption:</strong> Coffee bean prices increase by approximately 80% under severe climate stress. This is a scenario assumption informed by drought-related coffee market observations and must not be interpreted as a direct mathematical consequence of reported land-suitability losses. Do not derive the price increase mathematically from land suitability loss alone.
+          </div>
+          <div class="callout-box method">
+            <span class="source-tag">[P]</span> <strong>Method note:</strong> Climate scenario narratives can be developed qualitatively using the storyline approach of Shepherd et al. (2018). The narratives on this page are assumptions, not outputs of that method.
+            <a href="https://link.springer.com/article/10.1007/s10584-018-2317-9" target="_blank" rel="noopener noreferrer">https://link.springer.com/article/10.1007/s10584-018-2317-9</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- B3 Loop & Assumed Spillover Chain -->
+      <div class="panel-card">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px;">
+          <h3 style="margin:0;">B3 Coffee-Climate Feedback Loop &amp; Caf&eacute; Margin Adaptation Chain</h3>
+          <span class="pol-pill neg" style="font-family:var(--font-sans);">Fossil-Heavy Grid &rarr; Ecosystem Stress</span>
+        </div>
+        <p style="margin:0 0 10px; font-size:13px; color:var(--text-secondary);">
+          In a fossil-heavy energy regime, washing &amp; logistics energy drives emissions and warming across Loop <strong>B3</strong>
+          (<code>N3 &rarr; N12 &rarr; N13 &rarr; N14 &rarr; N15 &rarr; N16 &rarr; N17 &rarr; N1 &rarr; N2 &rarr; N3</code>), triggering the assumed adaptation chain:
+          <strong>Coffee Yield Loss &rarr; Bean Price Increase &rarr; Caf&eacute; Margin Reduction &rarr; Cup Life Extension Strategy &rarr; Surface Micro-Degradation &rarr; Hygiene Concerns &rarr; Adoption Decline</strong>.
+        </p>
+        <div class="pathway-svg-wrap">
+          <svg id="p3-pathway-svg" viewBox="0 0 980 250" style="width:100%; min-width:760px; height:auto; display:block;"></svg>
+        </div>
+      </div>
+
+      <!-- Interactive Controls & Live Metrics -->
+      <div class="two-col-grid">
+        <div class="panel-card">
+          <h3>SSP3-7.0 Climate &amp; Caf&eacute; Margin Levers</h3>
+
+          <div class="slider-block">
+            <div class="slider-top">
+              <label class="slider-label" for="p3-price-slider">Coffee bean price increase (%)</label>
+              <span class="slider-val" id="p3-price-val">80%</span>
+            </div>
+            <input id="p3-price-slider" type="range" min="0" max="150" step="1" value="80" />
+            <div class="slider-help">
+              Scenario assumption baseline is +80% under severe climate stress (plus any active Student Rule coffee price shock).
+            </div>
+          </div>
+
+          <div class="slider-block">
+            <div class="slider-top">
+              <label class="slider-label" for="p3-push-slider">Extending Cup EoL Past 1,000 Washes (%)</label>
+              <span class="slider-val" id="p3-push-val">45%</span>
+            </div>
+            <input id="p3-push-slider" type="range" min="0" max="100" step="1" value="45" />
+            <div class="slider-help" style="color:var(--warn-text); font-weight:600;">
+              Attempts to improve operating margins will cause unintended consequences.
+            </div>
+          </div>
+
+          <div style="margin-top:12px; font-size:12px; color:var(--text-muted);">
+            Active Student Rule modifiers currently applied: <strong id="p3-active-modifiers">Extra coffee price +0%, Margin hit 0 pts</strong>.
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <h3>Simulated Caf&eacute; &amp; Network Outcomes (Live)</h3>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-title">Caf&eacute; Operating Margin</div>
+              <div class="kpi-value" id="p3-kpi-margin">8.7%</div>
+              <div class="kpi-sub">Baseline 12.0% squeezed by bean price</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Consumer Hygiene Concerns</div>
+              <div class="kpi-value" id="p3-kpi-hygiene">47</div>
+              <div class="kpi-sub">Index (0&ndash;100; rises with cup life extension)</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Partner Network Vulnerability</div>
+              <div class="kpi-value" id="p3-kpi-vuln">53</div>
+              <div class="kpi-sub">Risk index (0&ndash;100; higher = partner attrition risk)</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Net Adoption Change</div>
+              <div class="kpi-value" id="p3-kpi-adoption">&minus;13.5%</div>
+              <div class="kpi-sub">Demand shift driven by hygiene concerns</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Research Evidence Cards -->
+      <div>
+        <h3 style="margin:0 0 10px; font-size:15.5px;">Research Evidence (SSP3-7.0 Coffee &amp; Climate Context)</h3>
+        <div class="evidence-grid">
+          <article class="evidence-card">
+            <div class="evidence-head">
+              <span>Research evidence</span>
+              <span class="source-tag">[P] Abigaba et al., 2024</span>
+            </div>
+            <p class="evidence-text">
+              Shrinking suitable land: rising temperatures and shifting rainfall mean that up to 50% of current land suitable for growing high-grade Arabica coffee could become unusable by 2050. Massive land suitability losses: modelling for 2050 under SSP3-7.0 shows a 20% reduction in land suitable for Arabica coffee and a 9% reduction for Robusta globally (Abigaba et al., 2024)
+              <a href="https://link.springer.com/article/10.1007/s10457-024-01025-3" target="_blank" rel="noopener noreferrer">https://link.springer.com/article/10.1007/s10457-024-01025-3</a>
+            </p>
+          </article>
+
+          <article class="evidence-card">
+            <div class="evidence-head">
+              <span>Research evidence</span>
+              <span class="source-tag">[P] The Guardian, 2026</span>
+            </div>
+            <p class="evidence-text">
+              Extreme heat and &ldquo;coffee-harming&rdquo; days: major producers like Brazil, Vietnam, Colombia, Ethiopia and Indonesia have experienced dozens of additional days annually with temperatures exceeding 30&deg;C (86&deg;F), the upper threshold for Arabica health (The Guardian, 2026).
+            </p>
+          </article>
+
+          <article class="evidence-card">
+            <div class="evidence-head">
+              <span>Research evidence</span>
+              <span class="source-tag">[P] Univ. of Waterloo, 2024</span>
+            </div>
+            <p class="evidence-text">
+              Premium specialty Arabicas are projected to experience the sharpest price hikes and could become a luxury good, while commercial roasters increasingly substitute them with cheaper, marginally more resilient Robusta beans. The current market price for Arabica beans, which make up around 70 per cent of the coffee market, is roughly $2.70 US per pound, against around $1.49 US a year earlier. Coffee commodity prices are up roughly 80 per cent during the drought. Using drought impact as the climate analogue for extreme climate change under SSP3-7.0, the projected price increase will be more than 80 per cent (Univ. of Waterloo, 2024)
+              <a href="https://uwaterloo.ca/climate-institute/news/climate-change-brewing-your-coffees-price-surge-explained" target="_blank" rel="noopener noreferrer">https://uwaterloo.ca/climate-institute/news/climate-change-brewing-your-coffees-price-surge-explained</a>
+            </p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== STUDENT RULES ==================== -->
+  <main id="tab-rules" class="tab-panel" role="tabpanel">
+    <div class="page-container">
+      <div class="hero-card">
+        <div class="hero-header">
+          <div>
+            <span class="scenario-tag">CLASSROOM SANDBOX &bull; [S] STUDENT RULES</span>
+            <h2 class="page-title">Student Rules, Constraints, Climate Shocks &amp; Assumptions</h2>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="reset-rules-btn" class="icon-btn" type="button">Restore Starter Rules</button>
+            <button id="add-rule-btn" class="icon-btn primary" type="button">+ Add Rule</button>
+          </div>
+        </div>
+
+        <div class="callout-box narrative" style="margin-top:10px;">
+          <p style="margin:0 0 6px;"><strong>Students may:</strong> (1) Revise existing rules, (2) Replace existing rules, (3) Add new rules, (4) Add new constraints, (5) Add new climate shocks, (6) Add new assumptions. <em>Rules should be evidence-based whenever possible.</em></p>
+          <p style="margin:0; font-size:12.5px; color:var(--text-secondary);">
+            Every active rule with a numeric effect immediately updates the live calculations in <strong>P2 (SSP1-2.6)</strong>, <strong>P3 (SSP3-7.0)</strong>, and the <strong>Assumptions &amp; Methods</strong> panel.
+          </p>
+        </div>
+      </div>
+
+      <div id="rules-container" class="rules-grid"></div>
+    </div>
+  </main>
+
+  <!-- ==================== ASSUMPTIONS & METHODS ==================== -->
+  <main id="tab-methods" class="tab-panel" role="tabpanel">
+    <div class="page-container">
+      <div class="hero-card">
+        <div class="hero-header">
+          <div>
+            <span class="scenario-tag">TRANSPARENCY &amp; PROVENANCE LEDGER</span>
+            <h2 class="page-title">Assumptions, Equations &amp; Methodology</h2>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <span class="source-tag">[P] Prompt Specification</span>
+            <span class="source-tag">[S] Student Rule</span>
+            <span class="source-tag">[AI] AI-generated assumption</span>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+          <div class="callout-box method">
+            <span class="source-tag">[AI]</span> <strong>Modelling Note (Graph Topology):</strong> The edge <code>N19&rarr;N7</code> (Surface Micro-Degradation &rarr; Cup Wear) is intentionally excluded so no loop is nested inside another.
+          </div>
+
+          <div class="callout-box method">
+            <span class="source-tag">[P]</span> <strong>Storyline Method Note:</strong> Climate scenario narratives can be developed qualitatively using the storyline approach of Shepherd et al. (2018). The narratives on this page are assumptions, not outputs of that method.
+            <a href="https://link.springer.com/article/10.1007/s10584-018-2317-9" target="_blank" rel="noopener noreferrer">https://link.springer.com/article/10.1007/s10584-018-2317-9</a>
+          </div>
+
+          <div class="callout-box narrative">
+            <span class="source-tag">[P]</span> <strong>SSP1-2.6 Narrative (Explicit):</strong> Under SSP1-2.6, plastic feedstock is potentially reduced as fossil fuels are phased out, driving up the cost of cup replacement. Cup lifespan needs to be extended (e.g. more than 1,000 washing cycles), but adoption will increase as society becomes more sustainability-conscious.
+          </div>
+
+          <div class="callout-box warning">
+            <span class="source-tag">[P]</span> <strong>SSP3-7.0 Notice &amp; Scenario Assumption (Explicit):</strong> Under SSP3-7.0, a fragmented, high-emissions global economy increases climate risks across coffee-producing regions. Reduced coffee yields contribute to higher coffee bean prices and lower operating margins for caf&eacute;s and bakeries. To maintain profitability, operators may extend cup end-of-life beyond recommended replacement thresholds rather than purchasing replacement cups. This increases surface micro-degradation and may raise consumer hygiene concerns, reducing user adoption and constraining partner network growth.<br /><br />
+            <strong>Explicit Price Assumption:</strong> Coffee bean prices increase by approximately 80% under severe climate stress. This is a scenario assumption informed by drought-related coffee market observations and must not be interpreted as a direct mathematical consequence of reported land-suitability losses. Do not derive the price increase mathematically from land suitability loss alone.
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <h3>Live Calculated Metrics, Exact Formulas &amp; Active Assumptions</h3>
+        <div class="methods-table-wrap">
+          <table class="methods-table">
+            <thead>
+              <tr>
+                <th style="width:17%;">Metric</th>
+                <th style="width:11%;">Live Value</th>
+                <th style="width:31%;">Exact Code Formula</th>
+                <th style="width:31%;">Assumptions &amp; Active Drivers</th>
+                <th style="width:10%;">Source Tag</th>
+              </tr>
+            </thead>
+            <tbody id="methods-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ==========================================================================
+     1. VERBATIM DATA MODEL (DO NOT ADD, REMOVE, OR REORDER)
+     ========================================================================== */
+  const CLD_DATA = {
+    "nodes":[
+      {"id":"N1","label":"Partner Density","category":"Network & Economics"},
+      {"id":"N2","label":"Return Convenience","category":"Consumer Operations"},
+      {"id":"N3","label":"Adoption Volume","category":"Consumer Operations"},
+      {"id":"N4","label":"Vendor Financial Savings","category":"Network & Economics"},
+      {"id":"N5","label":"Available Circulating Inventory","category":"Supply Chain & Stock"},
+      {"id":"N6","label":"Hoarded Cup Stock","category":"Consumer Operations"},
+      {"id":"N7","label":"Cup Wear","category":"Material & Quality"},
+      {"id":"N8","label":"Replacement Demand","category":"Supply Chain & Stock"},
+      {"id":"N9","label":"PP Feedstock Deficit","category":"Material & Quality"},
+      {"id":"N10","label":"Manufacturing Cost","category":"Network & Economics"},
+      {"id":"N11","label":"Replacement Cup Supply","category":"Supply Chain & Stock"},
+      {"id":"N12","label":"Washing & Logistics Energy","category":"Environment & Climate"},
+      {"id":"N13","label":"System GHG Emissions","category":"Environment & Climate"},
+      {"id":"N14","label":"Average Global Temp","category":"Environment & Climate"},
+      {"id":"N15","label":"Coffee Yield Loss","category":"Environment & Climate"},
+      {"id":"N16","label":"Coffee Bean Price","category":"Network & Economics"},
+      {"id":"N17","label":"Café Operating Margin","category":"Network & Economics"},
+      {"id":"N18","label":"Extending Cup EoL Past 1,000 Washes","category":"Material & Quality"},
+      {"id":"N19","label":"Surface Micro-Degradation","category":"Material & Quality"},
+      {"id":"N20","label":"Consumer Hygiene Concerns","category":"Consumer Operations"}
+    ],
+    "edges":[
+      {"source":"N1","target":"N2","polarity":"+"},{"source":"N2","target":"N3","polarity":"+"},
+      {"source":"N3","target":"N4","polarity":"+"},{"source":"N4","target":"N1","polarity":"+"},
+      {"source":"N3","target":"N6","polarity":"+"},{"source":"N6","target":"N5","polarity":"-"},
+      {"source":"N5","target":"N2","polarity":"+"},{"source":"N3","target":"N7","polarity":"+"},
+      {"source":"N7","target":"N8","polarity":"+"},{"source":"N7","target":"N18","polarity":"+"},
+      {"source":"N8","target":"N9","polarity":"+"},{"source":"N9","target":"N10","polarity":"+"},
+      {"source":"N10","target":"N11","polarity":"-"},{"source":"N11","target":"N5","polarity":"+"},
+      {"source":"N3","target":"N12","polarity":"+"},{"source":"N12","target":"N13","polarity":"+"},
+      {"source":"N13","target":"N14","polarity":"+"},{"source":"N14","target":"N15","polarity":"+"},
+      {"source":"N15","target":"N16","polarity":"+"},{"source":"N16","target":"N17","polarity":"-"},
+      {"source":"N17","target":"N1","polarity":"+"},{"source":"N9","target":"N18","polarity":"+"},
+      {"source":"N18","target":"N19","polarity":"+"},{"source":"N18","target":"N12","polarity":"+"},
+      {"source":"N19","target":"N20","polarity":"+"},{"source":"N20","target":"N3","polarity":"-"},
+      {"source":"N11","target":"N18","polarity":"-"},{"source":"N8","target":"N18","polarity":"+"}
+    ],
+    "loops":[
+      {"id":"R1","name":"Network Expansion Loop","type":"Reinforcing","description":"Higher partner density improves return convenience, driving adoption volume and vendor savings, which incentivizes more partners to join.","nodes":["N1","N2","N3","N4","N1"]},
+      {"id":"B1","name":"Cup Hoarding Constraint","type":"Balancing","description":"Increased adoption leads to cup hoarding, which reduces circulating stock, lowers return convenience, and dampens adoption.","nodes":["N3","N6","N5","N2","N3"]},
+      {"id":"B2","name":"PP Material Scarcity Constraint","type":"Balancing","description":"High adoption wears cups out, creating replacement demand and PP feedstock deficits, raising manufacturing costs and constraining supply.","nodes":["N3","N7","N8","N9","N10","N11","N5","N2","N3"]},
+      {"id":"B3","name":"Coffee-Climate Feedback","type":"Balancing","description":"Logistics energy drives GHG emissions and climate change, impacting coffee yields and bean prices, which squeezes café margins and network density.","nodes":["N3","N12","N13","N14","N15","N16","N17","N1","N2","N3"]},
+      {"id":"B4","name":"Hygiene Degradation","type":"Balancing","description":"Over-extending cup lifespans causes surface micro-degradation, raising hygiene concerns and reducing adoption volume.","nodes":["N3","N7","N18","N19","N20","N3"]}
+    ]
+  };
+
+  /* ==========================================================================
+     2. LOOP STRUCTURAL SELF-TEST (RUNS ON LOAD)
+     ========================================================================== */
+  function runLoopSelfTest(data) {
+    const edgeLookup = new Map();
+    data.edges.forEach((e) => {
+      edgeLookup.set(`${e.source}->${e.target}`, e.polarity);
+    });
+
+    const results = data.loops.map((loop) => {
+      const seq = loop.nodes;
+      const isClosed = Array.isArray(seq) && seq.length >= 2 && seq[0] === seq[seq.length - 1];
+      const missingPairs = [];
+      let negCount = 0;
+
+      for (let i = 0; i < seq.length - 1; i++) {
+        const pairKey = `${seq[i]}->${seq[i + 1]}`;
+        if (!edgeLookup.has(pairKey)) {
+          missingPairs.push(pairKey);
+        } else if (edgeLookup.get(pairKey) === "-") {
+          negCount += 1;
+        }
+      }
+
+      const computedType = (negCount % 2 === 1) ? "Balancing" : "Reinforcing";
+      const typeMatches = computedType === loop.type;
+      const pass = isClosed && missingPairs.length === 0 && typeMatches;
+
+      return {
+        id: loop.id,
+        name: loop.name,
+        declaredType: loop.type,
+        computedType,
+        negCount,
+        isClosed,
+        missingPairs,
+        pass
+      };
+    });
+
+    const allPass = results.every((r) => r.pass);
+
+    console.group("[RECUP CLD Self-Test]");
+    console.log(`Overall Status: ${allPass ? "PASS" : "FAIL"}`);
+    results.forEach((r) => {
+      console.log(
+        `${r.id} (${r.name}): ${r.pass ? "PASS" : "FAIL"} | '-' edges = ${r.negCount} => ${r.computedType} (declared: ${r.declaredType})` +
+        (r.missingPairs.length ? ` | Missing: ${r.missingPairs.join(", ")}` : "")
+      );
+    });
+    console.groupEnd();
+
+    return { allPass, results };
+  }
+
+  const selfTestReport = runLoopSelfTest(CLD_DATA);
+
+  function renderSelfTestUI(report) {
+    const badge = document.getElementById("selftest-badge");
+    const summary = document.getElementById("selftest-summary-text");
+    const list = document.getElementById("selftest-list");
+
+    badge.textContent = report.allPass ? "Self-test: PASS" : "Self-test: FAIL";
+    badge.className = `selftest-badge ${report.allPass ? "pass" : "fail"}`;
+
+    if (report.allPass) {
+      summary.textContent = "Self-test: PASS — All 5 loops verified (closed paths, 100% edge existence, odd/even negative polarity parity).";
+    } else {
+      const failedIds = report.results.filter((r) => !r.pass).map((r) => r.id).join(", ");
+      summary.textContent = `Self-test: FAIL — Failures detected in: ${failedIds}`;
+    }
+
+    list.innerHTML = report.results.map((r) => `
+      <div class="selftest-item">
+        <div style="display:flex; justify-content:space-between; font-weight:700;">
+          <span>${r.id}: ${escapeHtml(r.name)}</span>
+          <span style="color:${r.pass ? "var(--pos)" : "var(--neg)"};">${r.pass ? "PASS" : "FAIL"}</span>
+        </div>
+        <div style="color:var(--text-secondary); margin-top:3px;">
+          &minus; edges: <strong>${r.negCount}</strong> (${r.negCount % 2 === 1 ? "odd" : "even"}) &rarr; <strong>${r.computedType}</strong>
+          ${r.missingPairs.length ? `<br><span style="color:var(--neg);">Missing: ${escapeHtml(r.missingPairs.join(", "))}</span>` : ""}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  /* ==========================================================================
+     3. APPLICATION STATE (IN-MEMORY ONLY — NO LOCALSTORAGE)
+     ========================================================================== */
+  const CATEGORY_COLORS = {
+    "Network & Economics": "var(--cat-network)",
+    "Consumer Operations": "var(--cat-consumer)",
+    "Supply Chain & Stock": "var(--cat-supply)",
+    "Material & Quality": "var(--cat-material)",
+    "Environment & Climate": "var(--cat-env)"
+  };
+
+  function getStarterRules() {
+    return [
+      {
+        id: "rule-1",
+        type: "Rule",
+        rule: "Cup Hoarding",
+        assumption: "Some customers keep RECUP cups as souvenirs and fail to return them.",
+        calculation: "Increase cup hoarding rate from 5% to 20%. Impact: Return Rate = Base Return Rate × (1 − Hoarding Rate)",
+        effectType: "hoarding",
+        effectValue: 20,
+        active: true
+      },
+      {
+        id: "rule-2",
+        type: "Constraint",
+        rule: "Industrial Washing Constraint",
+        assumption: "Severe heatwaves reduce washing capacity.",
+        calculation: "Heatwaves above 35°C reduce industrial washing throughput by 25%.",
+        effectType: "washingLoss",
+        effectValue: 25,
+        active: true
+      },
+      {
+        id: "rule-3",
+        type: "Climate shock",
+        rule: "Coffee Supply Shock",
+        assumption: "Climate impacts reduce global coffee yield.",
+        calculation: "Coffee Yield −15%, Coffee Price +40%, Café Margin −20%",
+        effectType: "extraPrice",
+        effectValue: 40,
+        active: false
+      }
+    ];
+  }
+
+  const state = {
+    theme: "light",
+    activeTab: "p1",
+    selectedNodeId: "N3",
+    focusedLoopId: null,
+    searchQuery: "",
+    categoryFilter: "ALL",
+    layoutLocked: false,
+    rippleTimers: [],
+    rippleNodeMap: new Map(), // nodeId -> { status: 'increase'|'decrease'|'mixed', depth?: number, isSource?: boolean }
+    rippleEdgeSet: new Set(), // "source->target"
+    p2: {
+      cap: 55,
+      lifespan: 1000
+    },
+    p3: {
+      priceSlider: 80,
+      pushSlider: 45
+    },
+    rules: getStarterRules()
+  };
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function clamp(val, min, max) {
+    return Math.max(min, Math.min(max, val));
+  }
+
+  function formatSigned(val, decimals = 1, suffix = "%") {
+    const absStr = Math.abs(val).toFixed(decimals);
+    if (val < -0.0001) return `\u2212${absStr}${suffix}`;
+    if (val > 0.0001) return `+${absStr}${suffix}`;
+    return `0.0${suffix}`;
+  }
+
+  /* ==========================================================================
+     4. P1: D3.JS v7 CAUSAL LOOP DIAGRAM ENGINE
+     ========================================================================== */
+  const NODE_RADIUS = 23;
+  const nodeById = new Map(CLD_DATA.nodes.map((n) => [n.id, n]));
+
+  // Deterministic, readable initial coordinates around (540, 350) so loops arrange cleanly on startup
+  const INITIAL_LAYOUT = {
+    N3:  { x: 520, y: 340 },
+    N2:  { x: 370, y: 340 },
+    N1:  { x: 250, y: 230 },
+    N4:  { x: 390, y: 170 },
+    N6:  { x: 460, y: 465 },
+    N5:  { x: 315, y: 465 },
+    N7:  { x: 660, y: 270 },
+    N8:  { x: 790, y: 210 },
+    N9:  { x: 910, y: 295 },
+    N10: { x: 890, y: 430 },
+    N11: { x: 740, y: 470 },
+    N18: { x: 760, y: 345 },
+    N19: { x: 645, y: 410 },
+    N20: { x: 555, y: 475 },
+    N12: { x: 520, y: 175 },
+    N13: { x: 430, y: 75  },
+    N14: { x: 280, y: 65  },
+    N15: { x: 155, y: 115 },
+    N16: { x: 115, y: 235 },
+    N17: { x: 145, y: 355 }
+  };
+
+  const simNodes = CLD_DATA.nodes.map((n) => ({
+    ...n,
+    x: INITIAL_LAYOUT[n.id]?.x ?? 500,
+    y: INITIAL_LAYOUT[n.id]?.y ?? 320
+  }));
+
+  const simLinks = CLD_DATA.edges.map((e) => ({
+    source: e.source,
+    target: e.target,
+    polarity: e.polarity,
+    key: `${e.source}->${e.target}`
+  }));
+
+  const svg = d3.select("#cld-svg");
+  const defs = svg.append("defs");
+
+  function createArrowMarker(id, colorVar) {
+    defs.append("marker")
+      .attr("id", id)
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", 8.5)
+      .attr("refY", 0)
+      .attr("markerWidth", 7)
+      .attr("markerHeight", 7)
+      .attr("orient", "auto")
+      .append("path")
+      .attr("d", "M0,-4.5L9.5,0L0,4.5Z")
+      .attr("fill", colorVar);
+  }
+
+  createArrowMarker("arrow-pos", "var(--pos)");
+  createArrowMarker("arrow-neg", "var(--neg)");
+  createArrowMarker("arrow-dim", "var(--border-strong)");
+
+  const zoomLayer = svg.append("g").attr("class", "zoom-layer");
+  const edgeLayer = zoomLayer.append("g").attr("class", "edges-layer");
+  const badgeLayer = zoomLayer.append("g").attr("class", "badges-layer");
+  const nodeLayer = zoomLayer.append("g").attr("class", "nodes-layer");
+
+  const zoomBehavior = d3.zoom()
+    .scaleExtent([0.35, 2.6])
+    .on("zoom", (event) => {
+      zoomLayer.attr("transform", event.transform);
+    });
+
+  svg.call(zoomBehavior);
+
+  // Force Simulation
+  const simulation = d3.forceSimulation(simNodes)
+    .force("link", d3.forceLink(simLinks).id((d) => d.id).distance(135).strength(0.28))
+    .force("charge", d3.forceManyBody().strength(-420))
+    .force("collide", d3.forceCollide().radius(46).strength(0.85))
+    .force("x", d3.forceX((d) => INITIAL_LAYOUT[d.id]?.x ?? 520).strength(0.16))
+    .force("y", d3.forceY((d) => INITIAL_LAYOUT[d.id]?.y ?? 320).strength(0.16))
+    .alphaDecay(0.035);
+
+  // Render Edges
+  const edgeSelection = edgeLayer.selectAll("path.edge-path")
+    .data(simLinks)
+    .enter()
+    .append("path")
+    .attr("class", (d) => `edge-path ${d.polarity === "+" ? "polarity-pos" : "polarity-neg"}`)
+    .attr("marker-end", (d) => d.polarity === "+" ? "url(#arrow-pos)" : "url(#arrow-neg)");
+
+  // Render Edge Polarity + Step Badges
+  const edgeBadgeSelection = badgeLayer.selectAll("g.edge-badge-group")
+    .data(simLinks)
+    .enter()
+    .append("g")
+    .attr("class", "edge-badge-group");
+
+  edgeBadgeSelection.append("circle")
+    .attr("r", 9.5)
+    .attr("fill", (d) => d.polarity === "+" ? "var(--pos-bg)" : "var(--neg-bg)")
+    .attr("stroke", (d) => d.polarity === "+" ? "var(--pos)" : "var(--neg)")
+    .attr("stroke-width", 1.5);
+
+  edgeBadgeSelection.append("text")
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "11px")
+    .attr("font-weight", "800")
+    .attr("fill", (d) => d.polarity === "+" ? "var(--pos-text)" : "var(--neg-text)")
+    .text((d) => d.polarity === "+" ? "+" : "\u2212");
+
+  // Loop edge step pill (hidden unless loop focused)
+  const edgeStepGroup = edgeBadgeSelection.append("g")
+    .attr("class", "edge-step-pill")
+    .attr("transform", "translate(14, -10)")
+    .style("display", "none");
+
+  edgeStepGroup.append("rect")
+    .attr("x", -10)
+    .attr("y", -8)
+    .attr("width", 20)
+    .attr("height", 16)
+    .attr("rx", 4)
+    .attr("fill", "var(--accent)");
+
+  edgeStepGroup.append("text")
+    .attr("class", "edge-step-text")
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "10px")
+    .attr("font-weight", "800")
+    .attr("fill", "#ffffff")
+    .text("");
+
+  // Render Nodes
+  const nodeSelection = nodeLayer.selectAll("g.node-group")
+    .data(simNodes)
+    .enter()
+    .append("g")
+    .attr("class", "node-group")
+    .on("click", (event, d) => {
+      event.stopPropagation();
+      selectNode(d.id);
+    })
+    .call(
+      d3.drag()
+        .on("start", (event, d) => {
+          if (!event.active && !state.layoutLocked) simulation.alphaTarget(0.25).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        })
+        .on("drag", (event, d) => {
+          d.fx = event.x;
+          d.fy = event.y;
+          if (state.layoutLocked) {
+            d.x = event.x;
+            d.y = event.y;
+            updateGraphPositions();
+          }
+        })
+        .on("end", (event, d) => {
+          if (!event.active && !state.layoutLocked) simulation.alphaTarget(0);
+          if (!state.layoutLocked) {
+            d.fx = null;
+            d.fy = null;
+          }
+        })
+    );
+
+  nodeSelection.append("circle")
+    .attr("class", "node-circle")
+    .attr("r", NODE_RADIUS)
+    .attr("fill", (d) => CATEGORY_COLORS[d.category] || "var(--accent)")
+    .attr("stroke", "var(--bg-surface)");
+
+  nodeSelection.append("text")
+    .attr("class", "node-id-text")
+    .text((d) => d.id);
+
+  // Node step badge (top-right of node circle when loop focused)
+  const nodeStepGroup = nodeSelection.append("g")
+    .attr("class", "node-step-pill")
+    .attr("transform", `translate(${NODE_RADIUS - 3}, ${-NODE_RADIUS + 3})`)
+    .style("display", "none");
+
+  nodeStepGroup.append("circle")
+    .attr("r", 9.5)
+    .attr("fill", "var(--accent)")
+    .attr("stroke", "var(--bg-surface)")
+    .attr("stroke-width", 1.5);
+
+  nodeStepGroup.append("text")
+    .attr("class", "node-step-text")
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .attr("font-family", "var(--font-mono)")
+    .attr("font-size", "10px")
+    .attr("font-weight", "800")
+    .attr("fill", "#ffffff")
+    .text("");
+
+  // Multi-line readable labels below each node
+  function splitLabelLines(label) {
+    if (label.length <= 18) return [label];
+    const words = label.split(" ");
+    const mid = Math.ceil(words.length / 2);
+    return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+  }
+
+  nodeSelection.each(function (d) {
+    const g = d3.select(this);
+    const lines = splitLabelLines(d.label);
+    const maxLen = Math.max(...lines.map((l) => l.length));
+    const boxW = maxLen * 6.2 + 12;
+    const boxH = lines.length * 13 + 6;
+
+    g.append("rect")
+      .attr("class", "node-label-bg")
+      .attr("x", -boxW / 2)
+      .attr("y", NODE_RADIUS + 5)
+      .attr("width", boxW)
+      .attr("height", boxH);
+
+    const textEl = g.append("text")
+      .attr("class", "node-label-text")
+      .attr("y", NODE_RADIUS + 16);
+
+    lines.forEach((line, idx) => {
+      textEl.append("tspan")
+        .attr("x", 0)
+        .attr("dy", idx === 0 ? 0 : 12.5)
+        .text(line);
+    });
+  });
+
+  // Compute exact quadratic Bezier geometry ending cleanly at target node perimeter
+  function computeCurvedEdge(link) {
+    const x1 = link.source.x;
+    const y1 = link.source.y;
+    const x2 = link.target.x;
+    const y2 = link.target.y;
+
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const dist = Math.hypot(dx, dy) || 1;
+    const nx = -dy / dist;
+    const ny = dx / dist;
+
+    const offset = Math.min(34, dist * 0.17);
+    const cx = (x1 + x2) / 2 + nx * offset;
+    const cy = (y1 + y2) / 2 + ny * offset;
+
+    // Binary search t in [0.5, 1.0] where curve point is (NODE_RADIUS + 4) away from (x2, y2)
+    let lo = 0.5;
+    let hi = 1.0;
+    const targetClearance = NODE_RADIUS + 4;
+    for (let i = 0; i < 14; i++) {
+      const mid = (lo + hi) / 2;
+      const omt = 1 - mid;
+      const px = omt * omt * x1 + 2 * omt * mid * cx + mid * mid * x2;
+      const py = omt * omt * y1 + 2 * omt * mid * cy + mid * mid * y2;
+      const dTarget = Math.hypot(px - x2, py - y2);
+      if (dTarget > targetClearance) {
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+
+    const tEnd = (lo + hi) / 2;
+    // Subdivide quadratic Bezier [0, tEnd]
+    const c1x = (1 - tEnd) * x1 + tEnd * cx;
+    const c1y = (1 - tEnd) * y1 + tEnd * cy;
+    const endX = (1 - tEnd) * (1 - tEnd) * x1 + 2 * (1 - tEnd) * tEnd * cx + tEnd * tEnd * x2;
+    const endY = (1 - tEnd) * (1 - tEnd) * y1 + 2 * (1 - tEnd) * tEnd * cy + tEnd * tEnd * y2;
+
+    // Midpoint at t = 0.5 on full curve for badge
+    const midX = 0.25 * x1 + 0.5 * cx + 0.25 * x2;
+    const midY = 0.25 * y1 + 0.5 * cy + 0.25 * y2;
+
+    return {
+      pathD: `M${x1.toFixed(1)},${y1.toFixed(1)} Q${c1x.toFixed(1)},${c1y.toFixed(1)} ${endX.toFixed(1)},${endY.toFixed(1)}`,
+      midX,
+      midY
+    };
+  }
+
+  function updateGraphPositions() {
+    edgeSelection.each(function (d) {
+      d._geom = computeCurvedEdge(d);
+      d3.select(this).attr("d", d._geom.pathD);
+    });
+
+    edgeBadgeSelection.attr("transform", (d) => `translate(${d._geom.midX.toFixed(1)}, ${d._geom.midY.toFixed(1)})`);
+    nodeSelection.attr("transform", (d) => `translate(${d.x.toFixed(1)}, ${d.y.toFixed(1)})`);
+  }
+
+  simulation.on("tick", updateGraphPositions);
+
+  function fitGraphToViewport(duration = 350) {
+    const svgEl = document.getElementById("cld-svg");
+    if (!svgEl) return;
+    const rect = svgEl.getBoundingClientRect();
+    const width = rect.width || 900;
+    const height = rect.height || 640;
+
+    const xs = simNodes.map((n) => n.x);
+    const ys = simNodes.map((n) => n.y);
+    const minX = Math.min(...xs) - 75;
+    const maxX = Math.max(...xs) + 75;
+    const minY = Math.min(...ys) - 65;
+    const maxY = Math.max(...ys) + 75;
+
+    const boundsW = Math.max(100, maxX - minX);
+    const boundsH = Math.max(100, maxY - minY);
+    const scale = Math.min(1.15, 0.88 * Math.min(width / boundsW, height / boundsH));
+    const tx = width / 2 - scale * ((minX + maxX) / 2);
+    const ty = height / 2 - scale * ((minY + maxY) / 2);
+
+    svg.transition()
+      .duration(duration)
+      .call(zoomBehavior.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+  }
+
+  setTimeout(() => fitGraphToViewport(0), 250);
+
+  /* ==========================================================================
+     5. P1 VISUAL HIGHLIGHTING, LOOP FOCUS, SEARCH & FILTER
+     ========================================================================== */
+  function getLoopStepMaps(loopObj) {
+    const nodeSteps = new Map();
+    const edgeSteps = new Map();
+    if (!loopObj) return { nodeSteps, edgeSteps };
+
+    const uniqueCount = loopObj.nodes.length - 1;
+    for (let i = 0; i < uniqueCount; i++) {
+      nodeSteps.set(loopObj.nodes[i], i + 1);
+      edgeSteps.set(`${loopObj.nodes[i]}->${loopObj.nodes[i + 1]}`, i + 1);
+    }
+    return { nodeSteps, edgeSteps };
+  }
+
+  function applyGraphStyling() {
+    const focusedLoop = state.focusedLoopId
+      ? CLD_DATA.loops.find((l) => l.id === state.focusedLoopId)
+      : null;
+    const { nodeSteps, edgeSteps } = getLoopStepMaps(focusedLoop);
+
+    const query = state.searchQuery.trim().toLowerCase();
+    const cat = state.categoryFilter;
+    const hasSearchOrCat = query.length > 0 || cat !== "ALL";
+
+    const matchingNodeIds = new Set();
+    simNodes.forEach((n) => {
+      const matchQuery = !query || n.id.toLowerCase().includes(query) || n.label.toLowerCase().includes(query);
+      const matchCat = cat === "ALL" || n.category === cat;
+      if (matchQuery && matchCat) {
+        matchingNodeIds.add(n.id);
+      }
+    });
+
+    // Update Nodes
+    nodeSelection.each(function (d) {
+      const g = d3.select(this);
+      const inLoop = focusedLoop ? nodeSteps.has(d.id) : true;
+      const inFilter = hasSearchOrCat ? matchingNodeIds.has(d.id) : true;
+      const isDimmed = !(inLoop && inFilter);
+
+      const rippleInfo = state.rippleNodeMap.get(d.id);
+
+      g.classed("selected", d.id === state.selectedNodeId)
+        .classed("dimmed", isDimmed && !rippleInfo)
+        .classed("ripple-increase", rippleInfo?.status === "increase")
+        .classed("ripple-decrease", rippleInfo?.status === "decrease")
+        .classed("ripple-mixed", rippleInfo?.status === "mixed");
+
+      const stepPill = g.select(".node-step-pill");
+      if (focusedLoop && nodeSteps.has(d.id)) {
+        stepPill.style("display", null);
+        stepPill.select(".node-step-text").text(nodeSteps.get(d.id));
+      } else {
+        stepPill.style("display", "none");
+      }
+    });
+
+    // Update Edges
+    edgeSelection.each(function (d) {
+      const path = d3.select(this);
+      const inLoop = focusedLoop ? edgeSteps.has(d.key) : true;
+      const inFilter = hasSearchOrCat
+        ? (matchingNodeIds.has(d.source.id) && matchingNodeIds.has(d.target.id))
+        : true;
+      const isRippleEdge = state.rippleEdgeSet.has(d.key);
+      const isDimmed = !(inLoop && inFilter) && !isRippleEdge;
+
+      path.classed("dimmed", isDimmed)
+        .classed("loop-active", Boolean(focusedLoop && edgeSteps.has(d.key)))
+        .classed("ripple-active", isRippleEdge);
+    });
+
+    // Update Edge Badges & Step Numbers
+    edgeBadgeSelection.each(function (d) {
+      const g = d3.select(this);
+      const inLoop = focusedLoop ? edgeSteps.has(d.key) : true;
+      const inFilter = hasSearchOrCat
+        ? (matchingNodeIds.has(d.source.id) && matchingNodeIds.has(d.target.id))
+        : true;
+      const isRippleEdge = state.rippleEdgeSet.has(d.key);
+      const isDimmed = !(inLoop && inFilter) && !isRippleEdge;
+
+      g.classed("dimmed", isDimmed);
+
+      const stepPill = g.select(".edge-step-pill");
+      if (focusedLoop && edgeSteps.has(d.key)) {
+        stepPill.style("display", null);
+        stepPill.select(".edge-step-text").text(edgeSteps.get(d.key));
+      } else {
+        stepPill.style("display", "none");
+      }
+    });
+
+    // Loop focus buttons & banner
+    document.querySelectorAll(".loop-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.loop === state.focusedLoopId);
+    });
+
+    const banner = document.getElementById("loop-banner");
+    if (focusedLoop) {
+      banner.classList.add("visible");
+      document.getElementById("loop-banner-title").textContent =
+        `${focusedLoop.id}: ${focusedLoop.name} (${focusedLoop.type})`;
+      document.getElementById("loop-banner-desc").textContent = focusedLoop.description;
+    } else {
+      banner.classList.remove("visible");
+    }
+
+    // Ripple mode tag
+    const modeTag = document.getElementById("ripple-mode-tag");
+    modeTag.textContent = focusedLoop
+      ? `MODE A: Loop ${focusedLoop.id}`
+      : "MODE B: System (Depth \u2264 6)";
+  }
+
+  function setFocusedLoop(loopId) {
+    clearRippleState();
+    state.focusedLoopId = state.focusedLoopId === loopId ? null : loopId;
+    if (state.focusedLoopId) {
+      const loop = CLD_DATA.loops.find((l) => l.id === state.focusedLoopId);
+      if (loop && !loop.nodes.includes(state.selectedNodeId)) {
+        selectNode(loop.nodes[0]);
+        return;
+      }
+    }
+    applyGraphStyling();
+  }
+
+  function selectNode(nodeId) {
+    state.selectedNodeId = nodeId;
+    renderNodeInspector();
+    applyGraphStyling();
+  }
+
+  function renderNodeInspector() {
+    const node = nodeById.get(state.selectedNodeId) || CLD_DATA.nodes[0];
+    document.getElementById("inspector-node-title").textContent = `${node.id}: ${node.label}`;
+    const catEl = document.getElementById("inspector-node-cat");
+    catEl.textContent = node.category;
+    catEl.style.background = CATEGORY_COLORS[node.category] || "var(--accent)";
+    document.getElementById("ripple-source-label").textContent = `${node.id} (${node.label})`;
+
+    // Incoming drivers
+    const incoming = CLD_DATA.edges.filter((e) => e.target === node.id);
+    document.getElementById("inspector-in-count").textContent = String(incoming.length);
+    const inList = document.getElementById("inspector-incoming");
+    inList.innerHTML = incoming.length
+      ? incoming.map((e) => {
+          const src = nodeById.get(e.source);
+          const polClass = e.polarity === "+" ? "pos" : "neg";
+          const polSym = e.polarity === "+" ? "+" : "\u2212";
+          return `<li class="rel-item" data-jump-node="${src.id}">
+            <span><strong>${src.id}</strong> ${escapeHtml(src.label)}</span>
+            <span class="pol-pill ${polClass}">${polSym}</span>
+          </li>`;
+        }).join("")
+      : `<li style="color:var(--text-muted); font-size:12px;">No incoming drivers</li>`;
+
+    // Outgoing impacts
+    const outgoing = CLD_DATA.edges.filter((e) => e.source === node.id);
+    document.getElementById("inspector-out-count").textContent = String(outgoing.length);
+    const outList = document.getElementById("inspector-outgoing");
+    outList.innerHTML = outgoing.length
+      ? outgoing.map((e) => {
+          const tgt = nodeById.get(e.target);
+          const polClass = e.polarity === "+" ? "pos" : "neg";
+          const polSym = e.polarity === "+" ? "+" : "\u2212";
+          return `<li class="rel-item" data-jump-node="${tgt.id}">
+            <span><strong>${tgt.id}</strong> ${escapeHtml(tgt.label)}</span>
+            <span class="pol-pill ${polClass}">${polSym}</span>
+          </li>`;
+        }).join("")
+      : `<li style="color:var(--text-muted); font-size:12px;">No outgoing impacts</li>`;
+
+    // Connected loops
+    const connectedLoops = CLD_DATA.loops.filter((l) => l.nodes.includes(node.id));
+    document.getElementById("inspector-loop-count").textContent = String(connectedLoops.length);
+    const loopsContainer = document.getElementById("inspector-loops");
+    loopsContainer.innerHTML = connectedLoops.length
+      ? connectedLoops.map((l) => `
+          <button type="button" class="loop-btn ${state.focusedLoopId === l.id ? "active" : ""}" data-focus-loop="${l.id}">
+            ${l.id}: ${escapeHtml(l.name)}
+          </button>
+        `).join("")
+      : `<span style="color:var(--text-muted); font-size:12px;">Not part of any closed loop</span>`;
+
+    inList.querySelectorAll("[data-jump-node]").forEach((el) => {
+      el.addEventListener("click", () => selectNode(el.dataset.jumpNode));
+    });
+    outList.querySelectorAll("[data-jump-node]").forEach((el) => {
+      el.addEventListener("click", () => selectNode(el.dataset.jumpNode));
+    });
+    loopsContainer.querySelectorAll("[data-focus-loop]").forEach((el) => {
+      el.addEventListener("click", () => setFocusedLoop(el.dataset.focusLoop));
+    });
+  }
+
+  /* ==========================================================================
+     6. RIPPLE SIMULATOR (EXACT MODE A AND MODE B ALGORITHMS)
+     ========================================================================== */
+  function clearRippleState() {
+    state.rippleTimers.forEach((id) => clearTimeout(id));
+    state.rippleTimers = [];
+    state.rippleNodeMap.clear();
+    state.rippleEdgeSet.clear();
+    const outEl = document.getElementById("ripple-output");
+    if (outEl) {
+      outEl.innerHTML = `<span style="color:var(--text-muted);">Select <strong>++ Positive surge</strong> or <strong>&minus;&minus; Negative shock</strong> to simulate causal propagation.</span>`;
+    }
+    applyGraphStyling();
+  }
+
+  function runRippleSimulator(initialSign) {
+    clearRippleState();
+    const sourceId = state.selectedNodeId;
+    const outEl = document.getElementById("ripple-output");
+
+    // MODE A: Loop ripple (used when a loop is focused)
+    if (state.focusedLoopId) {
+      const loop = CLD_DATA.loops.find((l) => l.id === state.focusedLoopId);
+      const uniqueNodes = loop.nodes.slice(0, loop.nodes.length - 1);
+      const startIdx = uniqueNodes.indexOf(sourceId);
+
+      if (startIdx === -1) {
+        outEl.innerHTML = `<div class="ripple-verdict" style="border-left-color:var(--warn);">Source is not in this loop</div>`;
+        return;
+      }
+
+      const edgePolarityMap = new Map(CLD_DATA.edges.map((e) => [`${e.source}->${e.target}`, e.polarity]));
+      const k = uniqueNodes.length;
+      let runningSign = initialSign;
+
+      // Initial source state at t = 0
+      state.rippleNodeMap.set(sourceId, {
+        status: initialSign > 0 ? "increase" : "decrease",
+        isSource: true
+      });
+      applyGraphStyling();
+
+      const stepsHtml = [
+        `<div><strong>Start:</strong> ${sourceId} (${nodeById.get(sourceId).label}) &rarr; <strong>${initialSign > 0 ? "increases (+)" : "decreases (\u2212)"}</strong></div>`
+      ];
+      outEl.innerHTML = stepsHtml.join("");
+
+      for (let step = 0; step < k; step++) {
+        const currId = loop.nodes[(startIdx + step) % k];
+        const nextId = loop.nodes[(startIdx + step + 1) % k];
+        const edgeKey = `${currId}->${nextId}`;
+        const pol = edgePolarityMap.get(edgeKey);
+        const mult = pol === "+" ? 1 : -1;
+        runningSign = runningSign * mult;
+
+        const stepSign = runningSign;
+        const isLast = step === k - 1;
+
+        const timerId = setTimeout(() => {
+          state.rippleEdgeSet.add(edgeKey);
+          state.rippleNodeMap.set(nextId, {
+            status: stepSign > 0 ? "increase" : "decrease",
+            isSource: nextId === sourceId
+          });
+          applyGraphStyling();
+
+          stepsHtml.push(
+            `<div style="margin-top:4px;">Step ${step + 1}: ${currId} &rarr; ${nextId} (${pol === "+" ? "+" : "\u2212"}) &rArr; <strong>${stepSign > 0 ? "increases (+)" : "decreases (\u2212)"}</strong></div>`
+          );
+
+          if (isLast) {
+            const sameOrOpp = stepSign === initialSign ? "same" : "opposite";
+            const loopNature = stepSign === initialSign ? "reinforcing" : "balancing";
+            stepsHtml.push(
+              `<div class="ripple-verdict">Signal returns to source as ${sameOrOpp} sign, so this loop is ${loopNature}.</div>`
+            );
+          }
+          outEl.innerHTML = stepsHtml.join("");
+        }, (step + 1) * 600);
+
+        state.rippleTimers.push(timerId);
+      }
+      return;
+    }
+
+    // MODE B: System ripple (used when no loop is focused)
+    // Breadth-first by depth, maximum depth 6.
+    // Each node is assigned a sign the FIRST time it is reached (smallest depth).
+    // If another path reaches the same node at the SAME depth with the opposite sign, mark "mixed" (grey).
+    // Never overwrite a node at a deeper depth. The source node is never re-colored.
+    const MAX_DEPTH = 6;
+    const adjacency = new Map();
+    CLD_DATA.nodes.forEach((n) => adjacency.set(n.id, []));
+    CLD_DATA.edges.forEach((e) => {
+      adjacency.get(e.source).push({ target: e.target, polarity: e.polarity });
+    });
+
+    const nodeRecords = new Map();
+    nodeRecords.set(sourceId, { depth: 0, sign: initialSign, isSource: true });
+
+    let frontier = [{ nodeId: sourceId, sign: initialSign }];
+    const edgesByDepth = [];
+
+    for (let depth = 0; depth < MAX_DEPTH; depth++) {
+      const nextDepth = depth + 1;
+      const nextFrontierMap = new Map(); // "nodeId:sign" -> { nodeId, sign }
+      const depthEdges = [];
+
+      frontier.forEach(({ nodeId, sign }) => {
+        const outgoing = adjacency.get(nodeId) || [];
+        outgoing.forEach(({ target, polarity }) => {
+          const nextSign = sign * (polarity === "+" ? 1 : -1);
+          depthEdges.push(`${nodeId}->${target}`);
+
+          // Source node is never re-colored or overwritten
+          if (target === sourceId) return;
+
+          if (!nodeRecords.has(target)) {
+            nodeRecords.set(target, { depth: nextDepth, sign: nextSign, isSource: false });
+            nextFrontierMap.set(`${target}:${nextSign}`, { nodeId: target, sign: nextSign });
+          } else {
+            const existing = nodeRecords.get(target);
+            if (existing.depth === nextDepth) {
+              if (existing.sign !== "mixed" && existing.sign !== nextSign) {
+                existing.sign = "mixed";
+              }
+              nextFrontierMap.set(`${target}:${nextSign}`, { nodeId: target, sign: nextSign });
+            }
+            // If existing.depth < nextDepth: never overwrite a node at a deeper depth
+          }
+        });
+      });
+
+      edgesByDepth.push({ depth: nextDepth, edges: depthEdges });
+      frontier = Array.from(nextFrontierMap.values());
+      if (frontier.length === 0) break;
+    }
+
+    // Apply initial source state
+    state.rippleNodeMap.set(sourceId, {
+      status: initialSign > 0 ? "increase" : "decrease",
+      depth: 0,
+      isSource: true
+    });
+    applyGraphStyling();
+
+    // Animate wave by depth (220ms per depth level) while showing full summary
+    edgesByDepth.forEach((layer, idx) => {
+      const tId = setTimeout(() => {
+        layer.edges.forEach((ek) => state.rippleEdgeSet.add(ek));
+        nodeRecords.forEach((rec, nId) => {
+          if (rec.depth === layer.depth) {
+            state.rippleNodeMap.set(nId, {
+              status: rec.sign === 1 ? "increase" : rec.sign === -1 ? "decrease" : "mixed",
+              depth: rec.depth,
+              isSource: rec.isSource
+            });
+          }
+        });
+        applyGraphStyling();
+      }, (idx + 1) * 220);
+      state.rippleTimers.push(tId);
+    });
+
+    // Categorize Increase / Decrease / Mixed nodes (excluding source from downstream lists, or clearly noting source)
+    const increaseList = [];
+    const decreaseList = [];
+    const mixedList = [];
+
+    nodeRecords.forEach((rec, nId) => {
+      if (rec.isSource) return;
+      const nodeObj = nodeById.get(nId);
+      const item = { id: nId, label: nodeObj.label, depth: rec.depth };
+      if (rec.sign === 1) increaseList.push(item);
+      else if (rec.sign === -1) decreaseList.push(item);
+      else mixedList.push(item);
+    });
+
+    const formatBucket = (arr) =>
+      arr.length
+        ? arr.map((x) => `<strong>${x.id}</strong> ${escapeHtml(x.label)} <span style="opacity:0.75;">(d=${x.depth})</span>`).join(", ")
+        : "<em>None</em>";
+
+    outEl.innerHTML = `
+      <div>
+        <strong>Source:</strong> ${sourceId} (${escapeHtml(nodeById.get(sourceId).label)}) &rarr;
+        <strong>${initialSign > 0 ? "++ Positive surge" : "\u2212\u2212 Negative shock"}</strong> (BFS max depth 6)
+      </div>
+      <div class="ripple-buckets">
+        <div class="bucket-box inc">
+          <strong>Increase (+) [${increaseList.length}]:</strong><br />
+          ${formatBucket(increaseList)}
+        </div>
+        <div class="bucket-box dec">
+          <strong>Decrease (&minus;) [${decreaseList.length}]:</strong><br />
+          ${formatBucket(decreaseList)}
+        </div>
+        <div class="bucket-box mix">
+          <strong>Mixed (+/&minus;) [${mixedList.length}]:</strong><br />
+          ${formatBucket(mixedList)}
+        </div>
+      </div>
+    `;
+  }
+
+  /* ==========================================================================
+     7. P2 & P3 SCENARIO CALCULATIONS & PATHWAY DIAGRAMS
+     ========================================================================== */
+  function getActiveRuleEffects() {
+    let hoardingPct = 0;
+    let washLossPct = 0;
+    let extraCoffeeShock = 0;
+    let marginHit = 0;
+
+    const activeRules = state.rules.filter((r) => r.active);
+    activeRules.forEach((r) => {
+      const val = Number(r.effectValue) || 0;
+      if (r.effectType === "hoarding") hoardingPct += val;
+      if (r.effectType === "washingLoss") washLossPct += val;
+      if (r.effectType === "extraPrice") extraCoffeeShock += val;
+      if (r.effectType === "marginHit") marginHit += val;
+    });
+
+    return {
+      hoardingPct: clamp(hoardingPct, 0, 100),
+      washLossPct: clamp(washLossPct, 0, 100),
+      extraCoffeeShock,
+      marginHit,
+      activeRules
+    };
+  }
+
+  function computeScenarios() {
+    const rulesEff = getActiveRuleEffects();
+
+    // P2 Exact Formulas:
+    // Demand D = 60 * 1000 / Lifespan
+    // Supply S = 100 * (1 - Cap / 100)
+    // Deficit% = max(0, (D - S) / D) * 100
+    // UnitCost = 0.45 * (1 + Deficit / 100 * 1.65)
+    // Hygiene = min(100, 20 + 60 * max(0, (Lifespan - 1000) / 1000))
+    // Capacity = round(100000 * (1 - Hoarding% / 100) * (1 - WashLoss% / 100) * (1 - 0.5 * Deficit / 100) * (1 - 0.6 * (Hygiene - 20) / 100))
+    const cap = state.p2.cap;
+    const lifespan = state.p2.lifespan;
+    const D = (60 * 1000) / lifespan;
+    const S = 100 * (1 - cap / 100);
+    const deficitPct = Math.max(0, (D - S) / D) * 100;
+    const unitCost = 0.45 * (1 + (deficitPct / 100) * 1.65);
+    const p2Hygiene = Math.min(100, 20 + 60 * Math.max(0, (lifespan - 1000) / 1000));
+    const capacity = Math.round(
+      100000 *
+      (1 - rulesEff.hoardingPct / 100) *
+      (1 - rulesEff.washLossPct / 100) *
+      (1 - 0.5 * (deficitPct / 100)) *
+      (1 - 0.6 * ((p2Hygiene - 20) / 100))
+    );
+
+    // P3 Exact Formulas:
+    // Price = Slider + ExtraCoffeeShock(rules)
+    // Margin% = 12 - 0.05 * Price + 0.015 * Push - MarginHit(rules)
+    // Hygiene = min(100, 20 + 0.6 * Push)
+    // Vulnerability = clamp(100 - 7 * Margin + 0.3 * Hygiene, 0, 100)
+    // AdoptionChange% = -0.5 * (Hygiene - 20)
+    const price = state.p3.priceSlider + rulesEff.extraCoffeeShock;
+    const push = state.p3.pushSlider;
+    const marginPct = 12 - 0.05 * price + 0.015 * push - rulesEff.marginHit;
+    const p3Hygiene = Math.min(100, 20 + 0.6 * push);
+    const vulnerability = clamp(100 - 7 * marginPct + 0.3 * p3Hygiene, 0, 100);
+    const adoptionChangePct = -0.5 * (p3Hygiene - 20);
+
+    return {
+      rulesEff,
+      p2: { cap, lifespan, D, S, deficitPct, unitCost, hygiene: p2Hygiene, capacity },
+      p3: { priceSlider: state.p3.priceSlider, price, push, marginPct, hygiene: p3Hygiene, vulnerability, adoptionChangePct }
+    };
+  }
+
+  function renderP2Diagram(p2Metrics) {
+    const svgEl = document.getElementById("p2-pathway-svg");
+    if (!svgEl) return;
+
+    const deficitHigh = p2Metrics.deficitPct > 0;
+    const hygieneElevated = p2Metrics.hygiene > 20;
+
+    svgEl.innerHTML = `
+      <defs>
+        <marker id="p2-arr" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,-4L9,0L0,4Z" fill="var(--accent)"></path>
+        </marker>
+        <marker id="p2-arr-warn" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,-4.5L9.5,0L0,4.5Z" fill="var(--neg)"></path>
+        </marker>
+      </defs>
+
+      <!-- Loop B2 Box -->
+      <rect x="14" y="14" width="380" height="186" rx="12" fill="var(--bg-subtle)" stroke="var(--cat-supply)" stroke-width="2" stroke-dasharray="6 4"></rect>
+      <text x="28" y="36" fill="var(--text-primary)" font-size="12" font-weight="800">LOOP B2: PP Material Scarcity Constraint</text>
+      <text x="28" y="53" fill="var(--text-secondary)" font-size="11">Fossil Cap (${p2Metrics.cap}%) &rarr; Supply S = ${p2Metrics.S.toFixed(0)} vs Demand D = ${p2Metrics.D.toFixed(1)}</text>
+
+      <rect x="30" y="72" width="155" height="52" rx="8" fill="var(--bg-surface)" stroke="var(--cat-material)" stroke-width="2"></rect>
+      <text x="107" y="94" text-anchor="middle" fill="var(--text-primary)" font-size="11.5" font-weight="700">N9: PP Feedstock Deficit</text>
+      <text x="107" y="112" text-anchor="middle" fill="${deficitHigh ? "var(--neg)" : "var(--pos)"}" font-family="var(--font-mono)" font-size="12" font-weight="800">${p2Metrics.deficitPct.toFixed(1)}%</text>
+
+      <rect x="220" y="72" width="155" height="52" rx="8" fill="var(--bg-surface)" stroke="var(--cat-network)" stroke-width="2"></rect>
+      <text x="297" y="94" text-anchor="middle" fill="var(--text-primary)" font-size="11.5" font-weight="700">N10: Mfg Unit Cost</text>
+      <text x="297" y="112" text-anchor="middle" fill="var(--text-primary)" font-family="var(--font-mono)" font-size="12" font-weight="800">$${p2Metrics.unitCost.toFixed(2)}</text>
+
+      <line x1="185" y1="98" x2="216" y2="98" stroke="var(--accent)" stroke-width="2" marker-end="url(#p2-arr)"></line>
+      <text x="200" y="90" text-anchor="middle" fill="var(--pos)" font-weight="800" font-size="12">+</text>
+
+      <text x="204" y="152" text-anchor="middle" fill="var(--text-secondary)" font-size="11">B2 constrains Replacement Cup Supply (N11)</text>
+      <text x="204" y="170" text-anchor="middle" fill="var(--text-secondary)" font-size="11">&amp; pressures operators to extend cup lifespan</text>
+
+      <!-- Bridge Spillover Arrow N9 -> N18 -->
+      <path d="M107,124 L107,188 L475,188 L475,128" fill="none" stroke="var(--neg)" stroke-width="3" marker-end="url(#p2-arr-warn)"></path>
+      <rect x="205" y="175" width="210" height="22" rx="6" fill="var(--neg-bg)" stroke="var(--neg)" stroke-width="1.5"></rect>
+      <text x="310" y="190" text-anchor="middle" fill="var(--neg-text)" font-size="11" font-weight="800">B2 TRIGGERS B4 (N9 &rarr; N18 +)</text>
+
+      <!-- Loop B4 Box -->
+      <rect x="415" y="14" width="550" height="186" rx="12" fill="var(--bg-subtle)" stroke="var(--neg)" stroke-width="2.2"></rect>
+      <text x="430" y="36" fill="var(--text-primary)" font-size="12" font-weight="800">LOOP B4: Hygiene Degradation Spillover Chain</text>
+      <text x="430" y="53" fill="var(--text-secondary)" font-size="11">Target Lifespan: ${p2Metrics.lifespan.toLocaleString("en-US")} washes</text>
+
+      <rect x="430" y="72" width="122" height="52" rx="8" fill="var(--bg-surface)" stroke="var(--cat-material)" stroke-width="2"></rect>
+      <text x="491" y="92" text-anchor="middle" fill="var(--text-primary)" font-size="10.5" font-weight="700">N18: Extend EoL</text>
+      <text x="491" y="108" text-anchor="middle" fill="var(--text-secondary)" font-size="10.5">&gt;1,000 Washes</text>
+
+      <line x1="552" y1="98" x2="573" y2="98" stroke="var(--accent)" stroke-width="2" marker-end="url(#p2-arr)"></line>
+      <text x="562" y="90" text-anchor="middle" fill="var(--pos)" font-weight="800" font-size="12">+</text>
+
+      <rect x="577" y="72" width="122" height="52" rx="8" fill="var(--bg-surface)" stroke="var(--cat-material)" stroke-width="2"></rect>
+      <text x="638" y="92" text-anchor="middle" fill="var(--text-primary)" font-size="10.5" font-weight="700">N19: Surface</text>
+      <text x="638" y="108" text-anchor="middle" fill="var(--text-secondary)" font-size="10.5">Micro-Degrad.</text>
+
+      <line x1="699" y1="98" x2="720" y2="98" stroke="var(--accent)" stroke-width="2" marker-end="url(#p2-arr)"></line>
+      <text x="709" y="90" text-anchor="middle" fill="var(--pos)" font-weight="800" font-size="12">+</text>
+
+      <rect x="724" y="72" width="115" height="52" rx="8" fill="var(--bg-surface)" stroke="${hygieneElevated ? "var(--neg)" : "var(--cat-consumer)"}" stroke-width="2"></rect>
+      <text x="781" y="92" text-anchor="middle" fill="var(--text-primary)" font-size="10.5" font-weight="700">N20: Hygiene</text>
+      <text x="781" y="110" text-anchor="middle" fill="${hygieneElevated ? "var(--neg)" : "var(--text-primary)"}" font-family="var(--font-mono)" font-size="11.5" font-weight="800">${p2Metrics.hygiene.toFixed(0)} / 100</text>
+
+      <line x1="839" y1="98" x2="860" y2="98" stroke="var(--neg)" stroke-width="2.2" marker-end="url(#p2-arr-warn)"></line>
+      <text x="849" y="90" text-anchor="middle" fill="var(--neg)" font-weight="800" font-size="13">&minus;</text>
+
+      <rect x="864" y="72" width="88" height="52" rx="8" fill="var(--bg-surface)" stroke="var(--cat-consumer)" stroke-width="2"></rect>
+      <text x="908" y="92" text-anchor="middle" fill="var(--text-primary)" font-size="10.5" font-weight="700">N3: Adoption</text>
+      <text x="908" y="108" text-anchor="middle" fill="var(--neg)" font-size="10.5" font-weight="700">Decline</text>
+    `;
+  }
+
+  function renderP3Diagram(p3Metrics) {
+    const svgEl = document.getElementById("p3-pathway-svg");
+    if (!svgEl) return;
+
+    svgEl.innerHTML = `
+      <defs>
+        <marker id="p3-arr" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,-4L9,0L0,4Z" fill="var(--accent)"></path>
+        </marker>
+        <marker id="p3-arr-neg" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="6.5" markerHeight="6.5" orient="auto">
+          <path d="M0,-4L9,0L0,4Z" fill="var(--neg)"></path>
+        </marker>
+      </defs>
+
+      <!-- Row 1: Loop B3 Coffee-Climate Feedback -->
+      <rect x="12" y="10" width="956" height="102" rx="10" fill="var(--bg-subtle)" stroke="var(--cat-env)" stroke-width="1.8"></rect>
+      <text x="26" y="30" fill="var(--text-primary)" font-size="11.5" font-weight="800">LOOP B3 (Coffee-Climate Feedback): Fossil-Heavy Grid &rarr; Warming &rarr; Coffee Ecosystem &amp; Margin Squeeze</text>
+
+      ${[
+        { x: 24,  w: 112, t1: "N3 &rarr; N12", t2: "Fossil Wash Energy (+)" },
+        { x: 156, w: 122, t1: "N13 &rarr; N14", t2: "GHG &amp; Warming (+)" },
+        { x: 298, w: 122, t1: "N15: Yield Loss", t2: "Heat &gt;30&deg;C (+)" },
+        { x: 440, w: 126, t1: "N16: Bean Price", t2: `+${p3Metrics.price.toFixed(0)}% (+)` },
+        { x: 586, w: 132, t1: "N17: Caf&eacute; Margin", t2: `${p3Metrics.marginPct.toFixed(1)}% (&minus;)` },
+        { x: 738, w: 215, t1: "N1 &rarr; N2 &rarr; N3", t2: `Vuln: ${Math.round(p3Metrics.vulnerability)}/100 (Network Shrink)` }
+      ].map((b, i, arr) => `
+        <rect x="${b.x}" y="42" width="${b.w}" height="56" rx="7" fill="var(--bg-surface)" stroke="var(--border-strong)" stroke-width="1.5"></rect>
+        <text x="${b.x + b.w / 2}" y="64" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="700">${b.t1}</text>
+        <text x="${b.x + b.w / 2}" y="82" text-anchor="middle" fill="var(--text-secondary)" font-family="var(--font-mono)" font-size="10.5">${b.t2}</text>
+        ${i < arr.length - 1 ? `<line x1="${b.x + b.w}" y1="70" x2="${arr[i + 1].x - 3}" y2="70" stroke="var(--accent)" stroke-width="2" marker-end="url(#p3-arr)"></line>` : ""}
+      `).join("")}
+
+      <!-- Connector down from Margin Reduction to Cup Life Extension Strategy -->
+      <path d="M652,98 L652,126 L380,126 L380,145" fill="none" stroke="var(--neg)" stroke-width="2.4" stroke-dasharray="5 3" marker-end="url(#p3-arr-neg)"></path>
+      <text x="518" y="121" text-anchor="middle" fill="var(--neg-text)" font-size="10.5" font-weight="800">Unintended Margin-Protection Strategy</text>
+
+      <!-- Row 2: Assumed Spillover Adaptation Chain -->
+      <rect x="12" y="136" width="956" height="102" rx="10" fill="var(--bg-subtle)" stroke="var(--neg)" stroke-width="1.8"></rect>
+      <text x="26" y="156" fill="var(--text-primary)" font-size="11.5" font-weight="800">ASSUMED SPILLOVER CHAIN: Margin Squeeze &rarr; Over-Extending Cup Life &rarr; Hygiene Backlash</text>
+
+      ${[
+        { x: 24,  w: 145, t1: "Bean Price &rarr; Margin", t2: `Margin ${p3Metrics.marginPct.toFixed(1)}%` },
+        { x: 192, w: 175, t1: "N18: Extend Cup EoL", t2: `Push = ${p3Metrics.push}%` },
+        { x: 390, w: 175, t1: "N19: Micro-Degradation", t2: "Surface Wear (+)" },
+        { x: 588, w: 175, t1: "N20: Hygiene Concerns", t2: `Index ${Math.round(p3Metrics.hygiene)} / 100` },
+        { x: 786, w: 168, t1: "N3: Adoption Decline", t2: `${formatSigned(p3Metrics.adoptionChangePct, 1, "%")} (&minus;)` }
+      ].map((b, i, arr) => `
+        <rect x="${b.x}" y="168" width="${b.w}" height="56" rx="7" fill="var(--bg-surface)" stroke="${i === 4 ? "var(--neg)" : "var(--border-strong)"}" stroke-width="1.6"></rect>
+        <text x="${b.x + b.w / 2}" y="190" text-anchor="middle" fill="var(--text-primary)" font-size="11" font-weight="700">${b.t1}</text>
+        <text x="${b.x + b.w / 2}" y="208" text-anchor="middle" fill="${i === 4 ? "var(--neg)" : "var(--text-secondary)"}" font-family="var(--font-mono)" font-size="10.5" font-weight="700">${b.t2}</text>
+        ${i < arr.length - 1 ? `<line x1="${b.x + b.w}" y1="196" x2="${arr[i + 1].x - 3}" y2="196" stroke="${i === 3 ? "var(--neg)" : "var(--accent)"}" stroke-width="2" marker-end="url(#${i === 3 ? "p3-arr-neg" : "p3-arr"})"></line>` : ""}
+      `).join("")}
+    `;
+  }
+
+  /* ==========================================================================
+     8. STUDENT RULES RENDERING & LIVE BINDING
+     ========================================================================== */
+  function renderRulesList() {
+    const container = document.getElementById("rules-container");
+    const activeCount = state.rules.filter((r) => r.active).length;
+    document.getElementById("active-rules-badge").textContent = `${activeCount} active`;
+
+    container.innerHTML = state.rules.map((rule) => `
+      <article class="rule-card ${rule.active ? "active-rule" : "inactive-rule"}" data-rule-id="${rule.id}">
+        <div class="rule-card-top">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="source-tag">[S]</span>
+            <select class="field-select" data-field="type" style="width:auto; padding:4px 8px; font-weight:700;">
+              <option value="Rule" ${rule.type === "Rule" ? "selected" : ""}>Rule</option>
+              <option value="Constraint" ${rule.type === "Constraint" ? "selected" : ""}>Constraint</option>
+              <option value="Climate shock" ${rule.type === "Climate shock" ? "selected" : ""}>Climate shock</option>
+              <option value="Assumption" ${rule.type === "Assumption" ? "selected" : ""}>Assumption</option>
+            </select>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:10px;">
+            <label class="toggle-label">
+              <input type="checkbox" data-field="active" ${rule.active ? "checked" : ""} />
+              Active
+            </label>
+            <button type="button" class="danger-btn" data-action="delete">Delete</button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Rule:</label>
+          <input class="field-input" type="text" data-field="rule" value="${escapeHtml(rule.rule)}" />
+        </div>
+
+        <div class="field-group">
+          <label>Assumption:</label>
+          <textarea class="field-textarea" data-field="assumption">${escapeHtml(rule.assumption)}</textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Calculation:</label>
+          <textarea class="field-textarea" data-field="calculation">${escapeHtml(rule.calculation)}</textarea>
+        </div>
+
+        <div class="effect-row">
+          <div class="field-group">
+            <label>Numeric Model Effect (Optional):</label>
+            <select class="field-select" data-field="effectType">
+              <option value="none" ${rule.effectType === "none" ? "selected" : ""}>None (Qualitative only)</option>
+              <option value="hoarding" ${rule.effectType === "hoarding" ? "selected" : ""}>Hoarding (%)</option>
+              <option value="washingLoss" ${rule.effectType === "washingLoss" ? "selected" : ""}>Washing capacity loss (%)</option>
+              <option value="extraPrice" ${rule.effectType === "extraPrice" ? "selected" : ""}>Extra coffee price (%)</option>
+              <option value="marginHit" ${rule.effectType === "marginHit" ? "selected" : ""}>Café margin hit (points)</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label>Effect Value:</label>
+            <input class="field-input" type="number" step="any" data-field="effectValue" value="${rule.effectValue}" ${rule.effectType === "none" ? "disabled" : ""} />
+          </div>
+        </div>
+      </article>
+    `).join("");
+
+    // Bind live events
+    container.querySelectorAll(".rule-card").forEach((card) => {
+      const ruleId = card.dataset.ruleId;
+      const ruleObj = state.rules.find((r) => r.id === ruleId);
+      if (!ruleObj) return;
+
+      card.querySelectorAll("[data-field]").forEach((input) => {
+        const field = input.dataset.field;
+        const eventName = input.type === "checkbox" || input.tagName === "SELECT" ? "change" : "input";
+        input.addEventListener(eventName, () => {
+          if (field === "active") {
+            ruleObj.active = input.checked;
+            card.classList.toggle("active-rule", ruleObj.active);
+            card.classList.toggle("inactive-rule", !ruleObj.active);
+          } else if (field === "effectValue") {
+            ruleObj.effectValue = parseFloat(input.value) || 0;
+          } else if (field === "effectType") {
+            ruleObj.effectType = input.value;
+            const valInput = card.querySelector('[data-field="effectValue"]');
+            if (valInput) valInput.disabled = ruleObj.effectType === "none";
+          } else {
+            ruleObj[field] = input.value;
+          }
+          updateAllCalculationsAndViews();
+        });
+      });
+
+      card.querySelector('[data-action="delete"]').addEventListener("click", () => {
+        state.rules = state.rules.filter((r) => r.id !== ruleId);
+        renderRulesList();
+        updateAllCalculationsAndViews();
+      });
+    });
+  }
+
+  /* ==========================================================================
+     9. ASSUMPTIONS & METHODS LIVE LEDGER
+     ========================================================================== */
+  function renderMethodsTable(calc) {
+    const tbody = document.getElementById("methods-tbody");
+    if (!tbody) return;
+
+    const activeHoardRules = calc.rulesEff.activeRules.filter((r) => r.effectType === "hoarding");
+    const activeWashRules = calc.rulesEff.activeRules.filter((r) => r.effectType === "washingLoss");
+    const activePriceRules = calc.rulesEff.activeRules.filter((r) => r.effectType === "extraPrice");
+    const activeMarginRules = calc.rulesEff.activeRules.filter((r) => r.effectType === "marginHit");
+
+    const rows = [
+      {
+        metric: "P2: Plastic Replacement Demand (D)",
+        value: calc.p2.D.toFixed(1),
+        formula: "Demand D = 60 * 1000 / Lifespan",
+        assumptions: `Baseline 60 units at 1,000-wash reference lifespan; current Lifespan = ${calc.p2.lifespan.toLocaleString("en-US")} washes.`,
+        tags: ["[P]"]
+      },
+      {
+        metric: "P2: Virgin PP Feedstock Supply (S)",
+        value: calc.p2.S.toFixed(1),
+        formula: "Supply S = 100 * (1 - Cap / 100)",
+        assumptions: `Lower fossil fuel production reduces plastic feedstock supply (Cap = ${calc.p2.cap}%).`,
+        tags: ["[P]"]
+      },
+      {
+        metric: "P2: Feedstock Deficit",
+        value: `${calc.p2.deficitPct.toFixed(1)}%`,
+        formula: "Deficit% = max(0, (D - S) / D) * 100",
+        assumptions: "Deficit occurs when replacement demand D exceeds fossil-constrained supply S.",
+        tags: ["[P]"]
+      },
+      {
+        metric: "P2: Replacement Cup Unit Cost",
+        value: `$${calc.p2.unitCost.toFixed(2)}`,
+        formula: "UnitCost = 0.45 * (1 + Deficit / 100 * 1.65)",
+        assumptions: "Base unit cost $0.45 scales linearly by 1.65x per unit of feedstock deficit fraction.",
+        tags: ["[P]"]
+      },
+      {
+        metric: "P2: Consumer Hygiene Concerns",
+        value: `${Math.round(calc.p2.hygiene)}`,
+        formula: "Hygiene = min(100, 20 + 60 * max(0, (Lifespan - 1000) / 1000))",
+        assumptions: "Baseline hygiene concern = 20 up to 1,000 washes; increases above 1,000 washes due to surface micro-degradation.",
+        tags: ["[P]"]
+      },
+      {
+        metric: "P2: Net System Circulation Capacity",
+        value: calc.p2.capacity.toLocaleString("en-US"),
+        formula: "Capacity = round(100000 * (1 - Hoarding% / 100) * (1 - WashLoss% / 100) * (1 - 0.5 * Deficit / 100) * (1 - 0.6 * (Hygiene - 20) / 100))",
+        assumptions: `100,000 nominal cup pool reduced by Hoarding% = ${calc.rulesEff.hoardingPct}% (${activeHoardRules.map((r) => r.rule).join(", ") || "none"}) and WashLoss% = ${calc.rulesEff.washLossPct}% (${activeWashRules.map((r) => r.rule).join(", ") || "none"}), plus feedstock deficit and hygiene drag.`,
+        tags: calc.rulesEff.activeRules.some((r) => r.effectType === "hoarding" || r.effectType === "washingLoss") ? ["[P]", "[S]"] : ["[P]"]
+      },
+      {
+        metric: "P3: Effective Coffee Bean Price Increase",
+        value: `${calc.p3.price.toFixed(0)}%`,
+        formula: "Price = Slider + ExtraCoffeeShock(rules)",
+        assumptions: `Scenario assumption baseline (${calc.p3.priceSlider}%) informed by drought market observations (not derived mathematically from land-suitability loss alone), plus ExtraCoffeeShock = ${calc.rulesEff.extraCoffeeShock}% (${activePriceRules.map((r) => r.rule).join(", ") || "none"}).`,
+        tags: activePriceRules.length ? ["[P]", "[S]"] : ["[P]"]
+      },
+      {
+        metric: "P3: Café Operating Margin",
+        value: `${calc.p3.marginPct.toFixed(1)}%`,
+        formula: "Margin% = 12 - 0.05 * Price + 0.015 * Push - MarginHit(rules)",
+        assumptions: `12.0% baseline margin eroded by bean price increases (−0.05×Price), partially offset by cup EoL extension (+0.015×Push), minus MarginHit = ${calc.rulesEff.marginHit} pts (${activeMarginRules.map((r) => r.rule).join(", ") || "none"}).`,
+        tags: activeMarginRules.length ? ["[P]", "[S]"] : ["[P]"]
+      },
+      {
+        metric: "P3: Consumer Hygiene Concerns",
+        value: `${Math.round(calc.p3.hygiene)}`,
+        formula: "Hygiene = min(100, 20 + 0.6 * Push)",
+        assumptions: `Extending cup EoL past 1,000 washes (Push = ${calc.p3.push}%) causes surface micro-degradation and elevates hygiene concerns above baseline 20.`,
+        tags: ["[P]"]
+      },
+      {
+        metric: "P3: Partner Network Vulnerability",
+        value: `${Math.round(calc.p3.vulnerability)}`,
+        formula: "Vulnerability = clamp(100 - 7 * Margin + 0.3 * Hygiene, 0, 100)",
+        assumptions: "Lower café operating margins and higher consumer hygiene concerns increase partner dropout vulnerability.",
+        tags: ["[P]"]
+      },
+      {
+        metric: "P3: Net Adoption Change",
+        value: formatSigned(calc.p3.adoptionChangePct, 1, "%"),
+        formula: "AdoptionChange% = -0.5 * (Hygiene - 20)",
+        assumptions: "Hygiene concerns above baseline 20 directly suppress consumer reusable cup adoption.",
+        tags: ["[P]"]
+      },
+      {
+        metric: "CLD Topology Constraint (N19 → N7 Excluded)",
+        value: "Excluded",
+        formula: "No edge (N19, N7) in CLD_DATA.edges",
+        assumptions: "Modelling note: the edge N19→N7 is intentionally excluded so no loop is nested inside another.",
+        tags: ["[AI]"]
+      }
+    ];
+
+    tbody.innerHTML = rows.map((row) => `
+      <tr>
+        <td><strong>${escapeHtml(row.metric)}</strong></td>
+        <td style="font-family:var(--font-mono); font-weight:800; color:var(--accent);">${escapeHtml(row.value)}</td>
+        <td><code class="formula-code">${escapeHtml(row.formula)}</code></td>
+        <td>${escapeHtml(row.assumptions)}</td>
+        <td>${row.tags.map((t) => `<span class="source-tag">${t}</span>`).join(" ")}</td>
+      </tr>
+    `).join("");
+  }
+
+  /* ==========================================================================
+     10. MASTER UI UPDATE LOOP
+     ========================================================================== */
+  function updateAllCalculationsAndViews() {
+    const calc = computeScenarios();
+
+    // Update P2 UI
+    document.getElementById("p2-cap-val").textContent = `${calc.p2.cap}%`;
+    document.getElementById("p2-lifespan-val").textContent = `${calc.p2.lifespan.toLocaleString("en-US")} washes`;
+    document.getElementById("p2-kpi-deficit").textContent = `${calc.p2.deficitPct.toFixed(1)}%`;
+    document.getElementById("p2-kpi-deficit-sub").textContent = `Demand D = ${calc.p2.D.toFixed(1)} vs. Supply S = ${calc.p2.S.toFixed(1)}`;
+    document.getElementById("p2-kpi-cost").textContent = `$${calc.p2.unitCost.toFixed(2)}`;
+    document.getElementById("p2-kpi-capacity").textContent = calc.p2.capacity.toLocaleString("en-US");
+    document.getElementById("p2-kpi-hygiene").textContent = `${Math.round(calc.p2.hygiene)}`;
+    document.getElementById("p2-active-modifiers").textContent =
+      `Hoarding ${calc.rulesEff.hoardingPct}%, Washing Loss ${calc.rulesEff.washLossPct}%`;
+    renderP2Diagram(calc.p2);
+
+    // Update P3 UI
+    document.getElementById("p3-price-val").textContent = `${calc.p3.priceSlider}%` +
+      (calc.rulesEff.extraCoffeeShock ? ` (+${calc.rulesEff.extraCoffeeShock}% rule = ${calc.p3.price}%)` : "");
+    document.getElementById("p3-push-val").textContent = `${calc.p3.push}%`;
+    document.getElementById("p3-kpi-margin").textContent = `${calc.p3.marginPct.toFixed(1)}%`;
+    document.getElementById("p3-kpi-hygiene").textContent = `${Math.round(calc.p3.hygiene)}`;
+    document.getElementById("p3-kpi-vuln").textContent = `${Math.round(calc.p3.vulnerability)}`;
+    document.getElementById("p3-kpi-adoption").textContent = formatSigned(calc.p3.adoptionChangePct, 1, "%");
+    document.getElementById("p3-active-modifiers").textContent =
+      `Extra coffee price +${calc.rulesEff.extraCoffeeShock}%, Margin hit ${calc.rulesEff.marginHit} pts`;
+    renderP3Diagram(calc.p3);
+
+    // Update Badge & Methods Table
+    const activeCount = state.rules.filter((r) => r.active).length;
+    document.getElementById("active-rules-badge").textContent = `${activeCount} active`;
+    renderMethodsTable(calc);
+  }
+
+  /* ==========================================================================
+     11. EVENT WIRING & INITIALIZATION
+     ========================================================================== */
+  function switchTab(tabKey) {
+    state.activeTab = tabKey;
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      const isTarget = btn.dataset.tab === tabKey;
+      btn.classList.toggle("active", isTarget);
+      btn.setAttribute("aria-selected", isTarget ? "true" : "false");
+    });
+    document.querySelectorAll(".tab-panel").forEach((panel) => {
+      panel.classList.toggle("active", panel.id === `tab-${tabKey}`);
+    });
+    if (tabKey === "p1") {
+      setTimeout(() => fitGraphToViewport(200), 50);
+    }
+  }
+
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+  });
+
+  // Theme Toggle (in-memory only)
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    state.theme = state.theme === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", state.theme);
+    document.getElementById("theme-toggle").textContent = state.theme === "light" ? "Dark Mode" : "Light Mode";
+  });
+
+  // Self-test drawer toggle
+  document.getElementById("selftest-badge").addEventListener("click", () => {
+    document.getElementById("selftest-drawer").classList.toggle("open");
+  });
+  document.getElementById("selftest-close").addEventListener("click", () => {
+    document.getElementById("selftest-drawer").classList.remove("open");
+  });
+
+  // Loop focus buttons
+  document.querySelectorAll(".loop-btn[data-loop]").forEach((btn) => {
+    btn.addEventListener("click", () => setFocusedLoop(btn.dataset.loop));
+  });
+  document.getElementById("clear-loop-btn").addEventListener("click", () => {
+    clearRippleState();
+    state.focusedLoopId = null;
+    applyGraphStyling();
+  });
+
+  // Search & Category filter
+  document.getElementById("node-search").addEventListener("input", (e) => {
+    state.searchQuery = e.target.value;
+    applyGraphStyling();
+  });
+
+  document.getElementById("category-filter").addEventListener("change", (e) => {
+    state.categoryFilter = e.target.value;
+    applyGraphStyling();
+  });
+
+  // Lock Layout toggle
+  const lockBtn = document.getElementById("lock-layout-btn");
+  lockBtn.addEventListener("click", () => {
+    state.layoutLocked = !state.layoutLocked;
+    if (state.layoutLocked) {
+      simulation.stop();
+      simNodes.forEach((n) => {
+        n.fx = n.x;
+        n.fy = n.y;
+      });
+      lockBtn.textContent = "Layout: Locked";
+      lockBtn.classList.add("primary");
+    } else {
+      simNodes.forEach((n) => {
+        n.fx = null;
+        n.fy = null;
+      });
+      simulation.alpha(0.35).restart();
+      lockBtn.textContent = "Unlock/Lock: Unlocked";
+      lockBtn.classList.remove("primary");
+    }
+  });
+
+  // Reset P1 button
+  document.getElementById("reset-cld-btn").addEventListener("click", () => {
+    clearRippleState();
+    state.focusedLoopId = null;
+    state.searchQuery = "";
+    state.categoryFilter = "ALL";
+    document.getElementById("node-search").value = "";
+    document.getElementById("category-filter").value = "ALL";
+
+    state.layoutLocked = false;
+    lockBtn.textContent = "Unlock/Lock: Unlocked";
+    lockBtn.classList.remove("primary");
+    simNodes.forEach((n) => {
+      n.fx = null;
+      n.fy = null;
+      n.x = INITIAL_LAYOUT[n.id]?.x ?? 520;
+      n.y = INITIAL_LAYOUT[n.id]?.y ?? 320;
+    });
+    simulation.alpha(0.5).restart();
+    selectNode("N3");
+    setTimeout(() => fitGraphToViewport(300), 250);
+  });
+
+  // Zoom controls
+  document.getElementById("zoom-in-btn").addEventListener("click", () => {
+    svg.transition().duration(220).call(zoomBehavior.scaleBy, 1.25);
+  });
+  document.getElementById("zoom-out-btn").addEventListener("click", () => {
+    svg.transition().duration(220).call(zoomBehavior.scaleBy, 0.8);
+  });
+  document.getElementById("zoom-fit-btn").addEventListener("click", () => fitGraphToViewport(300));
+
+  // Ripple Simulator buttons
+  document.getElementById("ripple-surge-btn").addEventListener("click", () => runRippleSimulator(1));
+  document.getElementById("ripple-shock-btn").addEventListener("click", () => runRippleSimulator(-1));
+  document.getElementById("ripple-clear-btn").addEventListener("click", clearRippleState);
+
+  // P2 & P3 Jump-to-CLD buttons
+  document.getElementById("p2-focus-cld-btn").addEventListener("click", () => {
+    switchTab("p1");
+    clearRippleState();
+    state.focusedLoopId = "B4";
+    selectNode("N9");
+  });
+
+  document.getElementById("p3-focus-cld-btn").addEventListener("click", () => {
+    switchTab("p1");
+    clearRippleState();
+    state.focusedLoopId = "B3";
+    selectNode("N16");
+  });
+
+  // P2 Sliders
+  document.getElementById("p2-cap-slider").addEventListener("input", (e) => {
+    state.p2.cap = Number(e.target.value);
+    updateAllCalculationsAndViews();
+  });
+  document.getElementById("p2-lifespan-slider").addEventListener("input", (e) => {
+    state.p2.lifespan = Number(e.target.value);
+    updateAllCalculationsAndViews();
+  });
+
+  // P3 Sliders
+  document.getElementById("p3-price-slider").addEventListener("input", (e) => {
+    state.p3.priceSlider = Number(e.target.value);
+    updateAllCalculationsAndViews();
+  });
+  document.getElementById("p3-push-slider").addEventListener("input", (e) => {
+    state.p3.pushSlider = Number(e.target.value);
+    updateAllCalculationsAndViews();
+  });
+
+  // Student Rules Add & Reset
+  document.getElementById("add-rule-btn").addEventListener("click", () => {
+    state.rules.push({
+      id: `rule-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      type: "Rule",
+      rule: "New Student Rule",
+      assumption: "Describe the behavioral, operational, or climate mechanism.",
+      calculation: "Specify quantitative or qualitative impact.",
+      effectType: "none",
+      effectValue: 0,
+      active: true
+    });
+    renderRulesList();
+    updateAllCalculationsAndViews();
+  });
+
+  document.getElementById("reset-rules-btn").addEventListener("click", () => {
+    state.rules = getStarterRules();
+    renderRulesList();
+    updateAllCalculationsAndViews();
+  });
+
+  // Boot Sequence
+  renderSelfTestUI(selfTestReport);
+  selectNode("N3");
+  renderRulesList();
+  updateAllCalculationsAndViews();
+})();
+</script>
+</body>
+</html>
