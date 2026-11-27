@@ -1,0 +1,2552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RECUP System Dynamics — D3.js Causal Loop Diagram</title>
+  <!-- Tailwind CSS for responsive layout & clean typography -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- D3.js v7 via CDN for SVG rendering, smooth curves, and d3.drag() -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-canvas: #f8fafc;
+      --color-pos: #0d9488;
+      --color-pos-bg: #ccfbf1;
+      --color-neg: #e11d48;
+      --color-neg-bg: #ffe4e6;
+      --color-r1: #0284c7;
+      --color-b1: #d97706;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-canvas);
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .canvas-dot-grid {
+      background-color: #f8fafc;
+      background-image: radial-gradient(#cbd5e1 1.15px, transparent 1.15px);
+      background-size: 22px 22px;
+    }
+
+    .d3-node-group {
+      cursor: grab;
+      touch-action: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .d3-node-group:active,
+    .d3-node-group.is-dragging {
+      cursor: grabbing;
+    }
+
+    .d3-edge-group,
+    .d3-loop-badge {
+      transition: opacity 0.3s ease, transform 0.25s ease;
+    }
+
+    .d3-loop-badge {
+      cursor: pointer;
+    }
+
+    @keyframes d3PulseRing {
+      0% {
+        transform: scale(0.96);
+        opacity: 0.9;
+      }
+      75% {
+        transform: scale(1.22);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1.22);
+        opacity: 0;
+      }
+    }
+
+    .d3-pulse-ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: d3PulseRing 1.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    }
+
+    @keyframes d3DashMarch {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+
+    .d3-edge-flow {
+      stroke-dasharray: 6 6;
+      animation: d3DashMarch 0.7s linear infinite;
+    }
+
+    .trace-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+    .trace-scroll::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    .trace-scroll::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .trace-scroll::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navigation Header + 5-Tab Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-2xs">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 pt-3 pb-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-teal-600 text-white flex items-center justify-center shadow-xs shrink-0">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 8h1a4 4 0 1 1 0 8h-1" />
+            <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" />
+            <path d="M6 2v2" />
+            <path d="M10 2v2" />
+            <path d="M14 2v2" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight text-slate-900">RECUP Reusable Cup System</h1>
+            <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-teal-50 text-teal-700 border border-teal-200">
+              D3.js Interactive CLD
+            </span>
+          </div>
+          <p class="text-xs text-slate-500">Reinforcing Growth (R1) vs. Cup Hoarding &amp; Stock Constraint (B1)</p>
+        </div>
+      </div>
+
+      <!-- Polarity Legend -->
+      <div class="flex items-center gap-3 text-xs font-medium text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
+        <div class="flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-teal-100 text-teal-700 font-bold flex items-center justify-center border border-teal-300">+</span>
+          <span>Same Direction</span>
+        </div>
+        <span class="text-slate-300">|</span>
+        <div class="flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-700 font-bold flex items-center justify-center border border-rose-300">−</span>
+          <span>Opposite Direction</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Horizontal 5-Tab Navigation Bar -->
+    <nav class="border-t border-slate-100 bg-slate-50/75 px-4 sm:px-6" aria-label="Primary Workshop Tabs">
+      <div class="max-w-[1440px] mx-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2" role="tablist">
+        <button id="tab-btn-tab1" type="button" role="tab" aria-selected="true" onclick="switchTab('tab1')"
+          class="tab-nav-btn px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer bg-slate-900 text-white shadow-2xs">
+          <span class="w-4 h-4 rounded-md bg-teal-500 text-white font-mono-code text-[10px] font-bold flex items-center justify-center">1</span>
+          <span>RECUP CLD D3</span>
+        </button>
+
+        <button id="tab-btn-tab2" type="button" role="tab" aria-selected="false" onclick="switchTab('tab2')"
+          class="tab-nav-btn px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900">
+          <span class="w-4 h-4 rounded-md bg-slate-100 text-slate-600 font-mono-code text-[10px] font-bold flex items-center justify-center">2</span>
+          <span>RECUP Case</span>
+        </button>
+
+        <button id="tab-btn-tab3" type="button" role="tab" aria-selected="false" onclick="switchTab('tab3')"
+          class="tab-nav-btn px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900">
+          <span class="w-4 h-4 rounded-md bg-slate-100 text-slate-600 font-mono-code text-[10px] font-bold flex items-center justify-center">3</span>
+          <span>Causal Loop Diagrams</span>
+        </button>
+
+        <button id="tab-btn-tab4" type="button" role="tab" aria-selected="false" onclick="switchTab('tab4')"
+          class="tab-nav-btn px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900">
+          <span class="w-4 h-4 rounded-md bg-slate-100 text-slate-600 font-mono-code text-[10px] font-bold flex items-center justify-center">4</span>
+          <span>Rapid Prototyping</span>
+        </button>
+
+        <button id="tab-btn-tab5" type="button" role="tab" aria-selected="false" onclick="switchTab('tab5')"
+          class="tab-nav-btn px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900">
+          <span class="w-4 h-4 rounded-md bg-slate-100 text-slate-600 font-mono-code text-[10px] font-bold flex items-center justify-center">5</span>
+          <span>CREATE Model</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 1: RECUP CLD D3 (100% PRESERVED EXISTING WORKSPACE)               -->
+  <!-- ===================================================================== -->
+  <div id="tab-panel-tab1" role="tabpanel" class="flex-1 flex flex-col">
+    <main class="flex-1 max-w-[1440px] w-full mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+
+      <!-- Left / Main Diagram Panel -->
+      <section class="lg:col-span-7 xl:col-span-8 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <!-- Toolbar: Loop Highlighting & Layout Reset -->
+        <div class="px-4 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 bg-white">
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span class="inline-block w-2 h-2 rounded-full bg-teal-500"></span>
+            <span><strong class="text-slate-700">Drag</strong> any node, <strong class="text-slate-700">click</strong> a node to pick it, or select <strong class="text-slate-700">R1 / B1</strong>.</span>
+          </div>
+
+          <div class="flex items-center gap-1.5 flex-wrap" role="group" aria-label="Feedback Loop Controls">
+            <button id="btn-loop-R1" type="button" onclick="selectLoop('R1')"
+              class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-700 border-slate-200 hover:border-sky-400 hover:bg-sky-50">
+              <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+              Highlight R1
+            </button>
+            <button id="btn-loop-B1" type="button" onclick="selectLoop('B1')"
+              class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-700 border-slate-200 hover:border-amber-400 hover:bg-amber-50">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              Highlight B1
+            </button>
+            <button id="btn-loop-CLEAR" type="button" onclick="clearLoop()"
+              class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-slate-800 text-white border-slate-800">
+              Clear Loop
+            </button>
+            <button id="btn-reset-layout" type="button" onclick="resetNodeLayout()"
+              class="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-white text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900">
+              Reset Layout
+            </button>
+          </div>
+        </div>
+
+        <!-- D3.js SVG Canvas Container -->
+        <div class="relative flex-1 min-h-[450px] sm:min-h-[540px] canvas-dot-grid flex items-center justify-center p-2">
+          <div id="d3-cld-container" class="w-full h-full flex items-center justify-center"></div>
+        </div>
+
+        <!-- Bottom Loop Dynamics Banner -->
+        <div id="loop-info-banner" class="px-4 py-3 bg-slate-50 border-t border-slate-200 flex items-start sm:items-center justify-between gap-3 text-xs">
+          <div class="flex items-start gap-2.5">
+            <span id="loop-info-icon" class="w-6 h-6 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">CLD</span>
+            <div>
+              <div id="loop-info-title" class="font-bold text-slate-800">Full RECUP System View (R1 + B1)</div>
+              <div id="loop-info-desc" class="text-slate-600 mt-0.5 leading-relaxed">
+                Explore <strong>Reinforcing Loop R1</strong> (<span class="font-mono-code text-[11px]">N1 +→ N2 +→ N3 +→ N4 +→ N1</span>) and <strong>Balancing Loop B1</strong> (<span class="font-mono-code text-[11px]">N1 +→ N2 +→ N3 +→ N6 −→ N5 +→ N1</span>).
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Sidebar: Ripple Simulator & Causal Trace Log -->
+      <aside class="lg:col-span-5 xl:col-span-4 flex flex-col gap-4">
+
+        <!-- Ripple Simulator Controls Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span>Ripple Simulator</span>
+              </h2>
+              <p class="text-xs text-slate-500 mt-0.5">Propagate a signal step-by-step around the loop</p>
+            </div>
+            <span id="sim-active-loop-pill" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-200">
+              Loop R1
+            </span>
+          </div>
+
+          <!-- Step 1: Node Picker -->
+          <div class="mb-3.5">
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400">1. Select Starting Node</label>
+              <span id="selected-node-loop-hint" class="text-[11px] font-medium text-slate-500">Traces R1 (Reinforcing)</span>
+            </div>
+            <div id="node-pill-grid" class="grid grid-cols-2 gap-1.5">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Step 2: Shock Triggers -->
+          <div class="mb-3.5">
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">2. Trigger Signal Shock</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="btn-shock-pos" type="button" onclick="startRippleSimulation(1)"
+                class="py-2.5 px-3 rounded-xl bg-teal-600 hover:bg-teal-700 active:scale-[0.99] text-white font-semibold text-xs shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span class="font-mono-code font-bold text-sm">++</span>
+                <span>Positive surge</span>
+              </button>
+              <button id="btn-shock-neg" type="button" onclick="startRippleSimulation(-1)"
+                class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-[0.99] text-white font-semibold text-xs shadow-2xs transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span class="font-mono-code font-bold text-sm">−−</span>
+                <span>Negative shock</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Playback Controls -->
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">3. Step Controls</label>
+            <div class="flex items-center gap-2">
+              <button id="btn-play-pause" type="button" onclick="togglePlayPause()" disabled
+                class="flex-1 py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span id="play-pause-icon">⏸</span>
+                <span id="play-pause-label">Pause</span>
+              </button>
+              <button id="btn-next-step" type="button" onclick="stepForwardSimulation()" disabled
+                class="flex-1 py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-700 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>Next Step</span>
+                <span>⏭</span>
+              </button>
+              <button id="btn-reset-sim" type="button" onclick="resetSimulation()" disabled
+                class="py-2 px-3 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 disabled:opacity-40 disabled:cursor-not-allowed text-xs font-semibold text-slate-600 transition-all cursor-pointer">
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Causal Trace Log -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5 flex-1 flex flex-col min-h-[260px]">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600">Causal Trace Log</h3>
+            <span id="step-counter-badge" class="text-xs font-mono-code font-medium text-slate-400">Idle</span>
+          </div>
+
+          <div id="trace-empty" class="flex-1 flex flex-col items-center justify-center text-center p-4 text-slate-400">
+            <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center mb-2 text-slate-400">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+              </svg>
+            </div>
+            <p class="text-xs font-medium text-slate-600">No active ripple trace</p>
+            <p class="text-xs text-slate-400 mt-1 max-w-[250px]">
+              Choose a node (N1–N6) and trigger <strong>++ Positive surge</strong> or <strong>−− Negative shock</strong> to trace step-by-step propagation.
+            </p>
+          </div>
+
+          <div id="trace-list" class="hidden flex-1 overflow-y-auto trace-scroll space-y-2.5 pr-1 max-h-[340px]"></div>
+
+          <div id="trace-summary" class="hidden mt-3 pt-3 border-t border-slate-100 text-xs"></div>
+        </div>
+
+      </aside>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 2: RECUP CASE                                                     -->
+  <!-- ===================================================================== -->
+  <div id="tab-panel-tab2" role="tabpanel" class="hidden flex-1">
+    <div class="max-w-[1440px] mx-auto p-3 sm:p-5 space-y-5">
+
+      <!-- Case Hero & Jump to R1 CTA -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-200 mb-2">
+            <span>Case Study • Circular Takeaway Infrastructure</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Germany's RECUP Deposit-Return Cup System</h2>
+          <p class="text-sm text-slate-600 mt-1.5 leading-relaxed">
+            Founded in <strong>2016 in Munich</strong>, RECUP operates Germany's largest reusable deposit-return system for takeaway coffee and food. By pooling standardized, dishwasher-safe cups across independent cafés, bakeries, and chains, RECUP turns single-use packaging costs into a shared circular network.
+          </p>
+        </div>
+        <div class="shrink-0">
+          <button type="button" onclick="jumpToTab1HighlightR1()"
+            class="w-full sm:w-auto px-4 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span>Explore R1 Growth Loop in D3 Diagram</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Key Metrics Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Founded &amp; Scale</div>
+          <div class="text-2xl font-extrabold text-slate-900 mt-1">2016 • Munich</div>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+            Expanded nationwide to <strong>20,000+ partner outlets</strong> and <strong>100,000+ active users</strong> across Germany.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Deposit Mechanism</div>
+          <div class="text-2xl font-extrabold text-teal-700 mt-1">€1.00 Deposit</div>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+            Low-friction €1 refundable deposit step encourages impulse takeaway adoption while incentivizing eventual return.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Material &amp; Durability</div>
+          <div class="text-2xl font-extrabold text-sky-700 mt-1">Up to 1,000×</div>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+            Made of <strong>100% recyclable polypropylene (PP)</strong>; rated for up to <strong>1,000 rinse cycles</strong> (500+ cycles cited in brand award benchmarks).
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">LCA Break-Even</div>
+          <div class="text-2xl font-extrabold text-amber-700 mt-1">&gt; 50 Uses</div>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+            Environmentally outperforms disposable single-use cups once a cup exceeds roughly <strong>50 reuse cycles</strong>.
+          </p>
+        </div>
+      </div>
+
+      <!-- How RECUP Works (4-Step Loop) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">How RECUP Works — 4-Step Operational Cycle</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Standardized reverse logistics across any participating partner outlet</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg text-xs font-mono-code font-semibold bg-teal-50 text-teal-700 border border-teal-200">
+            Borrow → Use → Return (€1) → Wash
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="w-7 h-7 rounded-lg bg-teal-600 text-white font-mono-code font-bold text-xs flex items-center justify-center mb-2.5">01</div>
+            <h4 class="text-sm font-bold text-slate-900">Borrow (€1 Deposit)</h4>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Customers borrow a reusable container for a <strong>€1 deposit</strong> at a participating partner café or restaurant.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="w-7 h-7 rounded-lg bg-teal-600 text-white font-mono-code font-bold text-xs flex items-center justify-center mb-2.5">02</div>
+            <h4 class="text-sm font-bold text-slate-900">Takeaway Use</h4>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Customers use the lightweight, BPA-free polypropylene cup or bowl for takeaway food or hot/cold drinks.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="w-7 h-7 rounded-lg bg-teal-600 text-white font-mono-code font-bold text-xs flex items-center justify-center mb-2.5">03</div>
+            <h4 class="text-sm font-bold text-slate-900">Return &amp; Refund</h4>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Customers return it to <strong>any designated partner collection point</strong> for professional washing and get their <strong>€1 deposit back</strong>.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+            <div class="w-7 h-7 rounded-lg bg-teal-600 text-white font-mono-code font-bold text-xs flex items-center justify-center mb-2.5">04</div>
+            <h4 class="text-sm font-bold text-slate-900">Sanitize &amp; Re-Circulate</h4>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Once commercially washed and inspected on site, the cup re-enters active stock ready for another takeaway order.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Dynamics in Practice + Verified German Policy Timeline -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- Left 5 Cols: Partner Density, Vendor Economics & Cup Hoarding -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 flex-1 space-y-4">
+            <h3 class="text-base font-bold text-slate-900">System Dynamics Behind the Case</h3>
+
+            <div class="p-3.5 rounded-xl bg-sky-50/70 border border-sky-200">
+              <div class="flex items-center gap-2 text-xs font-bold text-sky-900">
+                <span class="px-1.5 py-0.5 rounded bg-sky-600 text-white font-mono-code">N1 → N2</span>
+                <span>Partner Density &amp; Network Effects</span>
+              </div>
+              <p class="text-xs text-sky-950/80 mt-1.5 leading-relaxed">
+                A reusable cup only works if customers do not have to walk out of their way to return it. High <strong>Partner Density (N1)</strong> creates ubiquitous drop-off points, raising <strong>Return Convenience (N2)</strong> and unlocking two-sided network adoption.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-teal-50/70 border border-teal-200">
+              <div class="flex items-center gap-2 text-xs font-bold text-teal-900">
+                <span class="px-1.5 py-0.5 rounded bg-teal-600 text-white font-mono-code">N3 → N4</span>
+                <span>Vendor Economics</span>
+              </div>
+              <p class="text-xs text-teal-950/80 mt-1.5 leading-relaxed">
+                Partners pay a flat monthly system fee to RECUP. As <strong>Adoption Volume (N3)</strong> climbs, cafés avoid purchasing thousands of disposable paper/plastic cups and lids—generating net <strong>Vendor Savings (N4)</strong> that attract additional outlets.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200">
+              <div class="flex items-center gap-2 text-xs font-bold text-amber-900">
+                <span class="px-1.5 py-0.5 rounded bg-amber-600 text-white font-mono-code">N6 −→ N5</span>
+                <span>Cup Hoarding &amp; Stock Leakage (B1)</span>
+              </div>
+              <p class="text-xs text-amber-950/80 mt-1.5 leading-relaxed">
+                Because the €1 deposit is low enough to forget in a car, office desk, or kitchen cupboard, rapid usage spikes trigger <strong>Cup Hoarding (N6)</strong>. Unreturned cups drain <strong>Circulating Stock (N5)</strong>, forcing emergency cup re-orders or throttling partner availability.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 7 Cols: Verified German Packaging Policy Timeline -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div>
+                <h3 class="text-base font-bold text-slate-900">German Packaging Policy Context (Verified Timeline)</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Regulatory tailwinds driving reusable container adoption in Germany</p>
+              </div>
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Dates Verified • Primary Legal Sources
+              </span>
+            </div>
+
+            <div class="space-y-3 border-l-2 border-slate-200 ml-2.5 pl-4">
+              <div class="relative">
+                <span class="w-3 h-3 rounded-full bg-slate-700 ring-4 ring-white absolute -left-[23px] top-1"></span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono-code text-xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800">1 Jan 2003</span>
+                  <span class="text-xs font-bold text-slate-900">Mandatory Single-Use Beverage Deposit (<em>Einwegpfand</em>)</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                  Under the German Packaging Ordinance (<em>Verpackungsverordnung</em>, VerpackV), a mandatory deposit (typically <strong>€0.25</strong>) took effect on ecologically disadvantageous single-use beverage containers, establishing deposit-return habits nationwide.
+                </p>
+              </div>
+
+              <div class="relative">
+                <span class="w-3 h-3 rounded-full bg-teal-600 ring-4 ring-white absolute -left-[23px] top-1"></span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono-code text-xs font-bold px-2 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200">1 Jan 2019</span>
+                  <span class="text-xs font-bold text-slate-900">German Packaging Act (<em>Verpackungsgesetz</em>, VerpackG)</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                  Replaced the 1998 Packaging Ordinance, introducing stricter recycling quotas, mandatory producer registration with the Central Agency Packaging Register (ZSVR / LUCID), and explicit reusable-packaging targets.
+                </p>
+              </div>
+
+              <div class="relative">
+                <span class="w-3 h-3 rounded-full bg-sky-600 ring-4 ring-white absolute -left-[23px] top-1"></span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono-code text-xs font-bold px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200">1 Jan 2022</span>
+                  <span class="text-xs font-bold text-slate-900">Universal Single-Use Plastic Bottle &amp; Can Deposit</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                  Amended VerpackG extended the mandatory €0.25 deposit to virtually all single-use plastic beverage bottles and beverage cans (0.1–3.0 L) regardless of contents (milk-based drinks in plastic bottles phased in on 1 Jan 2024).
+                </p>
+              </div>
+
+              <div class="relative">
+                <span class="w-3 h-3 rounded-full bg-amber-600 ring-4 ring-white absolute -left-[23px] top-1"></span>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono-code text-xs font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">1 Jan 2023</span>
+                  <span class="text-xs font-bold text-slate-900">Mandatory Reusable Offer Obligation (<em>Mehrwegangebotspflicht</em>)</span>
+                </div>
+                <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                  Under §§ 33–34 VerpackG, takeaway food and beverage vendors must offer a reusable packaging alternative at no higher price or worse conditions than single-use packaging (small businesses with ≤5 staff and ≤80 m² are exempt from stocking a pool system, provided they fill customer-brought containers).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary & Cited Sources Box -->
+          <div class="mt-4 pt-3.5 border-t border-slate-100 bg-slate-50 rounded-xl p-3.5 text-[11.5px] text-slate-600 space-y-1">
+            <div class="font-bold text-slate-800">Verified Primary &amp; Case Sources:</div>
+            <ul class="list-disc list-inside space-y-1">
+              <li>
+                <strong>Case Metrics &amp; Lifecycle:</strong> Reuters Plus / TBD Media Group (2023),
+                <a href="https://www.reuters.com/plus/tbd-media-group/how-recup-is-eliminating-single-use-packaging-to-help-us-achieve-sustainability" target="_blank" rel="noopener noreferrer" class="text-sky-700 underline hover:text-sky-900">
+                  "How RECUP is eliminating single-use packaging to help us achieve sustainability"
+                </a>
+              </li>
+              <li>
+                <strong>Statutory Texts (2003, 2019, 2022, 2023):</strong> Federal Ministry of Justice (<em>Bundesministerium der Justiz</em>) — <em>Verpackungsverordnung</em> (VerpackV) &amp; <em>Verpackungsgesetz</em> (VerpackG §§ 31, 33–34)
+              </li>
+              <li>
+                <strong>Regulatory Guidance:</strong> German Environment Agency (<em>Umweltbundesamt</em>, UBA) — <em>Mehrwegverpackungen &amp; Mehrwegangebotspflicht</em>; DIHK Guide to Mandatory Reusable Alternatives (2023)
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 3: CAUSAL LOOP DIAGRAMS                                           -->
+  <!-- ===================================================================== -->
+  <div id="tab-panel-tab3" role="tabpanel" class="hidden flex-1">
+    <div class="max-w-[1440px] mx-auto p-3 sm:p-5 space-y-5">
+
+      <!-- Definition & Jump CTA -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="max-w-3xl">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200 mb-2">
+            <span>Systems Thinking Foundations • Graph &amp; Network Theory</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">What is a Causal Loop Diagram (CLD)?</h2>
+          <p class="text-sm text-slate-600 mt-1.5 leading-relaxed">
+            A visual language for mapping system architecture. CLDs illuminate how interconnected variables generate systemic behaviors through <strong>feedback</strong> rather than linear cause-and-effect. Formally, a CLD is a <strong>directed, signed, and weighted graph</strong> <span class="font-mono-code text-xs bg-slate-100 px-1.5 py-0.5 rounded">G = (V, E)</span> where vertices (<span class="font-mono-code text-xs">V</span>) are system state variables and directed edges (<span class="font-mono-code text-xs">E</span>) represent causal links carrying polarity (<span class="font-mono-code text-xs">+ / −</span>) and link strength.
+          </p>
+        </div>
+        <div class="shrink-0">
+          <button type="button" onclick="jumpToTab1HighlightR1()"
+            class="w-full sm:w-auto px-4 py-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer">
+            <span>Test Shock Tracing on RECUP R1 Loop</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 Core Building Block Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="px-2 py-0.5 rounded-md text-[11px] font-mono-code font-bold bg-slate-100 text-slate-700">Vertices (V)</span>
+            <span class="text-xs font-semibold text-slate-400">01</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Variables (System States)</h3>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+            Quantities, conditions, or feelings that fluctuate over time (e.g., <em>Usage</em>, <em>Cost</em>, <em>Trust</em>, <em>Cup Hoarding</em>). Variables must be <strong>quantifiable or directionally variable</strong>—never verbs or static events.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="px-2 py-0.5 rounded-md text-[11px] font-mono-code font-bold bg-teal-100 text-teal-800 border border-teal-300">Edge Sign (+)</span>
+            <span class="text-xs font-semibold text-slate-400">02</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Positive Link Polarity (+)</h3>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+            Indicates change in the <strong>same direction</strong>. If Variable X increases, Variable Y increases above baseline. If X decreases, Y decreases below baseline (all else equal).
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="px-2 py-0.5 rounded-md text-[11px] font-mono-code font-bold bg-rose-100 text-rose-800 border border-rose-300">Edge Sign (−)</span>
+            <span class="text-xs font-semibold text-slate-400">03</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Negative Link Polarity (−)</h3>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+            Indicates change in the <strong>opposite direction</strong>. If Variable X increases, Variable Y decreases below baseline, creating counter-forces and self-limiting constraints.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="px-2 py-0.5 rounded-md text-[11px] font-mono-code font-bold bg-sky-100 text-sky-800 border border-sky-300">Cycles (R / B)</span>
+            <span class="text-xs font-semibold text-slate-400">04</span>
+          </div>
+          <h3 class="text-sm font-bold text-slate-900">Closed Feedback Loops</h3>
+          <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+            When causal chains wrap back onto themselves, creating non-linear dynamic behavior: either self-reinforcing exponential growth/decay (<strong>R</strong>) or goal-seeking stability (<strong>B</strong>).
+          </p>
+        </div>
+      </div>
+
+      <!-- 3-Node (A, B, C) D3 Anatomy Diagram + Tracing Shocks Guide -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- Left 7 Cols: D3 3-Node (A, B, C) Anatomy Diagram -->
+        <div class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+          <div class="px-5 py-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900">3-Node (A, B, C) Directed Weighted Graph Anatomy</h3>
+              <p class="text-xs text-slate-500">Vertices (nodes), directed edges, +/− polarities, and Weak / Medium / Strong edge weights</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-lg text-xs font-mono-code font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+              Odd (−) count = Balancing Loop (B)
+            </span>
+          </div>
+
+          <div class="canvas-dot-grid p-3 flex-1 flex items-center justify-center min-h-[290px]">
+            <div id="d3-anatomy-container" class="w-full flex items-center justify-center"></div>
+          </div>
+
+          <!-- Legend Directly Below Anatomy Diagram -->
+          <div class="px-5 py-3.5 bg-slate-50 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="space-y-1.5">
+              <div class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Edge Polarity Signs</div>
+              <div class="flex flex-wrap items-center gap-3 text-slate-600">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-4 h-4 rounded-full bg-teal-100 text-teal-700 font-bold flex items-center justify-center border border-teal-300 text-[11px]">+</span>
+                  <span>Same direction</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="w-4 h-4 rounded-full bg-rose-100 text-rose-700 font-bold flex items-center justify-center border border-rose-300 text-[11px]">−</span>
+                  <span>Opposite direction</span>
+                </span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="font-bold text-slate-700 uppercase tracking-wider text-[10px]">Edge Stroke Weights (Link Strength)</div>
+              <div class="flex flex-wrap items-center gap-3 text-slate-600">
+                <span class="inline-flex items-center gap-1.5">
+                  <svg class="w-7 h-2" viewBox="0 0 28 8"><line x1="0" y1="4" x2="28" y2="4" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3 3" /></svg>
+                  <span>Weak</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                  <svg class="w-7 h-2" viewBox="0 0 28 8"><line x1="0" y1="4" x2="28" y2="4" stroke="#0d9488" stroke-width="2.6" /></svg>
+                  <span>Medium</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                  <svg class="w-7 h-2" viewBox="0 0 28 8"><line x1="0" y1="4" x2="28" y2="4" stroke="#e11d48" stroke-width="4.5" /></svg>
+                  <span>Strong</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Reinforcing vs. Balancing & Tracing Shocks -->
+        <div class="lg:col-span-5 flex flex-col gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-3.5">
+            <h3 class="text-sm font-bold text-slate-900">Reinforcing (R) vs. Balancing (B) Loops</h3>
+
+            <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-sky-900">Reinforcing Loop (R) — Even Number of (−) Links</span>
+                <span class="px-2 py-0.5 rounded bg-sky-600 text-white font-mono-code text-[11px] font-bold">R</span>
+              </div>
+              <p class="text-xs text-sky-950/80 mt-1.5 leading-relaxed">
+                Contains <strong>zero or an even number</strong> of negative (<span class="font-mono-code">−</span>) links. Every pass around the loop compounds the initial change—producing virtuous exponential growth or vicious collapse (e.g., RECUP <strong>R1</strong>).
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-900">Balancing Loop (B) — Odd Number of (−) Links</span>
+                <span class="px-2 py-0.5 rounded bg-amber-600 text-white font-mono-code text-[11px] font-bold">B</span>
+              </div>
+              <p class="text-xs text-amber-950/80 mt-1.5 leading-relaxed">
+                Contains an <strong>odd number</strong> of negative (<span class="font-mono-code">−</span>) links. An initial increase returns as a downward pressure, stabilizing the system or capping growth (e.g., RECUP <strong>B1</strong> via <span class="font-mono-code">N6 −→ N5</span>).
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 flex-1">
+            <h3 class="text-sm font-bold text-slate-900">How to Trace a Shock Step-by-Step</h3>
+            <ol class="mt-2.5 space-y-2.5 text-xs text-slate-600 list-decimal list-inside">
+              <li>
+                <strong class="text-slate-800">Pick a starting variable &amp; shock sign:</strong> Perturb one node with an increase (<span class="font-mono-code text-teal-700 font-bold">+</span>) or decrease (<span class="font-mono-code text-rose-700 font-bold">−</span>).
+              </li>
+              <li>
+                <strong class="text-slate-800">Multiply signs across each directed edge:</strong>
+                <div class="mt-1.5 grid grid-cols-3 gap-1.5 font-mono-code text-[11px] text-center">
+                  <div class="p-1.5 rounded-lg bg-teal-50 text-teal-800 border border-teal-200">(+) × (+) = (+)</div>
+                  <div class="p-1.5 rounded-lg bg-rose-50 text-rose-800 border border-rose-200">(+) × (−) = (−)</div>
+                  <div class="p-1.5 rounded-lg bg-teal-50 text-teal-800 border border-teal-200">(−) × (−) = (+)</div>
+                </div>
+              </li>
+              <li>
+                <strong class="text-slate-800">Compare the returning signal:</strong> If the signal arrives back at the starting node with the <em>same</em> sign, the loop is <strong>Reinforcing (R)</strong>; if flipped, it is <strong>Balancing (B)</strong>.
+              </li>
+            </ol>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 4: RAPID PROTOTYPING (STATIC LECTURE SLIDE DECK LAYOUT)           -->
+  <!-- ===================================================================== -->
+  <div id="tab-panel-tab4" role="tabpanel" class="hidden flex-1">
+    <div class="max-w-[1440px] mx-auto p-3 sm:p-6 space-y-5">
+
+      <!-- Slide Header Banner -->
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-900 text-white">
+            Lecture Slide • Systems Modeling Workflow
+          </span>
+          <span class="text-xs font-mono-code font-semibold text-slate-400">SLIDE 04 / RAPID PROTOTYPING</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+          Rapid Prototyping
+        </h2>
+        <p class="text-base sm:text-lg text-slate-600 mt-2 max-w-4xl leading-relaxed">
+          Turning a conceptual causal loop diagram into a working interactive prototype using structured prompts.
+        </p>
+
+        <!-- Why Use It Callout -->
+        <div class="mt-5 p-4 sm:p-5 rounded-2xl bg-sky-50/80 border border-sky-200">
+          <div class="text-xs font-bold uppercase tracking-wider text-sky-800 mb-1">Why Use It in Systems Thinking</div>
+          <p class="text-sm sm:text-base text-slate-800 leading-relaxed">
+            A static CLD shows structure but not behaviour. A quick interactive prototype lets you drag, highlight loops and trigger changes, so you can test whether your causal logic says what you think it says.
+          </p>
+        </div>
+      </section>
+
+      <!-- Three-Step Workflow Slide Row -->
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 sm:p-8">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Three-Step Workflow</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="w-9 h-9 rounded-xl bg-slate-900 text-white font-mono-code font-bold text-sm flex items-center justify-center mb-3.5">1</div>
+              <h4 class="text-base sm:text-lg font-bold text-slate-900">Define the system and layout first.</h4>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                List nodes, links, polarities and loops on paper before prompting.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200/80 text-xs font-mono-code text-slate-500">
+              Nodes (N1–N6) + Signs (+/−) + Loops (R/B)
+            </div>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="w-9 h-9 rounded-xl bg-teal-600 text-white font-mono-code font-bold text-sm flex items-center justify-center mb-3.5">2</div>
+              <h4 class="text-base sm:text-lg font-bold text-slate-900">Prompt for a single-file prototype.</h4>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                Ask for one HTML file with D3 and JavaScript, name every node and link, and state the buttons you need.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200/80 text-xs font-mono-code text-slate-500">
+              Single HTML/SVG + D3.js + Interactive Controls
+            </div>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="w-9 h-9 rounded-xl bg-amber-600 text-white font-mono-code font-bold text-sm flex items-center justify-center mb-3.5">3</div>
+              <h4 class="text-base sm:text-lg font-bold text-slate-900">Human-in-the-loop audit.</h4>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                Check every link, polarity and loop against your design. Test highlighting, clearing and propagation, then ask the AI to fix what is wrong.
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-200/80 text-xs font-mono-code text-slate-500">
+              Verify Wiring → Test Shocks → Refine
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Classroom Rule of Thumb Highlight Banner -->
+      <section class="rounded-2xl bg-slate-900 text-white p-6 sm:p-7 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-teal-400">Classroom Rule of Thumb</div>
+          <div class="text-xl sm:text-2xl font-extrabold tracking-tight mt-1">
+            “AI generates drafts; you own the system logic.”
+          </div>
+          <p class="text-sm text-slate-300 mt-1.5 max-w-3xl leading-relaxed">
+            Use AI assistants to draft candidate loops and interactive prototypes quickly while verifying every edge, polarity, and empirical claim.
+          </p>
+        </div>
+        <div class="px-4 py-2.5 rounded-xl bg-white/10 border border-white/15 text-xs font-mono-code text-teal-300 shrink-0">
+          Human Model Ownership
+        </div>
+      </section>
+
+      <!-- Strengths vs. Verification Discipline Two-Column Slide Cards -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-6">
+          <div class="flex items-center gap-2.5 mb-4">
+            <span class="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 font-bold flex items-center justify-center text-sm">+</span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">Rapid Prototyping Strengths</h3>
+          </div>
+          <ul class="space-y-3.5 text-sm text-slate-700">
+            <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900">Fast structural iteration:</strong> Translates case notes into candidate nodes (N1–N6) and feedback hypotheses quickly.
+            </li>
+            <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900">Interactive exploration:</strong> Builds step-through loop views and shock scenarios for classroom testing.
+            </li>
+            <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900">Error exposure:</strong> Helps surface wiring mismatches when comparing expected vs. traced feedback behavior.
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-6">
+          <div class="flex items-center gap-2.5 mb-4">
+            <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-sm">✓</span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">Verification Discipline</h3>
+          </div>
+          <ul class="space-y-3.5 text-sm text-slate-700">
+            <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900">Check every edge &amp; sign:</strong> Confirm each arrow's direction, polarity (+ or −), and loop classification (R vs. B).
+            </li>
+            <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900">Verify facts &amp; dates:</strong> Cross-check numbers and policy history against primary or cited sources.
+            </li>
+            <li class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80">
+              <strong class="text-slate-900">Keep ownership clear:</strong> Treat AI drafts as starting hypotheses to audit, not final authority.
+            </li>
+          </ul>
+        </div>
+
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 5: CREATE MODEL (STARTER PROMPT + LIVE D3 PREVIEW)                -->
+  <!-- ===================================================================== -->
+  <div id="tab-panel-tab5" role="tabpanel" class="hidden flex-1">
+    <div class="max-w-[1440px] mx-auto p-3 sm:p-5 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+      <!-- Left Column: Step 1 & Step 2 -->
+      <div class="lg:col-span-6 flex flex-col gap-5">
+
+        <!-- Step 1 Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6">
+          <div class="flex items-center gap-2.5 mb-3">
+            <span class="px-2.5 py-1 rounded-lg bg-slate-900 text-white font-mono-code text-xs font-bold">STEP 1</span>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Shared Backbone &amp; Loop Split Architecture</h2>
+          </div>
+          <p class="text-sm text-slate-600 leading-relaxed">
+            <strong>R1</strong> and <strong>B1</strong> share a backbone: <span class="font-mono-code text-xs font-semibold bg-slate-100 px-2 py-0.5 rounded text-slate-900">N1 → N2 → N3</span>. After <span class="font-mono-code text-xs font-bold">N3</span> they split:
+          </p>
+
+          <div class="mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
+              <div class="font-bold text-sky-900 mb-1">Reinforcing Loop (R1)</div>
+              <p class="text-sky-950/80 leading-relaxed">
+                Goes through <strong>N4</strong> and back to <strong>N1</strong>:
+              </p>
+              <div class="mt-1.5 font-mono-code text-[11px] font-semibold text-sky-800 bg-white/80 px-2 py-1 rounded border border-sky-200">
+                N1 +→ N2 +→ N3 +→ N4 +→ N1
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+              <div class="font-bold text-amber-900 mb-1">Balancing Loop (B1)</div>
+              <p class="text-amber-950/80 leading-relaxed">
+                Goes through <strong>N6</strong> and <strong>N5</strong> back to <strong>N1</strong>:
+              </p>
+              <div class="mt-1.5 font-mono-code text-[11px] font-semibold text-amber-800 bg-white/80 px-2 py-1 rounded border border-amber-200">
+                N1 +→ N2 +→ N3 +→ N6 −→ N5 +→ N1
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 Card: Exact Student Prompt + Copy & Launch Buttons -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 sm:p-6 flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="px-2.5 py-1 rounded-lg bg-teal-600 text-white font-mono-code text-xs font-bold">STEP 2</span>
+                <h2 class="text-base sm:text-lg font-bold text-slate-900">Copy Prompt &amp; Open AI Tools</h2>
+              </div>
+              <span class="text-xs text-slate-400 font-medium">Exact Student Prompt</span>
+            </div>
+
+            <p class="text-xs text-slate-500 mb-3">
+              Copy the exact starter prompt below and paste it into Gemini, Claude, or ChatGPT to generate your own single-file D3.js prototype.
+            </p>
+
+            <!-- Read-only Prompt Text Box -->
+            <div class="relative">
+              <textarea id="student-starter-prompt" readonly rows="8"
+                class="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-[13px] font-mono-code text-slate-800 leading-relaxed focus:outline-none focus:border-teal-500 resize-none">Build a clean, single-file HTML/SVG with D3.JS interactive Causal Loop Diagram for the RECUP reusable cup system with 6 nodes: N1 Partner Density, N2 Return Convenience, N3 Adoption Volume, N4 Vendor Savings, N5 Circulating Stock, and N6 Cup Hoarding. Include two selectable feedback loops: Reinforcing Loop R1 (N1 +→ N2 +→ N3 +→ N4 +→ N1) and Balancing Loop B1 (N1 +→ N2 +→ N3 +→ N6 −→ N5 +→ N1). Provide buttons to highlight R1, highlight B1, and 'Clear Loop', plus a simple Ripple Simulator where selecting a node and clicking '++ Positive surge' or '−− Negative shock' traces how the signal propagates step-by-step around the active loop.</textarea>
+            </div>
+          </div>
+
+          <!-- Action Buttons: Copy Prompt, Open Gemini, Open Claude, Open ChatGPT -->
+          <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-2.5">
+            <button id="btn-copy-prompt" type="button" onclick="copyStarterPrompt()"
+              class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-semibold text-xs shadow-2xs transition-all flex items-center gap-2 cursor-pointer">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <span id="copy-prompt-label">Copy Prompt</span>
+            </button>
+
+            <a href="https://gemini.google.com/app" target="_blank" rel="noopener noreferrer"
+              class="px-3.5 py-2.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 font-semibold text-xs transition-all flex items-center gap-1.5">
+              <span>Open Gemini</span>
+              <span>↗</span>
+            </a>
+
+            <a href="https://claude.ai/new" target="_blank" rel="noopener noreferrer"
+              class="px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-semibold text-xs transition-all flex items-center gap-1.5">
+              <span>Open Claude</span>
+              <span>↗</span>
+            </a>
+
+            <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer"
+              class="px-3.5 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-semibold text-xs transition-all flex items-center gap-1.5">
+              <span>Open ChatGPT</span>
+              <span>↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live D3 Reference Preview -->
+      <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+        <div class="px-4 sm:px-5 py-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Live D3 Target Architecture Preview</h3>
+            <p class="text-xs text-slate-500">Interactive preview of the 6-node backbone &amp; loop split your prompt builds</p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="setCreatePreviewFilter('ALL')" id="prev-btn-ALL"
+              class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-white cursor-pointer">
+              All
+            </button>
+            <button type="button" onclick="setCreatePreviewFilter('BACKBONE')" id="prev-btn-BACKBONE"
+              class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer">
+              Backbone
+            </button>
+            <button type="button" onclick="setCreatePreviewFilter('R1')" id="prev-btn-R1"
+              class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white text-slate-700 border border-slate-200 hover:bg-sky-50 cursor-pointer">
+              R1
+            </button>
+            <button type="button" onclick="setCreatePreviewFilter('B1')" id="prev-btn-B1"
+              class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white text-slate-700 border border-slate-200 hover:bg-amber-50 cursor-pointer">
+              B1
+            </button>
+          </div>
+        </div>
+
+        <div class="relative flex-1 min-h-[430px] canvas-dot-grid p-2 flex items-center justify-center">
+          <div id="d3-create-preview-container" class="w-full h-full flex items-center justify-center"></div>
+        </div>
+
+        <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
+          <span><strong>Tip:</strong> Drag nodes above to inspect how <span class="font-mono-code text-[11px]">N1 → N2 → N3</span> splits into R1 and B1.</span>
+          <button type="button" onclick="switchTab('tab1')" class="text-teal-700 font-semibold hover:underline cursor-pointer">
+            Open Full Ripple Simulator (Tab 1) →
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * 1. RECUP CAUSAL LOOP SYSTEM DATA (TAB 1 — 100% PRESERVED)
+     * =========================================================================
+     */
+    const SVG_W = 880;
+    const SVG_H = 580;
+    const NODE_W = 152;
+    const NODE_H = 66;
+
+    const NODES = [
+      { id: 'N1', code: 'N1', label: 'Partner Density',    sublabel: 'Cafés & outlets in network',   x: 340, y: 105,  defaultX: 340, y0: 105,  defaultLoop: 'R1' },
+      { id: 'N2', code: 'N2', label: 'Return Convenience', sublabel: 'Ease of dropping off cups',     x: 525, y: 220,  defaultX: 525, y0: 220,  defaultLoop: 'R1' },
+      { id: 'N3', code: 'N3', label: 'Adoption Volume',    sublabel: 'Reusable cup usage volume',     x: 340, y: 345,  defaultX: 340, y0: 345,  defaultLoop: 'R1' },
+      { id: 'N4', code: 'N4', label: 'Vendor Savings',     sublabel: 'Single-use cup cost saved',     x: 125, y: 220,  defaultX: 125, y0: 220,  defaultLoop: 'R1' },
+      { id: 'N5', code: 'N5', label: 'Circulating Stock',  sublabel: 'Active cups available in cafés', x: 745, y: 220,  defaultX: 745, y0: 220,  defaultLoop: 'B1' },
+      { id: 'N6', code: 'N6', label: 'Cup Hoarding',       sublabel: 'Unreturned cups kept at home',  x: 635, y: 455,  defaultX: 635, y0: 455,  defaultLoop: 'B1' }
+    ];
+    // Normalize defaultY property cleanly
+    NODES.forEach(n => { n.defaultY = n.y0; });
+
+    const EDGES = [
+      {
+        id: 'N1-N2',
+        from: 'N1',
+        to: 'N2',
+        polarity: 1,
+        bend: 28,
+        loops: ['R1', 'B1'],
+        effectText: {
+          1:  'More partner cafés across neighborhoods makes dropping off a cup much easier.',
+          '-1': 'Fewer partner cafés reduces convenient return points, lowering return convenience.'
+        }
+      },
+      {
+        id: 'N2-N3',
+        from: 'N2',
+        to: 'N3',
+        polarity: 1,
+        bend: 28,
+        loops: ['R1', 'B1'],
+        effectText: {
+          1:  'Higher return convenience removes return friction, boosting customer adoption volume.',
+          '-1': 'Lower return convenience discourages customers from choosing reusable cups.'
+        }
+      },
+      {
+        id: 'N3-N4',
+        from: 'N3',
+        to: 'N4',
+        polarity: 1,
+        bend: 38,
+        loops: ['R1'],
+        effectText: {
+          1:  'Higher reusable adoption volume saves vendors disposable cup & lid expenses.',
+          '-1': 'Lower adoption volume forces vendors back onto single-use cups, reducing savings.'
+        }
+      },
+      {
+        id: 'N4-N1',
+        from: 'N4',
+        to: 'N1',
+        polarity: 1,
+        bend: 38,
+        loops: ['R1'],
+        effectText: {
+          1:  'Stronger vendor savings makes joining RECUP attractive, growing partner density.',
+          '-1': 'Reduced vendor savings weakens the incentive for cafés to join or stay.'
+        }
+      },
+      {
+        id: 'N3-N6',
+        from: 'N3',
+        to: 'N6',
+        polarity: 1,
+        bend: -38,
+        loops: ['B1'],
+        effectText: {
+          1:  'Higher adoption volume leads to more cups held unreturned in bags, desks, and homes.',
+          '-1': 'Lower adoption volume means fewer cups leave cafés, reducing cup hoarding.'
+        }
+      },
+      {
+        id: 'N6-N5',
+        from: 'N6',
+        to: 'N5',
+        polarity: -1,
+        bend: 34,
+        loops: ['B1'],
+        effectText: {
+          1:  'Rising cup hoarding locks cups outside circulation, depleting circulating stock (−).',
+          '-1': 'Falling cup hoarding releases cups back into circulation, replenishing stock (−).'
+        }
+      },
+      {
+        id: 'N5-N1',
+        from: 'N5',
+        to: 'N1',
+        polarity: 1,
+        bend: 62,
+        loops: ['B1'],
+        effectText: {
+          1:  'Healthy circulating stock keeps partner cafés supplied and supports partner density.',
+          '-1': 'Depleted circulating stock strains café supply, pressuring partner density.'
+        }
+      }
+    ];
+
+    const LOOPS = {
+      R1: {
+        id: 'R1',
+        name: 'Reinforcing Loop R1 — Network Growth',
+        type: 'Reinforcing',
+        color: '#0284c7',
+        nodeOrder: ['N1', 'N2', 'N3', 'N4'],
+        edgeOrder: ['N1-N2', 'N2-N3', 'N3-N4', 'N4-N1'],
+        summary: 'Self-reinforcing expansion: More partner cafés (N1) raise return convenience (N2), lifting adoption volume (N3) and vendor savings (N4), which recruits more partners (N1).',
+        outcomeText: {
+          1:  'Reinforcing Growth (R1): All 4 links are positive (+), so the initial surge compounds around the loop.',
+          '-1': 'Reinforcing Contraction (R1): With all positive (+) links, a negative shock reinforces itself around the loop.'
+        }
+      },
+      B1: {
+        id: 'B1',
+        name: 'Balancing Loop B1 — Cup Scarcity & Hoarding',
+        type: 'Balancing',
+        color: '#d97706',
+        nodeOrder: ['N1', 'N2', 'N3', 'N6', 'N5'],
+        edgeOrder: ['N1-N2', 'N2-N3', 'N3-N6', 'N6-N5', 'N5-N1'],
+        summary: 'Self-balancing constraint: Higher adoption (N3) increases cup hoarding (N6), which drains circulating stock (N5) via a negative (−) link and constrains partner density (N1).',
+        outcomeText: {
+          1:  'Balancing Counter-Force (B1): The negative link (N6 −→ N5) flips the positive surge into a stock drain, pushing back against growth.',
+          '-1': 'Balancing Recovery (B1): Reduced usage lowers hoarding (N6), which flips via (N6 −→ N5) to replenish circulating stock (N5) and support N1.'
+        }
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 2. APPLICATION STATE & D3 SELECTIONS
+     * =========================================================================
+     */
+    const state = {
+      activeTab: 'tab1',
+      activeLoop: null,     // null | 'R1' | 'B1'
+      selectedNode: 'N1',   // 'N1'..'N6'
+      sim: {
+        active: false,
+        playing: false,
+        loopId: null,
+        initialSign: 1,
+        steps: [],
+        currentStepIndex: -1,
+        timerId: null
+      }
+    };
+
+    let d3Svg = null;
+    let d3EdgeGroups = null;
+    let d3NodeGroups = null;
+    let d3LoopBadges = null;
+
+    /**
+     * =========================================================================
+     * 3. D3.JS GEOMETRY & SVG RENDERING (TAB 1)
+     * =========================================================================
+     */
+
+    function getNodeById(id) {
+      return NODES.find(n => n.id === id);
+    }
+
+    function rectEdgePoint(cx, cy, tx, ty, pad = 4) {
+      const dx = tx - cx;
+      const dy = ty - cy;
+      if (dx === 0 && dy === 0) return { x: cx, y: cy };
+      const hw = NODE_W / 2 + pad;
+      const hh = NODE_H / 2 + pad;
+      const scale = Math.min(
+        Math.abs(dx) > 0 ? hw / Math.abs(dx) : Infinity,
+        Math.abs(dy) > 0 ? hh / Math.abs(dy) : Infinity
+      );
+      return { x: cx + dx * scale, y: cy + dy * scale };
+    }
+
+    function computeEdgeGeom(edge) {
+      const src = getNodeById(edge.from);
+      const dst = getNodeById(edge.to);
+      const dx = dst.x - src.x;
+      const dy = dst.y - src.y;
+      const len = Math.hypot(dx, dy) || 1;
+
+      const nx = -dy / len;
+      const ny = dx / len;
+
+      const midX = (src.x + dst.x) / 2;
+      const midY = (src.y + dst.y) / 2;
+      const ctrlX = midX + nx * edge.bend;
+      const ctrlY = midY + ny * edge.bend;
+
+      const startPt = rectEdgePoint(src.x, src.y, ctrlX, ctrlY, 2);
+      const endPt = rectEdgePoint(dst.x, dst.y, ctrlX, ctrlY, 6);
+
+      // Position polarity badge near t = 0.78 along the quadratic Bezier curve
+      const t = 0.78;
+      const inv = 1 - t;
+      const qx = inv * inv * startPt.x + 2 * inv * t * ctrlX + t * t * endPt.x;
+      const qy = inv * inv * startPt.y + 2 * inv * t * ctrlY + t * t * endPt.y;
+      const side = edge.bend >= 0 ? 1 : -1;
+
+      return {
+        d: `M ${startPt.x.toFixed(1)} ${startPt.y.toFixed(1)} Q ${ctrlX.toFixed(1)} ${ctrlY.toFixed(1)} ${endPt.x.toFixed(1)} ${endPt.y.toFixed(1)}`,
+        badgeX: qx + nx * side * 16,
+        badgeY: qy + ny * side * 16
+      };
+    }
+
+    function computeLoopBadgeCoords() {
+      // R1 centroid over N1..N4
+      const r1Nodes = LOOPS.R1.nodeOrder.map(getNodeById);
+      const r1X = d3.mean(r1Nodes, d => d.x);
+      const r1Y = d3.mean(r1Nodes, d => d.y);
+
+      // B1 centroid shifted slightly right/lower inside N1, N2, N3, N6, N5
+      const b1Nodes = [getNodeById('N2'), getNodeById('N5'), getNodeById('N6'), getNodeById('N3')];
+      const b1X = d3.mean(b1Nodes, d => d.x);
+      const b1Y = d3.mean(b1Nodes, d => d.y);
+
+      return {
+        R1: { x: r1X, y: r1Y },
+        B1: { x: b1X, y: b1Y }
+      };
+    }
+
+    function initD3Diagram() {
+      const container = d3.select('#d3-cld-container');
+      container.selectAll('*').remove();
+
+      d3Svg = container.append('svg')
+        .attr('id', 'cld-svg')
+        .attr('viewBox', `0 0 ${SVG_W} ${SVG_H}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('class', 'w-full h-full max-h-[600px] select-none');
+
+      // SVG <defs> for arrowheads and drop shadows
+      const defs = d3Svg.append('defs');
+
+      const markers = [
+        { id: 'd3-arrow-pos', color: '#0d9488' },
+        { id: 'd3-arrow-neg', color: '#e11d48' },
+        { id: 'd3-arrow-dim', color: '#94a3b8' }
+      ];
+
+      markers.forEach(m => {
+        defs.append('marker')
+          .attr('id', m.id)
+          .attr('viewBox', '0 0 12 12')
+          .attr('refX', '9.5')
+          .attr('refY', '6')
+          .attr('markerWidth', '7.5')
+          .attr('markerHeight', '7.5')
+          .attr('orient', 'auto-start-reverse')
+          .append('path')
+          .attr('d', 'M 1.5 1.5 L 10.5 6 L 1.5 10.5 z')
+          .attr('fill', m.color);
+      });
+
+      const shadowFilter = defs.append('filter')
+        .attr('id', 'd3-card-shadow')
+        .attr('x', '-15%')
+        .attr('y', '-15%')
+        .attr('width', '130%')
+        .attr('height', '135%');
+
+      shadowFilter.append('feDropShadow')
+        .attr('dx', '0')
+        .attr('dy', '4')
+        .attr('stdDeviation', '5')
+        .attr('flood-color', '#0f172a')
+        .attr('flood-opacity', '0.08');
+
+      // Layer 1: Edges
+      const edgesLayer = d3Svg.append('g').attr('id', 'd3-edges-layer');
+      d3EdgeGroups = edgesLayer.selectAll('g.d3-edge-group')
+        .data(EDGES, d => d.id)
+        .enter()
+        .append('g')
+        .attr('id', d => `d3-edge-${d.id}`)
+        .attr('class', 'd3-edge-group');
+
+      d3EdgeGroups.append('path')
+        .attr('class', 'edge-main-path')
+        .attr('fill', 'none')
+        .attr('stroke-linecap', 'round')
+        .attr('stroke-width', 2.6)
+        .attr('stroke', d => d.polarity === 1 ? '#0d9488' : '#e11d48')
+        .attr('marker-end', d => d.polarity === 1 ? 'url(#d3-arrow-pos)' : 'url(#d3-arrow-neg)');
+
+      d3EdgeGroups.append('path')
+        .attr('class', 'edge-flow-path')
+        .attr('fill', 'none')
+        .attr('stroke-linecap', 'round')
+        .attr('stroke-width', 4.2)
+        .attr('stroke', d => d.polarity === 1 ? '#0d9488' : '#e11d48')
+        .attr('opacity', 0);
+
+      const badgeG = d3EdgeGroups.append('g').attr('class', 'edge-polarity-badge');
+      badgeG.append('circle')
+        .attr('r', 11)
+        .attr('stroke-width', 1.8)
+        .attr('fill', d => d.polarity === 1 ? '#ccfbf1' : '#ffe4e6')
+        .attr('stroke', d => d.polarity === 1 ? '#0d9488' : '#e11d48');
+
+      badgeG.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('font-size', '14px')
+        .attr('font-weight', '700')
+        .attr('fill', d => d.polarity === 1 ? '#0d9488' : '#e11d48')
+        .text(d => d.polarity === 1 ? '+' : '−');
+
+      // Layer 2: Center Loop Badges (R1 & B1)
+      const loopLayer = d3Svg.append('g').attr('id', 'd3-loops-layer');
+      const loopData = [LOOPS.R1, LOOPS.B1];
+      d3LoopBadges = loopLayer.selectAll('g.d3-loop-badge')
+        .data(loopData, d => d.id)
+        .enter()
+        .append('g')
+        .attr('id', d => `d3-loop-badge-${d.id}`)
+        .attr('class', 'd3-loop-badge')
+        .on('click', (_, d) => selectLoop(d.id));
+
+      d3LoopBadges.append('circle')
+        .attr('r', 22)
+        .attr('fill', '#ffffff')
+        .attr('stroke', d => d.color)
+        .attr('stroke-width', 2.4)
+        .attr('filter', 'url(#d3-card-shadow)');
+
+      d3LoopBadges.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '-0.05em')
+        .attr('font-size', '12px')
+        .attr('font-weight', '800')
+        .attr('fill', d => d.color)
+        .text(d => d.id);
+
+      d3LoopBadges.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '1.1em')
+        .attr('font-size', '8px')
+        .attr('font-weight', '700')
+        .attr('fill', '#64748b')
+        .text(d => d.type === 'Reinforcing' ? 'REINF' : 'BAL');
+
+      // Layer 3: Draggable & Clickable Nodes
+      const nodesLayer = d3Svg.append('g').attr('id', 'd3-nodes-layer');
+      d3NodeGroups = nodesLayer.selectAll('g.d3-node-group')
+        .data(NODES, d => d.id)
+        .enter()
+        .append('g')
+        .attr('id', d => `d3-node-${d.id}`)
+        .attr('class', 'd3-node-group');
+
+      const left = -NODE_W / 2;
+      const top = -NODE_H / 2;
+
+      // Pulse ring for active simulation step
+      d3NodeGroups.append('rect')
+        .attr('class', 'node-pulse-rect')
+        .attr('x', left - 5)
+        .attr('y', top - 5)
+        .attr('width', NODE_W + 10)
+        .attr('height', NODE_H + 10)
+        .attr('rx', 18)
+        .attr('fill', 'none')
+        .attr('stroke', '#0d9488')
+        .attr('stroke-width', 3)
+        .attr('opacity', 0);
+
+      // Main card rectangle
+      d3NodeGroups.append('rect')
+        .attr('class', 'node-card-rect')
+        .attr('x', left)
+        .attr('y', top)
+        .attr('width', NODE_W)
+        .attr('height', NODE_H)
+        .attr('rx', 14)
+        .attr('fill', '#ffffff')
+        .attr('stroke', '#cbd5e1')
+        .attr('stroke-width', 2)
+        .attr('filter', 'url(#d3-card-shadow)');
+
+      // Node code pill
+      d3NodeGroups.append('rect')
+        .attr('class', 'node-id-pill')
+        .attr('x', left + 10)
+        .attr('y', top + 9)
+        .attr('width', 30)
+        .attr('height', 18)
+        .attr('rx', 6)
+        .attr('fill', '#f1f5f9');
+
+      d3NodeGroups.append('text')
+        .attr('class', 'node-id-text')
+        .attr('x', left + 25)
+        .attr('y', top + 21.5)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '10.5px')
+        .attr('font-weight', '700')
+        .attr('fill', '#475569')
+        .text(d => d.code);
+
+      // Drag grip dots (top-right of card)
+      const grip = d3NodeGroups.append('g').attr('opacity', 0.45);
+      for (let r = 0; r < 2; r++) {
+        for (let c = 0; c < 3; c++) {
+          grip.append('circle')
+            .attr('cx', left + NODE_W - 24 + c * 4.5)
+            .attr('cy', top + 15 + r * 4.5)
+            .attr('r', 1.2)
+            .attr('fill', '#64748b');
+        }
+      }
+
+      // Node title
+      d3NodeGroups.append('text')
+        .attr('class', 'node-title-text')
+        .attr('x', left + 10)
+        .attr('y', top + 43)
+        .attr('font-size', '12.5px')
+        .attr('font-weight', '700')
+        .attr('fill', '#0f172a')
+        .text(d => d.label);
+
+      // Node subtitle
+      d3NodeGroups.append('text')
+        .attr('class', 'node-sub-text')
+        .attr('x', left + 10)
+        .attr('y', top + 56.5)
+        .attr('font-size', '9.3px')
+        .attr('fill', '#64748b')
+        .text(d => d.sublabel);
+
+      // Simulation signal badge (top-right corner)
+      const deltaG = d3NodeGroups.append('g')
+        .attr('class', 'node-delta-badge')
+        .attr('opacity', 0);
+
+      deltaG.append('rect')
+        .attr('class', 'node-delta-bg')
+        .attr('x', left + NODE_W - 46)
+        .attr('y', top - 11)
+        .attr('width', 42)
+        .attr('height', 22)
+        .attr('rx', 11)
+        .attr('fill', '#0d9488')
+        .attr('stroke', '#ffffff')
+        .attr('stroke-width', 2);
+
+      deltaG.append('text')
+        .attr('class', 'node-delta-text')
+        .attr('x', left + NODE_W - 25)
+        .attr('y', top + 3.5)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '11px')
+        .attr('font-weight', '700')
+        .attr('fill', '#ffffff')
+        .text('▲ +');
+
+      // Attach D3 Drag behavior with click threshold so dragging never swallows clicks
+      let pointerDownPos = { x: 0, y: 0 };
+      let didDrag = false;
+
+      const dragBehavior = d3.drag()
+        .on('start', function (event, d) {
+          pointerDownPos = { x: event.x, y: event.y };
+          didDrag = false;
+          d3.select(this).classed('is-dragging', true).raise();
+        })
+        .on('drag', function (event, d) {
+          if (Math.hypot(event.x - pointerDownPos.x, event.y - pointerDownPos.y) > 4) {
+            didDrag = true;
+          }
+          const minX = NODE_W / 2 + 12;
+          const maxX = SVG_W - NODE_W / 2 - 12;
+          const minY = NODE_H / 2 + 16;
+          const maxY = SVG_H - NODE_H / 2 - 16;
+
+          d.x = Math.max(minX, Math.min(maxX, event.x));
+          d.y = Math.max(minY, Math.min(maxY, event.y));
+
+          updateD3Positions();
+        })
+        .on('end', function (event, d) {
+          d3.select(this).classed('is-dragging', false);
+          if (!didDrag) {
+            selectNode(d.id);
+          }
+        });
+
+      d3NodeGroups.call(dragBehavior);
+
+      updateD3Positions();
+    }
+
+    function updateD3Positions() {
+      if (!d3NodeGroups || !d3EdgeGroups || !d3LoopBadges) return;
+
+      d3NodeGroups.attr('transform', d => `translate(${d.x.toFixed(1)}, ${d.y.toFixed(1)})`);
+
+      d3EdgeGroups.each(function (edge) {
+        const geom = computeEdgeGeom(edge);
+        const g = d3.select(this);
+        g.select('path.edge-main-path').attr('d', geom.d);
+        g.select('path.edge-flow-path').attr('d', geom.d);
+        g.select('g.edge-polarity-badge')
+          .attr('transform', `translate(${geom.badgeX.toFixed(1)}, ${geom.badgeY.toFixed(1)})`);
+      });
+
+      const centers = computeLoopBadgeCoords();
+      d3LoopBadges.attr('transform', d => {
+        const pt = centers[d.id];
+        return `translate(${pt.x.toFixed(1)}, ${pt.y.toFixed(1)})`;
+      });
+    }
+
+    function resetNodeLayout() {
+      NODES.forEach(n => {
+        n.x = n.defaultX;
+        n.y = n.defaultY;
+      });
+      updateD3Positions();
+    }
+
+    /**
+     * =========================================================================
+     * 4. LOOP HIGHLIGHTING & NODE SELECTION (TAB 1)
+     * =========================================================================
+     */
+    function renderNodePickerButtons() {
+      const grid = document.getElementById('node-pill-grid');
+      grid.innerHTML = '';
+
+      NODES.forEach(node => {
+        const btn = document.createElement('button');
+        btn.id = `picker-node-${node.id}`;
+        btn.type = 'button';
+        btn.onclick = () => selectNode(node.id);
+        btn.className = 'text-left px-2.5 py-2 rounded-xl border text-xs transition-all flex items-center gap-2 cursor-pointer bg-white border-slate-200 hover:border-slate-300';
+        btn.innerHTML = `
+          <span class="font-mono-code font-bold text-[11px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">${node.code}</span>
+          <span class="font-medium text-slate-800 truncate">${node.label}</span>
+        `;
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectLoop(loopId) {
+      if (state.sim.active) {
+        resetSimulation();
+      }
+      state.activeLoop = loopId;
+      const loopDef = LOOPS[loopId];
+      if (!loopDef.nodeOrder.includes(state.selectedNode)) {
+        state.selectedNode = loopDef.nodeOrder[0];
+      }
+      syncLoopVisuals();
+      syncSelectionVisuals();
+    }
+
+    function clearLoop() {
+      if (state.sim.active) {
+        resetSimulation();
+      }
+      state.activeLoop = null;
+      syncLoopVisuals();
+      syncSelectionVisuals();
+    }
+
+    function resolveTargetLoop(nodeId) {
+      if (state.activeLoop && LOOPS[state.activeLoop].nodeOrder.includes(nodeId)) {
+        return state.activeLoop;
+      }
+      const node = getNodeById(nodeId);
+      return node ? node.defaultLoop : 'R1';
+    }
+
+    function selectNode(nodeId) {
+      if (state.sim.active) {
+        resetSimulation();
+      }
+      state.selectedNode = nodeId;
+      syncSelectionVisuals();
+    }
+
+    function syncLoopVisuals() {
+      const active = state.activeLoop;
+
+      const btnR1 = document.getElementById('btn-loop-R1');
+      const btnB1 = document.getElementById('btn-loop-B1');
+      const btnClear = document.getElementById('btn-loop-CLEAR');
+
+      btnR1.className = active === 'R1'
+        ? 'px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer bg-sky-600 text-white border-sky-600 shadow-2xs'
+        : 'px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-700 border-slate-200 hover:border-sky-400 hover:bg-sky-50';
+
+      btnB1.className = active === 'B1'
+        ? 'px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer bg-amber-600 text-white border-amber-600 shadow-2xs'
+        : 'px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 cursor-pointer bg-white text-slate-700 border-slate-200 hover:border-amber-400 hover:bg-amber-50';
+
+      btnClear.className = active === null
+        ? 'px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-slate-800 text-white border-slate-800'
+        : 'px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 hover:text-slate-900';
+
+      if (d3EdgeGroups) {
+        d3EdgeGroups.attr('opacity', edge => {
+          if (!active) return 1;
+          return LOOPS[active].edgeOrder.includes(edge.id) ? 1 : 0.16;
+        });
+
+        d3EdgeGroups.select('path.edge-main-path')
+          .attr('stroke', edge => {
+            if (!active || LOOPS[active].edgeOrder.includes(edge.id)) {
+              return edge.polarity === 1 ? '#0d9488' : '#e11d48';
+            }
+            return '#94a3b8';
+          })
+          .attr('stroke-width', edge => (!active || LOOPS[active].edgeOrder.includes(edge.id)) ? 3.1 : 2)
+          .attr('marker-end', edge => {
+            if (!active || LOOPS[active].edgeOrder.includes(edge.id)) {
+              return edge.polarity === 1 ? 'url(#d3-arrow-pos)' : 'url(#d3-arrow-neg)';
+            }
+            return 'url(#d3-arrow-dim)';
+          });
+      }
+
+      if (d3NodeGroups) {
+        d3NodeGroups.attr('opacity', node => {
+          if (!active) return 1;
+          return LOOPS[active].nodeOrder.includes(node.id) ? 1 : 0.24;
+        });
+      }
+
+      if (d3LoopBadges) {
+        d3LoopBadges.attr('opacity', loop => (!active || active === loop.id) ? 1 : 0.22);
+      }
+
+      const iconEl = document.getElementById('loop-info-icon');
+      const titleEl = document.getElementById('loop-info-title');
+      const descEl = document.getElementById('loop-info-desc');
+
+      if (!active) {
+        iconEl.className = 'w-6 h-6 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5';
+        iconEl.textContent = 'CLD';
+        titleEl.textContent = 'Full RECUP System View (R1 + B1)';
+        descEl.innerHTML = 'Explore <strong>Reinforcing Loop R1</strong> (<span class="font-mono-code text-[11px]">N1 +→ N2 +→ N3 +→ N4 +→ N1</span>) and <strong>Balancing Loop B1</strong> (<span class="font-mono-code text-[11px]">N1 +→ N2 +→ N3 +→ N6 −→ N5 +→ N1</span>).';
+      } else if (active === 'R1') {
+        iconEl.className = 'w-6 h-6 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5';
+        iconEl.textContent = 'R1';
+        titleEl.textContent = LOOPS.R1.name;
+        descEl.textContent = LOOPS.R1.summary;
+      } else {
+        iconEl.className = 'w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5';
+        iconEl.textContent = 'B1';
+        titleEl.textContent = LOOPS.B1.name;
+        descEl.textContent = LOOPS.B1.summary;
+      }
+    }
+
+    function syncSelectionVisuals() {
+      const targetLoop = resolveTargetLoop(state.selectedNode);
+      const pill = document.getElementById('sim-active-loop-pill');
+      pill.className = targetLoop === 'R1'
+        ? 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-50 text-sky-700 border border-sky-200'
+        : 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200';
+      pill.textContent = `Loop ${targetLoop}`;
+
+      document.getElementById('selected-node-loop-hint').textContent =
+        `Traces ${targetLoop} (${LOOPS[targetLoop].type})`;
+
+      NODES.forEach(node => {
+        const btn = document.getElementById(`picker-node-${node.id}`);
+        if (!btn) return;
+        const selected = node.id === state.selectedNode;
+        btn.className = selected
+          ? 'text-left px-2.5 py-2 rounded-xl border-2 text-xs transition-all flex items-center gap-2 cursor-pointer bg-slate-900 border-slate-900 text-white shadow-2xs'
+          : 'text-left px-2.5 py-2 rounded-xl border text-xs transition-all flex items-center gap-2 cursor-pointer bg-white border-slate-200 hover:border-slate-300';
+        btn.innerHTML = `
+          <span class="font-mono-code font-bold text-[11px] px-1.5 py-0.5 rounded ${selected ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-700'}">${node.code}</span>
+          <span class="font-medium ${selected ? 'text-white font-semibold' : 'text-slate-800'} truncate">${node.label}</span>
+        `;
+      });
+
+      if (!state.sim.active && d3NodeGroups) {
+        d3NodeGroups.each(function (node) {
+          const g = d3.select(this);
+          const isSel = node.id === state.selectedNode;
+          g.select('rect.node-card-rect')
+            .attr('stroke', isSel ? '#0f172a' : '#cbd5e1')
+            .attr('stroke-width', isSel ? 2.8 : 2);
+          g.select('rect.node-id-pill')
+            .attr('fill', isSel ? '#0f172a' : '#f1f5f9');
+          g.select('text.node-id-text')
+            .attr('fill', isSel ? '#ffffff' : '#475569');
+        });
+      }
+    }
+
+    /**
+     * =========================================================================
+     * 5. RIPPLE SIMULATOR & STEP-BY-STEP TRACE LOG (TAB 1)
+     * =========================================================================
+     */
+
+    function getOrderedEdgesForLoop(startNodeId, loopId) {
+      const ring = LOOPS[loopId].edgeOrder;
+      const startIdx = ring.findIndex(eid => eid.startsWith(startNodeId + '-'));
+      const ordered = [];
+      for (let i = 0; i < ring.length; i++) {
+        const eid = ring[(startIdx + i) % ring.length];
+        const edgeObj = EDGES.find(e => e.id === eid);
+        if (edgeObj) ordered.push(edgeObj);
+      }
+      return ordered;
+    }
+
+    function buildRippleTrace(startNodeId, initialSign, loopId) {
+      const startNode = getNodeById(startNodeId);
+      const steps = [{
+        stepNum: 1,
+        nodeId: startNode.id,
+        edgeId: null,
+        signal: initialSign,
+        headline: `${startNode.code} ${startNode.label} ${initialSign === 1 ? 'surges (++)' : 'drops (−−)'}`,
+        detail: initialSign === 1
+          ? `Positive shock enters ${startNode.label}, pushing its level upward.`
+          : `Negative shock hits ${startNode.label}, pushing its level downward.`
+      }];
+
+      const orderedEdges = getOrderedEdgesForLoop(startNodeId, loopId);
+      let runningSignal = initialSign;
+
+      orderedEdges.forEach((edge, idx) => {
+        const incomingSignal = runningSignal;
+        runningSignal = runningSignal * edge.polarity;
+
+        const targetNode = getNodeById(edge.to);
+        const polSymbol = edge.polarity === 1 ? '+' : '−';
+        const dirWord = runningSignal === 1 ? 'increases (+)' : 'decreases (−)';
+
+        steps.push({
+          stepNum: idx + 2,
+          nodeId: targetNode.id,
+          edgeId: edge.id,
+          signal: runningSignal,
+          headline: `${targetNode.code} ${targetNode.label} ${dirWord}`,
+          detail: `Via (${edge.from} ${polSymbol}→ ${edge.to}): ${edge.effectText[incomingSignal]}`
+        });
+      });
+
+      return steps;
+    }
+
+    function startRippleSimulation(initialSign) {
+      if (state.sim.timerId) clearInterval(state.sim.timerId);
+
+      const targetLoop = resolveTargetLoop(state.selectedNode);
+      state.activeLoop = targetLoop;
+      syncLoopVisuals();
+
+      const steps = buildRippleTrace(state.selectedNode, initialSign, targetLoop);
+
+      state.sim = {
+        active: true,
+        playing: true,
+        loopId: targetLoop,
+        initialSign,
+        steps,
+        currentStepIndex: -1,
+        timerId: null
+      };
+
+      document.getElementById('btn-play-pause').disabled = false;
+      document.getElementById('btn-next-step').disabled = false;
+      document.getElementById('btn-reset-sim').disabled = false;
+
+      document.getElementById('trace-empty').classList.add('hidden');
+      const listEl = document.getElementById('trace-list');
+      listEl.classList.remove('hidden');
+      listEl.innerHTML = '';
+      document.getElementById('trace-summary').classList.add('hidden');
+
+      updatePlayPauseLabel();
+      stepForwardSimulation();
+
+      state.sim.timerId = setInterval(() => {
+        if (state.sim.playing) {
+          if (state.sim.currentStepIndex < state.sim.steps.length - 1) {
+            stepForwardSimulation();
+          } else {
+            pauseSimulation();
+          }
+        }
+      }, 1450);
+    }
+
+    function stepForwardSimulation() {
+      if (!state.sim.active) return;
+      if (state.sim.currentStepIndex >= state.sim.steps.length - 1) {
+        pauseSimulation();
+        return;
+      }
+
+      state.sim.currentStepIndex += 1;
+      const idx = state.sim.currentStepIndex;
+      const step = state.sim.steps[idx];
+
+      applyD3SimulationStep(idx);
+      appendTraceCard(step, idx === state.sim.steps.length - 1);
+
+      document.getElementById('step-counter-badge').textContent = `Step ${idx + 1} / ${state.sim.steps.length}`;
+
+      if (idx === state.sim.steps.length - 1) {
+        pauseSimulation();
+        renderLoopOutcomeSummary();
+      }
+    }
+
+    function togglePlayPause() {
+      if (!state.sim.active) return;
+      if (state.sim.playing) {
+        pauseSimulation();
+      } else {
+        if (state.sim.currentStepIndex >= state.sim.steps.length - 1) {
+          startRippleSimulation(state.sim.initialSign);
+          return;
+        }
+        state.sim.playing = true;
+        updatePlayPauseLabel();
+      }
+    }
+
+    function pauseSimulation() {
+      state.sim.playing = false;
+      updatePlayPauseLabel();
+    }
+
+    function updatePlayPauseLabel() {
+      const icon = document.getElementById('play-pause-icon');
+      const label = document.getElementById('play-pause-label');
+      if (state.sim.playing) {
+        icon.textContent = '⏸';
+        label.textContent = 'Pause';
+      } else {
+        icon.textContent = '▶';
+        label.textContent = state.sim.currentStepIndex >= state.sim.steps.length - 1 ? 'Replay' : 'Play';
+      }
+    }
+
+    function resetSimulation() {
+      if (state.sim.timerId) clearInterval(state.sim.timerId);
+      state.sim = {
+        active: false,
+        playing: false,
+        loopId: null,
+        initialSign: 1,
+        steps: [],
+        currentStepIndex: -1,
+        timerId: null
+      };
+
+      if (d3NodeGroups) {
+        d3NodeGroups.select('rect.node-pulse-rect')
+          .attr('opacity', 0)
+          .classed('d3-pulse-ring', false);
+        d3NodeGroups.select('g.node-delta-badge')
+          .attr('opacity', 0);
+      }
+
+      if (d3EdgeGroups) {
+        d3EdgeGroups.select('path.edge-flow-path')
+          .attr('opacity', 0)
+          .classed('d3-edge-flow', false);
+      }
+
+      document.getElementById('btn-play-pause').disabled = true;
+      document.getElementById('btn-next-step').disabled = true;
+      document.getElementById('btn-reset-sim').disabled = true;
+      document.getElementById('play-pause-icon').textContent = '⏸';
+      document.getElementById('play-pause-label').textContent = 'Pause';
+
+      document.getElementById('step-counter-badge').textContent = 'Idle';
+      document.getElementById('trace-empty').classList.remove('hidden');
+      document.getElementById('trace-list').classList.add('hidden');
+      document.getElementById('trace-list').innerHTML = '';
+      document.getElementById('trace-summary').classList.add('hidden');
+
+      syncLoopVisuals();
+      syncSelectionVisuals();
+    }
+
+    function applyD3SimulationStep(stepIndex) {
+      const activeSteps = state.sim.steps.slice(0, stepIndex + 1);
+      const currentStep = state.sim.steps[stepIndex];
+
+      const signalByNode = {};
+      activeSteps.forEach(s => { signalByNode[s.nodeId] = s.signal; });
+
+      d3NodeGroups.each(function (node) {
+        const g = d3.select(this);
+        const sig = signalByNode[node.id];
+        const isCurrent = node.id === currentStep.nodeId;
+
+        if (sig !== undefined) {
+          const isUp = sig === 1;
+          const color = isUp ? '#0d9488' : '#e11d48';
+
+          g.select('g.node-delta-badge').attr('opacity', 1);
+          g.select('rect.node-delta-bg').attr('fill', color);
+          g.select('text.node-delta-text').text(isUp ? '▲ +' : '▼ −');
+
+          g.select('rect.node-card-rect')
+            .attr('stroke', color)
+            .attr('stroke-width', isCurrent ? 3.5 : 2.2);
+
+          g.select('rect.node-id-pill').attr('fill', isUp ? '#ccfbf1' : '#ffe4e6');
+          g.select('text.node-id-text').attr('fill', color);
+
+          g.select('rect.node-pulse-rect')
+            .attr('stroke', color)
+            .attr('opacity', isCurrent ? 1 : 0)
+            .classed('d3-pulse-ring', isCurrent);
+        } else {
+          g.select('g.node-delta-badge').attr('opacity', 0);
+          g.select('rect.node-pulse-rect').attr('opacity', 0).classed('d3-pulse-ring', false);
+          g.select('rect.node-card-rect').attr('stroke', '#cbd5e1').attr('stroke-width', 2);
+          g.select('rect.node-id-pill').attr('fill', '#f1f5f9');
+          g.select('text.node-id-text').attr('fill', '#475569');
+        }
+      });
+
+      d3EdgeGroups.each(function (edge) {
+        const flow = d3.select(this).select('path.edge-flow-path');
+        if (currentStep.edgeId === edge.id) {
+          flow
+            .attr('stroke', currentStep.signal === 1 ? '#0d9488' : '#e11d48')
+            .attr('opacity', 0.95)
+            .classed('d3-edge-flow', true);
+        } else {
+          flow.attr('opacity', 0).classed('d3-edge-flow', false);
+        }
+      });
+    }
+
+    function appendTraceCard(step, isFinal) {
+      const list = document.getElementById('trace-list');
+      const isUp = step.signal === 1;
+      const badgeCls = isUp
+        ? 'bg-teal-100 text-teal-800 border-teal-300'
+        : 'bg-rose-100 text-rose-800 border-rose-300';
+      const cardCls = isFinal
+        ? (isUp ? 'border-teal-400 bg-teal-50/40' : 'border-rose-400 bg-rose-50/40')
+        : 'border-slate-200 bg-slate-50/70';
+
+      const card = document.createElement('div');
+      card.className = `p-2.5 rounded-xl border ${cardCls} transition-all`;
+      card.innerHTML = `
+        <div class="flex items-center justify-between gap-2 mb-1">
+          <span class="text-[11px] font-mono-code font-bold text-slate-500">STEP ${step.stepNum}</span>
+          <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border ${badgeCls}">
+            ${isUp ? '▲ Increase (+)' : '▼ Decrease (−)'}
+          </span>
+        </div>
+        <div class="text-xs font-bold text-slate-900">${step.headline}</div>
+        <p class="text-[11.5px] text-slate-600 leading-snug mt-0.5">${step.detail}</p>
+      `;
+
+      list.appendChild(card);
+      list.scrollTop = list.scrollHeight;
+    }
+
+    function renderLoopOutcomeSummary() {
+      const summaryEl = document.getElementById('trace-summary');
+      const loopDef = LOOPS[state.sim.loopId];
+      const text = loopDef.outcomeText[state.sim.initialSign];
+      const isR1 = state.sim.loopId === 'R1';
+
+      summaryEl.className = `mt-3 pt-3 border-t border-slate-100 text-xs p-2.5 rounded-xl border ${
+        isR1 ? 'bg-sky-50 border-sky-200 text-sky-900' : 'bg-amber-50 border-amber-200 text-amber-900'
+      }`;
+      summaryEl.innerHTML = `<strong>Loop Summary:</strong> ${text}`;
+      summaryEl.classList.remove('hidden');
+    }
+
+    /**
+     * =========================================================================
+     * 6. 5-TAB NAVIGATION & JUMP ACTIONS
+     * =========================================================================
+     */
+    let anatomyInitialized = false;
+    let createPreviewInitialized = false;
+
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      const tabIds = ['tab1', 'tab2', 'tab3', 'tab4', 'tab5'];
+
+      tabIds.forEach(id => {
+        const panel = document.getElementById(`tab-panel-${id}`);
+        const btn = document.getElementById(`tab-btn-${id}`);
+        const isActive = id === tabId;
+
+        if (panel) {
+          if (isActive) {
+            panel.classList.remove('hidden');
+          } else {
+            panel.classList.add('hidden');
+          }
+        }
+
+        if (btn) {
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          const badge = btn.querySelector('span:first-child');
+          if (isActive) {
+            btn.className = 'tab-nav-btn px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer bg-slate-900 text-white shadow-2xs';
+            if (badge) badge.className = 'w-4 h-4 rounded-md bg-teal-500 text-white font-mono-code text-[10px] font-bold flex items-center justify-center';
+          } else {
+            btn.className = 'tab-nav-btn px-3.5 py-2 rounded-xl text-xs font-semibold transition-all whitespace-nowrap flex items-center gap-2 cursor-pointer bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 hover:text-slate-900';
+            if (badge) badge.className = 'w-4 h-4 rounded-md bg-slate-100 text-slate-600 font-mono-code text-[10px] font-bold flex items-center justify-center';
+          }
+        }
+      });
+
+      if (tabId === 'tab1') {
+        updateD3Positions();
+      } else if (tabId === 'tab3' && !anatomyInitialized) {
+        initAnatomyDiagram();
+        anatomyInitialized = true;
+      } else if (tabId === 'tab5' && !createPreviewInitialized) {
+        initCreatePreviewDiagram();
+        createPreviewInitialized = true;
+      }
+    }
+
+    function jumpToTab1HighlightR1() {
+      switchTab('tab1');
+      selectLoop('R1');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /**
+     * =========================================================================
+     * 7. TAB 3: 3-NODE (A, B, C) D3 ANATOMY DIAGRAM (ISOLATED SVG IDs)
+     * =========================================================================
+     */
+    function initAnatomyDiagram() {
+      const container = d3.select('#d3-anatomy-container');
+      container.selectAll('*').remove();
+
+      const W = 560;
+      const H = 280;
+      const svg = container.append('svg')
+        .attr('id', 'anatomy-svg')
+        .attr('viewBox', `0 0 ${W} ${H}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('class', 'w-full max-w-[560px] h-auto select-none');
+
+      const defs = svg.append('defs');
+      defs.append('marker')
+        .attr('id', 'anatomy-arrow-pos')
+        .attr('viewBox', '0 0 12 12')
+        .attr('refX', '9.5')
+        .attr('refY', '6')
+        .attr('markerWidth', '6.5')
+        .attr('markerHeight', '6.5')
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', 'M 1.5 1.5 L 10.5 6 L 1.5 10.5 z')
+        .attr('fill', '#0d9488');
+
+      defs.append('marker')
+        .attr('id', 'anatomy-arrow-neg')
+        .attr('viewBox', '0 0 12 12')
+        .attr('refX', '9.5')
+        .attr('refY', '6')
+        .attr('markerWidth', '6.5')
+        .attr('markerHeight', '6.5')
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', 'M 1.5 1.5 L 10.5 6 L 1.5 10.5 z')
+        .attr('fill', '#e11d48');
+
+      defs.append('marker')
+        .attr('id', 'anatomy-arrow-weak')
+        .attr('viewBox', '0 0 12 12')
+        .attr('refX', '9.5')
+        .attr('refY', '6')
+        .attr('markerWidth', '6.5')
+        .attr('markerHeight', '6.5')
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', 'M 1.5 1.5 L 10.5 6 L 1.5 10.5 z')
+        .attr('fill', '#64748b');
+
+      const nodes = [
+        { id: 'A', title: 'Variable A', sub: 'Driver state', x: 280, y: 56 },
+        { id: 'B', title: 'Variable B', sub: 'Intermediate', x: 455, y: 215 },
+        { id: 'C', title: 'Variable C', sub: 'Counter-force', x: 105, y: 215 }
+      ];
+
+      const links = [
+        {
+          d: 'M 332 76 Q 425 110 442 182',
+          stroke: '#0d9488',
+          width: 2.8,
+          dash: null,
+          marker: 'url(#anatomy-arrow-pos)',
+          sign: '+',
+          signColor: '#0d9488',
+          signBg: '#ccfbf1',
+          bx: 416,
+          by: 118,
+          weightLabel: 'Medium (+)',
+          wx: 392,
+          wy: 92
+        },
+        {
+          d: 'M 388 225 Q 280 256 172 225',
+          stroke: '#e11d48',
+          width: 4.5,
+          dash: null,
+          marker: 'url(#anatomy-arrow-neg)',
+          sign: '−',
+          signColor: '#e11d48',
+          signBg: '#ffe4e6',
+          bx: 280,
+          by: 245,
+          weightLabel: 'Strong (−)',
+          wx: 280,
+          wy: 268
+        },
+        {
+          d: 'M 118 182 Q 135 110 228 76',
+          stroke: '#64748b',
+          width: 1.6,
+          dash: '4 4',
+          marker: 'url(#anatomy-arrow-weak)',
+          sign: '+',
+          signColor: '#0d9488',
+          signBg: '#ccfbf1',
+          bx: 144,
+          by: 118,
+          weightLabel: 'Weak (+)',
+          wx: 162,
+          wy: 92
+        }
+      ];
+
+      // Center Loop Badge
+      const centerG = svg.append('g').attr('transform', 'translate(280, 165)');
+      centerG.append('circle')
+        .attr('r', 22)
+        .attr('fill', '#ffffff')
+        .attr('stroke', '#d97706')
+        .attr('stroke-width', 2.2);
+      centerG.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.1em')
+        .attr('font-size', '12px')
+        .attr('font-weight', '800')
+        .attr('fill', '#d97706')
+        .text('B');
+      centerG.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '1.2em')
+        .attr('font-size', '7.5px')
+        .attr('font-weight', '700')
+        .attr('fill', '#64748b')
+        .text('BAL');
+
+      // Edges
+      links.forEach(l => {
+        const path = svg.append('path')
+          .attr('d', l.d)
+          .attr('fill', 'none')
+          .attr('stroke', l.stroke)
+          .attr('stroke-width', l.width)
+          .attr('stroke-linecap', 'round')
+          .attr('marker-end', l.marker);
+        if (l.dash) path.attr('stroke-dasharray', l.dash);
+
+        const bg = svg.append('g').attr('transform', `translate(${l.bx}, ${l.by})`);
+        bg.append('circle')
+          .attr('r', 10.5)
+          .attr('fill', l.signBg)
+          .attr('stroke', l.signColor)
+          .attr('stroke-width', 1.8);
+        bg.append('text')
+          .attr('text-anchor', 'middle')
+          .attr('dy', '0.35em')
+          .attr('font-size', '13px')
+          .attr('font-weight', '700')
+          .attr('fill', l.signColor)
+          .text(l.sign);
+
+        svg.append('text')
+          .attr('x', l.wx)
+          .attr('y', l.wy)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '10px')
+          .attr('font-weight', '600')
+          .attr('fill', '#475569')
+          .text(l.weightLabel);
+      });
+
+      // Nodes
+      const nw = 126;
+      const nh = 54;
+      nodes.forEach(n => {
+        const g = svg.append('g').attr('transform', `translate(${n.x}, ${n.y})`);
+        g.append('rect')
+          .attr('x', -nw / 2)
+          .attr('y', -nh / 2)
+          .attr('width', nw)
+          .attr('height', nh)
+          .attr('rx', 12)
+          .attr('fill', '#ffffff')
+          .attr('stroke', '#0f172a')
+          .attr('stroke-width', 2);
+
+        g.append('rect')
+          .attr('x', -nw / 2 + 8)
+          .attr('y', -nh / 2 + 8)
+          .attr('width', 22)
+          .attr('height', 16)
+          .attr('rx', 5)
+          .attr('fill', '#0f172a');
+
+        g.append('text')
+          .attr('x', -nw / 2 + 19)
+          .attr('y', -nh / 2 + 19.5)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', '10px')
+          .attr('font-weight', '700')
+          .attr('fill', '#ffffff')
+          .text(n.id);
+
+        g.append('text')
+          .attr('x', -nw / 2 + 36)
+          .attr('y', -nh / 2 + 20)
+          .attr('font-size', '11.5px')
+          .attr('font-weight', '700')
+          .attr('fill', '#0f172a')
+          .text(n.title);
+
+        g.append('text')
+          .attr('x', -nw / 2 + 10)
+          .attr('y', -nh / 2 + 40)
+          .attr('font-size', '9.5px')
+          .attr('fill', '#64748b')
+          .text(n.sub);
+      });
+    }
+
+    /**
+     * =========================================================================
+     * 8. TAB 5: CREATE MODEL — COPY PROMPT & LIVE D3 TARGET PREVIEW
+     * =========================================================================
+     */
+    function copyStarterPrompt() {
+      const textarea = document.getElementById('student-starter-prompt');
+      const label = document.getElementById('copy-prompt-label');
+      textarea.select();
+      textarea.setSelectionRange(0, 99999);
+      try {
+        document.execCommand('copy');
+        label.textContent = 'Copied!';
+        setTimeout(() => {
+          label.textContent = 'Copy Prompt';
+        }, 1800);
+      } catch (err) {
+        label.textContent = 'Press Ctrl+C';
+      }
+    }
+
+    let previewFilter = 'ALL';
+    let previewNodeSel = null;
+    let previewEdgeSel = null;
+
+    const PREVIEW_NODES = [
+      { id: 'N1', label: 'Partner Density', x: 310, y: 82 },
+      { id: 'N2', label: 'Return Convenience', x: 475, y: 185 },
+      { id: 'N3', label: 'Adoption Volume', x: 310, y: 295 },
+      { id: 'N4', label: 'Vendor Savings', x: 115, y: 185 },
+      { id: 'N5', label: 'Circulating Stock', x: 665, y: 185 },
+      { id: 'N6', label: 'Cup Hoarding', x: 565, y: 390 }
+    ];
+
+    const PREVIEW_EDGES = [
+      { id: 'N1-N2', from: 'N1', to: 'N2', pol: 1, bend: 24, tags: ['ALL', 'BACKBONE', 'R1', 'B1'] },
+      { id: 'N2-N3', from: 'N2', to: 'N3', pol: 1, bend: 24, tags: ['ALL', 'BACKBONE', 'R1', 'B1'] },
+      { id: 'N3-N4', from: 'N3', to: 'N4', pol: 1, bend: 32, tags: ['ALL', 'R1'] },
+      { id: 'N4-N1', from: 'N4', to: 'N1', pol: 1, bend: 32, tags: ['ALL', 'R1'] },
+      { id: 'N3-N6', from: 'N3', to: 'N6', pol: 1, bend: -32, tags: ['ALL', 'B1'] },
+      { id: 'N6-N5', from: 'N6', to: 'N5', pol: -1, bend: 28, tags: ['ALL', 'B1'] },
+      { id: 'N5-N1', from: 'N5', to: 'N1', pol: 1, bend: 52, tags: ['ALL', 'B1'] }
+    ];
+
+    function initCreatePreviewDiagram() {
+      const container = d3.select('#d3-create-preview-container');
+      container.selectAll('*').remove();
+
+      const W = 780;
+      const H = 460;
+      const nw = 136;
+      const nh = 52;
+
+      const svg = container.append('svg')
+        .attr('id', 'create-preview-svg')
+        .attr('viewBox', `0 0 ${W} ${H}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('class', 'w-full h-full max-h-[460px] select-none');
+
+      const defs = svg.append('defs');
+      defs.append('marker')
+        .attr('id', 'preview-arrow-pos')
+        .attr('viewBox', '0 0 12 12')
+        .attr('refX', '9.5')
+        .attr('refY', '6')
+        .attr('markerWidth', '7')
+        .attr('markerHeight', '7')
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', 'M 1.5 1.5 L 10.5 6 L 1.5 10.5 z')
+        .attr('fill', '#0d9488');
+
+      defs.append('marker')
+        .attr('id', 'preview-arrow-neg')
+        .attr('viewBox', '0 0 12 12')
+        .attr('refX', '9.5')
+        .attr('refY', '6')
+        .attr('markerWidth', '7')
+        .attr('markerHeight', '7')
+        .attr('orient', 'auto-start-reverse')
+        .append('path')
+        .attr('d', 'M 1.5 1.5 L 10.5 6 L 1.5 10.5 z')
+        .attr('fill', '#e11d48');
+
+      function pRectEdge(cx, cy, tx, ty, pad) {
+        const dx = tx - cx;
+        const dy = ty - cy;
+        if (dx === 0 && dy === 0) return { x: cx, y: cy };
+        const hw = nw / 2 + pad;
+        const hh = nh / 2 + pad;
+        const sc = Math.min(
+          Math.abs(dx) > 0 ? hw / Math.abs(dx) : Infinity,
+          Math.abs(dy) > 0 ? hh / Math.abs(dy) : Infinity
+        );
+        return { x: cx + dx * sc, y: cy + dy * sc };
+      }
+
+      function pEdgeGeom(e) {
+        const s = PREVIEW_NODES.find(n => n.id === e.from);
+        const t = PREVIEW_NODES.find(n => n.id === e.to);
+        const dx = t.x - s.x;
+        const dy = t.y - s.y;
+        const len = Math.hypot(dx, dy) || 1;
+        const nx = -dy / len;
+        const ny = dx / len;
+        const cx = (s.x + t.x) / 2 + nx * e.bend;
+        const cy = (s.y + t.y) / 2 + ny * e.bend;
+        const p1 = pRectEdge(s.x, s.y, cx, cy, 2);
+        const p2 = pRectEdge(t.x, t.y, cx, cy, 6);
+        const u = 0.76;
+        const iu = 1 - u;
+        const qx = iu * iu * p1.x + 2 * iu * u * cx + u * u * p2.x;
+        const qy = iu * iu * p1.y + 2 * iu * u * cy + u * u * p2.y;
+        const side = e.bend >= 0 ? 1 : -1;
+        return {
+          d: `M ${p1.x.toFixed(1)} ${p1.y.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`,
+          bx: qx + nx * side * 14,
+          by: qy + ny * side * 14
+        };
+      }
+
+      const edgeLayer = svg.append('g');
+      previewEdgeSel = edgeLayer.selectAll('g')
+        .data(PREVIEW_EDGES)
+        .enter()
+        .append('g');
+
+      previewEdgeSel.append('path')
+        .attr('class', 'prev-path')
+        .attr('fill', 'none')
+        .attr('stroke-width', 2.4)
+        .attr('stroke', d => d.pol === 1 ? '#0d9488' : '#e11d48')
+        .attr('marker-end', d => d.pol === 1 ? 'url(#preview-arrow-pos)' : 'url(#preview-arrow-neg)');
+
+      const pBadge = previewEdgeSel.append('g').attr('class', 'prev-badge');
+      pBadge.append('circle')
+        .attr('r', 9.5)
+        .attr('fill', d => d.pol === 1 ? '#ccfbf1' : '#ffe4e6')
+        .attr('stroke', d => d.pol === 1 ? '#0d9488' : '#e11d48')
+        .attr('stroke-width', 1.6);
+      pBadge.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.35em')
+        .attr('font-size', '12px')
+        .attr('font-weight', '700')
+        .attr('fill', d => d.pol === 1 ? '#0d9488' : '#e11d48')
+        .text(d => d.pol === 1 ? '+' : '−');
+
+      // Loop center tags
+      const r1Tag = svg.append('g').attr('transform', 'translate(310, 185)');
+      r1Tag.append('circle').attr('r', 18).attr('fill', '#ffffff').attr('stroke', '#0284c7').attr('stroke-width', 2);
+      r1Tag.append('text').attr('text-anchor', 'middle').attr('dy', '0.35em').attr('font-size', '11px').attr('font-weight', '800').attr('fill', '#0284c7').text('R1');
+
+      const b1Tag = svg.append('g').attr('transform', 'translate(515, 265)');
+      b1Tag.append('circle').attr('r', 18).attr('fill', '#ffffff').attr('stroke', '#d97706').attr('stroke-width', 2);
+      b1Tag.append('text').attr('text-anchor', 'middle').attr('dy', '0.35em').attr('font-size', '11px').attr('font-weight', '800').attr('fill', '#d97706').text('B1');
+
+      const nodeLayer = svg.append('g');
+      previewNodeSel = nodeLayer.selectAll('g')
+        .data(PREVIEW_NODES)
+        .enter()
+        .append('g')
+        .style('cursor', 'grab');
+
+      previewNodeSel.append('rect')
+        .attr('x', -nw / 2)
+        .attr('y', -nh / 2)
+        .attr('width', nw)
+        .attr('height', nh)
+        .attr('rx', 12)
+        .attr('fill', '#ffffff')
+        .attr('stroke', '#cbd5e1')
+        .attr('stroke-width', 2);
+
+      previewNodeSel.append('rect')
+        .attr('x', -nw / 2 + 8)
+        .attr('y', -nh / 2 + 7)
+        .attr('width', 26)
+        .attr('height', 15)
+        .attr('rx', 5)
+        .attr('fill', '#0f172a');
+
+      previewNodeSel.append('text')
+        .attr('x', -nw / 2 + 21)
+        .attr('y', -nh / 2 + 18)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', '9.5px')
+        .attr('font-weight', '700')
+        .attr('fill', '#ffffff')
+        .text(d => d.id);
+
+      previewNodeSel.append('text')
+        .attr('x', -nw / 2 + 8)
+        .attr('y', -nh / 2 + 37)
+        .attr('font-size', '11px')
+        .attr('font-weight', '700')
+        .attr('fill', '#0f172a')
+        .text(d => d.label);
+
+      function updatePreviewPositions() {
+        previewNodeSel.attr('transform', d => `translate(${d.x.toFixed(1)}, ${d.y.toFixed(1)})`);
+        previewEdgeSel.each(function (e) {
+          const g = pEdgeGeom(e);
+          d3.select(this).select('path.prev-path').attr('d', g.d);
+          d3.select(this).select('g.prev-badge').attr('transform', `translate(${g.bx.toFixed(1)}, ${g.by.toFixed(1)})`);
+        });
+      }
+
+      previewNodeSel.call(
+        d3.drag()
+          .on('drag', function (event, d) {
+            d.x = Math.max(nw / 2 + 10, Math.min(W - nw / 2 - 10, event.x));
+            d.y = Math.max(nh / 2 + 10, Math.min(H - nh / 2 - 10, event.y));
+            updatePreviewPositions();
+          })
+      );
+
+      updatePreviewPositions();
+      setCreatePreviewFilter(previewFilter);
+    }
+
+    function setCreatePreviewFilter(filter) {
+      previewFilter = filter;
+      ['ALL', 'BACKBONE', 'R1', 'B1'].forEach(key => {
+        const btn = document.getElementById(`prev-btn-${key}`);
+        if (!btn) return;
+        btn.className = key === filter
+          ? 'px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 text-white cursor-pointer'
+          : 'px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 cursor-pointer';
+      });
+
+      if (!previewEdgeSel || !previewNodeSel) return;
+
+      previewEdgeSel.attr('opacity', e => e.tags.includes(filter) ? 1 : 0.16);
+      previewEdgeSel.select('path.prev-path').attr('stroke-width', e => e.tags.includes(filter) && filter !== 'ALL' ? 3.4 : 2.4);
+
+      const nodeMap = {
+        ALL: ['N1', 'N2', 'N3', 'N4', 'N5', 'N6'],
+        BACKBONE: ['N1', 'N2', 'N3'],
+        R1: ['N1', 'N2', 'N3', 'N4'],
+        B1: ['N1', 'N2', 'N3', 'N6', 'N5']
+      };
+      previewNodeSel.attr('opacity', n => nodeMap[filter].includes(n.id) ? 1 : 0.25);
+    }
+
+    // Initialize D3 diagram and UI controls on DOM ready
+    window.addEventListener('DOMContentLoaded', () => {
+      initD3Diagram();
+      renderNodePickerButtons();
+      syncLoopVisuals();
+      syncSelectionVisuals();
+    });
+  </script>
+</body>
+</html>
