@@ -1,0 +1,2234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Critiquing Sustainability Claims Using Theoretical Lenses</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Newsreader (academic serif), IBM Plex Sans (clean body), JetBrains Mono (formulas & numbers) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- D3.js v7 -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: '#f6f8f6',
+            card: '#ffffff',
+            borderSubtle: '#dce4dc',
+            forest: {
+              900: '#143d17',
+              800: '#1b5e20',
+              700: '#2e7d32',
+              600: '#388e3c',
+              100: '#e8f3e9',
+              50: '#f3f9f3'
+            },
+            ink: {
+              900: '#182219',
+              700: '#344236',
+              500: '#58685a',
+              400: '#768778'
+            }
+          },
+          fontFamily: {
+            serif: ['Newsreader', 'Georgia', 'Cambria', 'serif'],
+            sans: ['IBM Plex Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Base academic styling */
+    body {
+      background-color: #f6f8f6;
+      color: #182219;
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-academic {
+      font-family: 'Newsreader', Georgia, Cambria, serif;
+    }
+
+    .font-formula {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    .academic-card {
+      background: #ffffff;
+      border: 1px solid #dce4dc;
+      border-radius: 0.75rem;
+      box-shadow: 0 2px 10px -2px rgba(20, 61, 23, 0.04), 0 1px 3px 0 rgba(20, 61, 23, 0.03);
+    }
+
+    .formula-box {
+      background: #f5f8f5;
+      border: 1px solid #cfe0d0;
+      border-left: 4px solid #2e7d32;
+      border-radius: 0.5rem;
+    }
+
+    /* Custom accessible academic range sliders */
+    input[type='range'].academic-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 7px;
+      background: #dce6dd;
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type='range'].academic-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #2e7d32;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(20, 61, 23, 0.35);
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    input[type='range'].academic-slider::-webkit-slider-thumb:hover {
+      background: #1b5e20;
+      transform: scale(1.08);
+    }
+
+    input[type='range'].academic-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #2e7d32;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(20, 61, 23, 0.35);
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    /* SVG stage hover transition */
+    .stage-node {
+      cursor: pointer;
+      transition: filter 0.18s ease;
+    }
+    .stage-node:hover {
+      filter: brightness(0.97);
+    }
+
+    /* Chart tooltip styling */
+    .d3-tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: rgba(24, 34, 25, 0.96);
+      color: #f7faf7;
+      border: 1px solid #3c543e;
+      border-radius: 0.5rem;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+      z-index: 50;
+      max-width: 280px;
+      opacity: 0;
+      transition: opacity 0.12s ease;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Shared Floating Tooltip for D3 Charts -->
+  <div id="d3-tooltip" class="d3-tooltip" role="tooltip" aria-hidden="true"></div>
+
+  <!-- Top Academic Header -->
+  <header class="bg-white border-b border-borderSubtle">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div class="flex flex-col gap-3">
+        <div class="flex flex-wrap items-center gap-2 text-xs font-medium tracking-wide uppercase text-forest-800">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-forest-100 border border-forest-700/20">
+            Graduate &amp; Senior Undergraduate Seminar Module
+          </span>
+          <span class="text-ink-400 hidden sm:inline">•</span>
+          <span class="text-ink-500 normal-case font-normal">
+            Sequence Position: Systems Mapping &rarr; Causal Loop Modelling &rarr; AI-Assisted Model Generation &rarr; Model Validation &rarr; Model Critique &rarr; <strong class="text-forest-800 font-semibold">Theoretical Critique</strong>
+          </span>
+        </div>
+
+        <h1 class="font-academic text-2xl sm:text-3xl lg:text-4xl font-semibold text-ink-900 tracking-tight leading-tight">
+          Critiquing Sustainability Claims Using Theoretical Lenses
+        </h1>
+
+        <p class="text-sm sm:text-base text-ink-700 max-w-4xl leading-relaxed">
+          Final teaching demonstration activity examining how thermodynamic theory and boundary-explicit quantitative modeling test popular circularity and reuse claims—moving students from surface-level sustainability metrics to rigorous structural critique.
+        </p>
+      </div>
+
+      <!-- Pedagogical Purpose Strip -->
+      <div class="mt-6 pt-5 border-t border-borderSubtle/80">
+        <div class="bg-forest-50/90 border border-borderSubtle rounded-xl p-4 sm:p-5">
+          <div class="flex items-start gap-3">
+            <div class="mt-0.5 w-6 h-6 rounded-full bg-forest-700 text-white flex items-center justify-center shrink-0 text-xs font-semibold">
+              §
+            </div>
+            <div class="space-y-2 w-full">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-forest-800">
+                  Pedagogical Purpose &amp; Critical Learning Objectives
+                </h2>
+                <span class="text-xs text-ink-500 font-formula">Thermodynamic &amp; Boundary Audit</span>
+              </div>
+              <p class="text-sm text-ink-700 leading-relaxed">
+                This module equips students to interrogate sustainability claims rather than accept headline numbers at face value:
+              </p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1.5 text-sm text-ink-700 pt-1">
+                <li class="flex items-start gap-2">
+                  <span class="text-forest-700 font-bold leading-5">1.</span>
+                  <span><strong>Sustainability claims depend on assumptions:</strong> headline targets embed operational, behavioral, and system-level premises.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-forest-700 font-bold leading-5">2.</span>
+                  <span><strong>Models depend on chosen system boundaries:</strong> shifting spatial, temporal, or lifecycle boundaries alters conclusions.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-forest-700 font-bold leading-5">3.</span>
+                  <span><strong>Theoretical frameworks expose hidden assumptions:</strong> thermodynamics surfaces physical constraints obscured by monetary or linear accounting.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-forest-700 font-bold leading-5">4.</span>
+                  <span><strong>Recycling and reuse face physical limits:</strong> material degradation, dissipation, and operational energy constrain circularity.</span>
+                </li>
+                <li class="flex items-start gap-2 md:col-span-2 lg:col-span-2">
+                  <span class="text-forest-700 font-bold leading-5">5.</span>
+                  <span><strong>Critical evaluation over uncritical acceptance:</strong> sustainability interventions require empirical sensitivity checks and theoretical scrutiny.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Primary Tab Navigation Bar -->
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Module Tabs">
+      <div class="flex flex-wrap sm:flex-nowrap gap-1 sm:gap-2 border-t border-transparent" role="tablist">
+        <button
+          id="tab-btn-1"
+          role="tab"
+          aria-selected="true"
+          aria-controls="tab-panel-1"
+          data-tab="1"
+          class="tab-trigger flex-1 sm:flex-initial px-4 sm:px-5 py-3.5 text-sm font-medium rounded-t-lg border-b-2 border-forest-700 text-forest-800 bg-forest-50/70 transition-colors text-left sm:text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-700"
+        >
+          <span class="font-formula text-xs block sm:inline sm:mr-1.5 opacity-75">TAB 1</span>
+          <span>Entropy and the Economic Process</span>
+        </button>
+
+        <button
+          id="tab-btn-2"
+          role="tab"
+          aria-selected="false"
+          aria-controls="tab-panel-2"
+          data-tab="2"
+          class="tab-trigger flex-1 sm:flex-initial px-4 sm:px-5 py-3.5 text-sm font-medium rounded-t-lg border-b-2 border-transparent text-ink-500 hover:text-ink-900 hover:bg-paper transition-colors text-left sm:text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-700"
+        >
+          <span class="font-formula text-xs block sm:inline sm:mr-1.5 opacity-75">TAB 2</span>
+          <span>Multi-Cycle Recycling Decay</span>
+        </button>
+
+        <button
+          id="tab-btn-3"
+          role="tab"
+          aria-selected="false"
+          aria-controls="tab-panel-3"
+          data-tab="3"
+          class="tab-trigger flex-1 sm:flex-initial px-4 sm:px-5 py-3.5 text-sm font-medium rounded-t-lg border-b-2 border-transparent text-ink-500 hover:text-ink-900 hover:bg-paper transition-colors text-left sm:text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-700"
+        >
+          <span class="font-formula text-xs block sm:inline sm:mr-1.5 opacity-75">TAB 3</span>
+          <span>Energy Payback Analysis</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-9">
+
+    <!-- =====================================================================
+         TAB 1: ENTROPY AND THE ECONOMIC PROCESS
+         ===================================================================== -->
+    <section
+      id="tab-panel-1"
+      role="tabpanel"
+      aria-labelledby="tab-btn-1"
+      class="tab-panel space-y-6"
+    >
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left Column: Theoretical Foundations -->
+        <div class="lg:col-span-5 academic-card p-6 space-y-5">
+          <div class="border-b border-borderSubtle pb-3">
+            <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+              Theoretical Foundation • Nicholas Georgescu-Roegen
+            </span>
+            <h2 class="font-academic text-2xl font-semibold text-ink-900 mt-1">
+              Entropy and the Economic Process
+            </h2>
+            <p class="text-xs text-ink-500 mt-1">
+              Purpose: Introduce Georgescu-Roegen&rsquo;s critique of conventional economic thinking.
+            </p>
+          </div>
+
+          <div class="space-y-3.5 text-sm text-ink-700 leading-relaxed">
+            <div class="p-3.5 rounded-lg bg-paper border border-borderSubtle/90">
+              <p class="font-semibold text-ink-900">Thermodynamic Irreversibility &amp; Entropy</p>
+              <ul class="mt-2 space-y-2 list-disc pl-4">
+                <li>Any transformation of matter or energy causes an increase in entropy.</li>
+                <li>In theory entropy can remain constant only in reversible processes.</li>
+                <li>Real-world transformations are irreversible.</li>
+                <li>All irreversible processes increase entropy.</li>
+              </ul>
+            </div>
+
+            <div class="p-3.5 rounded-lg bg-forest-50/70 border border-forest-700/20">
+              <p class="font-semibold text-forest-900">Critique of Circularity &amp; Throughput</p>
+              <ul class="mt-2 space-y-2 list-disc pl-4">
+                <li>
+                  Georgescu-Roegen criticised the notion that economic systems function as a perfectly circular process.
+                </li>
+                <li>
+                  Economic activity depends upon continual throughput of low-entropy matter and energy.
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="formula-box p-4 text-xs sm:text-sm text-ink-900">
+            <div class="font-semibold text-forest-800 mb-1">Core Analytical Takeaway</div>
+            <p class="text-ink-700 leading-relaxed">
+              Conventional circularity diagrams often depict materials cycling endlessly within a closed loop, overlooking that every physical transformation converts low-entropy availability into high-entropy dissipation and waste heat.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Column: D3.js Diagram — Generic 4-Stage Economic Process Loop -->
+        <div class="lg:col-span-7 academic-card p-6 space-y-4">
+          <div class="flex flex-wrap items-start justify-between gap-2 border-b border-borderSubtle pb-3">
+            <div>
+              <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+                Interactive Thermodynamic Process Diagram
+              </span>
+              <h3 class="font-academic text-xl sm:text-2xl font-semibold text-ink-900 mt-0.5">
+                Generic 4-Stage Economic Process Loop
+              </h3>
+            </div>
+            <span class="text-xs px-2.5 py-1 rounded-md bg-paper border border-borderSubtle text-ink-500">
+              Click or hover stages to inspect
+            </span>
+          </div>
+
+          <!-- D3 SVG Container -->
+          <div class="w-full bg-paper/70 border border-borderSubtle rounded-xl p-2 sm:p-3 overflow-hidden">
+            <div id="d3-entropy-loop-container" class="w-full min-h-[380px] sm:min-h-[420px]"></div>
+          </div>
+
+          <!-- Stage Inspection Readout Box -->
+          <div id="stage-detail-card" class="bg-forest-50/80 border border-borderSubtle rounded-xl p-4 transition-all">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span id="stage-detail-badge" class="text-xs font-formula font-semibold uppercase text-forest-800">
+                Stage 1 of 4 • Low-Entropy Input
+              </span>
+              <span class="text-xs text-ink-500">Thermodynamic Inspection</span>
+            </div>
+            <h4 id="stage-detail-title" class="font-academic text-lg font-semibold text-ink-900">
+              Natural Resources
+            </h4>
+            <p id="stage-detail-text" class="text-sm text-ink-700 mt-1 leading-relaxed">
+              Supplies low-entropy matter and available energy (such as concentrated ores, fossil fuels, timber, and solar/ecological flows) required to sustain real economic transformation.
+            </p>
+          </div>
+
+          <!-- Thermodynamic Constraint Note on Circularity -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-xs text-ink-700">
+            <div class="p-3 rounded-lg bg-paper border border-borderSubtle">
+              <span class="font-semibold text-ink-900 block mb-0.5">Low-Entropy Throughput In</span>
+              Ordered structures and concentrated energy enter the economic system to do work and maintain organization.
+            </div>
+            <div class="p-3 rounded-lg bg-paper border border-borderSubtle">
+              <span class="font-semibold text-ink-900 block mb-0.5">High-Entropy Output Out</span>
+              Irreversible processes yield dissipated matter, waste heat, and disorder that cannot be completely re-ordered without external low-entropy energy.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 2: MULTI-CYCLE RECYCLING DECAY
+         ===================================================================== -->
+    <section
+      id="tab-panel-2"
+      role="tabpanel"
+      aria-labelledby="tab-btn-2"
+      class="tab-panel hidden space-y-6"
+    >
+      <!-- Top Row: Theory & Formulas -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Material Entropy Theory Card -->
+        <div class="lg:col-span-6 academic-card p-6 space-y-4">
+          <div class="border-b border-borderSubtle pb-3">
+            <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+              Material Entropy &amp; Circularity Limits
+            </span>
+            <h2 class="font-academic text-2xl font-semibold text-ink-900 mt-1">
+              Multi-Cycle Recycling Decay
+            </h2>
+            <p class="text-xs text-ink-500 mt-1">
+              Purpose: Illustrate Georgescu-Roegen&rsquo;s concept of material entropy.
+            </p>
+          </div>
+
+          <ul class="space-y-2.5 text-sm text-ink-700 leading-relaxed list-disc pl-5">
+            <li>
+              <strong>Recycling slows depletion but does not eliminate degradation:</strong> extending material residence time delays exhaustion but cannot reverse physical dispersion.
+            </li>
+            <li>
+              <strong>Every productive operation degrades matter:</strong> sorting, remelting, mechanical processing, and use alter material structure and lose recoverable mass.
+            </li>
+            <li>
+              <strong>Georgescu-Roegen&rsquo;s proposed Fourth Law of Thermodynamics:</strong> matter, like energy, experiences progressive qualitative degradation and dissipation in closed systems (a subject of ongoing thermodynamic debate, used here as a theoretical lens).
+            </li>
+            <li>
+              <strong>Downward spiral rather than perfect circularity:</strong> repeated recycling moves materials toward lower availability and degraded functionality rather than perpetual equivalence.
+            </li>
+          </ul>
+        </div>
+
+        <!-- Explicit Formulas & Baseline Card -->
+        <div class="lg:col-span-6 academic-card p-6 space-y-4">
+          <div class="border-b border-borderSubtle pb-3">
+            <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+              Transparent Recursive Equations
+            </span>
+            <h3 class="font-academic text-xl sm:text-2xl font-semibold text-ink-900 mt-1">
+              Cycle-by-Cycle Degradation Formulas
+            </h3>
+            <p class="text-xs text-ink-500 mt-1">
+              Computed iteratively across discrete recycling cycles <span class="font-formula">t = 1, 2, &hellip;, 30</span>.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <div class="formula-box p-3.5">
+              <div class="text-xs font-semibold uppercase tracking-wide text-forest-800 mb-1">
+                Mass Retention Equation
+              </div>
+              <div class="font-formula text-sm sm:text-base font-medium text-ink-900 overflow-x-auto">
+                Mass(t) = Mass(t&minus;1) &times; (1 &minus; Dissipation Rate)
+              </div>
+            </div>
+
+            <div class="formula-box p-3.5">
+              <div class="text-xs font-semibold uppercase tracking-wide text-forest-800 mb-1">
+                Structural Quality Equation
+              </div>
+              <div class="font-formula text-sm sm:text-base font-medium text-ink-900 overflow-x-auto">
+                Quality(t) = Quality(t&minus;1) &times; (1 &minus; Quality Decay Rate)
+              </div>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-lg bg-paper border border-borderSubtle text-xs sm:text-sm text-ink-700 space-y-1.5">
+            <div>
+              <strong class="text-ink-900">Initial Baseline (Cycle t = 0):</strong>
+              <span class="font-formula">Mass(0) = 100.0 kg</span> and
+              <span class="font-formula">Quality(0) = 100.0%</span>. Each subsequent cycle <span class="font-formula">t</span> multiplies the prior cycle&rsquo;s retained mass and quality by <span class="font-formula">(1 &minus; rate)</span>.
+            </div>
+            <div class="text-xs text-forest-800 font-medium pt-1">
+              Note: These parameters are educational assumptions used to illustrate material degradation.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Controls (Left) + 30-Cycle D3 Chart (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Sliders Panel (No Re-Processing Energy Input slider) -->
+        <div class="lg:col-span-4 academic-card p-6 space-y-6">
+          <div class="flex items-center justify-between border-b border-borderSubtle pb-3">
+            <div>
+              <h3 class="font-academic text-xl font-semibold text-ink-900">
+                Decay Parameters
+              </h3>
+              <p class="text-xs text-ink-500 mt-0.5">Adjust per-cycle rates to observe decay</p>
+            </div>
+            <button
+              id="reset-tab2-btn"
+              type="button"
+              class="text-xs font-medium px-3 py-1.5 rounded-md border border-borderSubtle bg-paper hover:bg-forest-100 text-forest-800 transition-colors"
+            >
+              Reset Defaults
+            </button>
+          </div>
+
+          <!-- Slider 1: Material Dissipation per Cycle -->
+          <div class="space-y-2">
+            <div class="flex items-baseline justify-between gap-2">
+              <label for="dissipation-slider" class="text-sm font-semibold text-ink-900">
+                Material Dissipation per Cycle
+              </label>
+              <span id="dissipation-value" class="font-formula text-sm font-semibold text-forest-800 bg-forest-50 px-2 py-0.5 rounded border border-forest-700/20">
+                8.0%
+              </span>
+            </div>
+            <input
+              id="dissipation-slider"
+              type="range"
+              min="0"
+              max="30"
+              step="0.5"
+              value="8"
+              class="academic-slider"
+            />
+            <div class="flex justify-between text-[11px] font-formula text-ink-400">
+              <span>0%</span>
+              <span>Default: 8%</span>
+              <span>30%</span>
+            </div>
+            <p class="text-xs text-ink-700 leading-relaxed pt-1">
+              Physical wear, micro-particulates, non-recoverable trim loss.
+            </p>
+          </div>
+
+          <!-- Slider 2: Structural Quality Decay per Cycle -->
+          <div class="space-y-2 pt-2 border-t border-borderSubtle/70">
+            <div class="flex items-baseline justify-between gap-2">
+              <label for="quality-decay-slider" class="text-sm font-semibold text-ink-900">
+                Structural Quality Decay per Cycle
+              </label>
+              <span id="quality-decay-value" class="font-formula text-sm font-semibold text-forest-800 bg-forest-50 px-2 py-0.5 rounded border border-forest-700/20">
+                12.0%
+              </span>
+            </div>
+            <input
+              id="quality-decay-slider"
+              type="range"
+              min="0"
+              max="35"
+              step="0.5"
+              value="12"
+              class="academic-slider"
+            />
+            <div class="flex justify-between text-[11px] font-formula text-ink-400">
+              <span>0%</span>
+              <span>Default: 12%</span>
+              <span>35%</span>
+            </div>
+            <p class="text-xs text-ink-700 leading-relaxed pt-1">
+              Polymer chain scission, structural fatigue, thermal oxidation.
+            </p>
+          </div>
+
+          <!-- Cycle 30 Summary Snapshot -->
+          <div class="p-4 rounded-xl bg-paper border border-borderSubtle space-y-2">
+            <div class="text-xs font-semibold uppercase tracking-wider text-ink-500">
+              At Cycle 30 (t = 30)
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <div class="text-xs text-ink-500">Mass Retention</div>
+                <div id="cycle30-mass" class="font-formula text-lg font-semibold text-forest-800">
+                  8.20 kg
+                </div>
+              </div>
+              <div>
+                <div class="text-xs text-ink-500">Structural Quality</div>
+                <div id="cycle30-quality" class="font-formula text-lg font-semibold text-ink-900">
+                  2.16%
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pedagogical Assumption Notice -->
+          <div class="p-3.5 rounded-lg bg-forest-50 border border-forest-700/20 text-xs text-ink-700 leading-relaxed">
+            <strong class="text-forest-900">Methodological Note:</strong> These parameters are educational assumptions used to illustrate material degradation across repeated recycling loops.
+          </div>
+        </div>
+
+        <!-- 30-Cycle Degradation Tracking Chart -->
+        <div class="lg:col-span-8 academic-card p-6 space-y-4">
+          <div class="flex flex-wrap items-start justify-between gap-3 border-b border-borderSubtle pb-3">
+            <div>
+              <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+                Recursive Simulation (Cycles 0 &ndash; 30)
+              </span>
+              <h3 class="font-academic text-xl sm:text-2xl font-semibold text-ink-900 mt-0.5">
+                30-Cycle Degradation Tracking
+              </h3>
+            </div>
+
+            <!-- Interactive Legend -->
+            <div id="tab2-legend" class="flex flex-wrap items-center gap-4 text-xs font-medium">
+              <div class="flex items-center gap-2">
+                <span class="inline-block w-3.5 h-1 rounded bg-forest-700"></span>
+                <span class="text-ink-900">Mass Retention (kg)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-block w-3.5 h-1 rounded bg-amber-700"></span>
+                <span class="text-ink-900">Structural Quality (%)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full bg-paper/60 border border-borderSubtle rounded-xl p-2 sm:p-3">
+            <div id="d3-degradation-chart" class="w-full min-h-[360px] sm:min-h-[400px]"></div>
+          </div>
+
+          <!-- Computation Explanation Beneath Chart -->
+          <div class="p-4 rounded-xl bg-paper border border-borderSubtle text-xs sm:text-sm text-ink-700 space-y-1.5 leading-relaxed">
+            <div class="font-semibold text-ink-900">How the Curves Are Computed</div>
+            <p id="tab2-computation-note">
+              Starting at <span class="font-formula">t = 0</span> with <span class="font-formula">100.0 kg</span> mass and <span class="font-formula">100.0%</span> structural quality, each cycle <span class="font-formula">t</span> (from 1 to 30) calculates <span class="font-formula">Mass(t) = Mass(t&minus;1) &times; (1 &minus; 0.080)</span> and <span class="font-formula">Quality(t) = Quality(t&minus;1) &times; (1 &minus; 0.120)</span>.
+            </p>
+            <p class="text-xs text-ink-500">
+              Note: These parameters are educational assumptions used to illustrate material degradation.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 3: ENERGY PAYBACK ANALYSIS
+         ===================================================================== -->
+    <section
+      id="tab-panel-3"
+      role="tabpanel"
+      aria-labelledby="tab-btn-3"
+      class="tab-panel hidden space-y-6"
+    >
+      <!-- Header & Purpose Card -->
+      <div class="academic-card p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="space-y-1.5 max-w-4xl">
+            <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+              Case Study Critique • Reusable Cup Claim (~50 Uses)
+            </span>
+            <h2 class="font-academic text-2xl sm:text-3xl font-semibold text-ink-900">
+              Energy Payback Analysis
+            </h2>
+            <p class="text-sm text-ink-700 leading-relaxed">
+              Purpose: Critically evaluate the claim that a RECUP cup becomes environmentally preferable after approximately 50 uses. All calculations use consistent <strong class="text-ink-900">kWh</strong> units per 1,000-cup system batch (and per-use equivalent in kWh) so every step is transparent and auditable with zero black-box logic.
+            </p>
+          </div>
+          <div class="shrink-0">
+            <button
+              id="reset-tab3-btn"
+              type="button"
+              class="text-xs font-medium px-3.5 py-2 rounded-lg border border-borderSubtle bg-paper hover:bg-forest-100 text-forest-800 transition-colors"
+            >
+              Reset Baseline Assumptions
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Calculator + Explicit Equations Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left Column: Variable Sliders & Inputs (6 cols) -->
+        <div class="lg:col-span-6 academic-card p-6 space-y-5">
+          <div class="border-b border-borderSubtle pb-3">
+            <h3 class="font-academic text-xl font-semibold text-ink-900">
+              Model Variables &amp; Assumptions
+            </h3>
+            <p class="text-xs text-ink-500 mt-0.5">
+              System basis: 1,000-cup reusable pool (in kWh) so debt, savings per use, and payback uses align dimensionally.
+            </p>
+          </div>
+
+          <!-- 1. Upstream Embodied Energy Investment -->
+          <div class="space-y-2 pb-4 border-b border-borderSubtle/70">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <label for="debt-input" class="text-sm font-semibold text-ink-900">
+                Upstream Embodied Energy Investment (Manufacturing Energy Debt)
+              </label>
+              <div class="flex items-center gap-1.5">
+                <input
+                  id="debt-input"
+                  type="number"
+                  min="1000"
+                  max="100000"
+                  step="500"
+                  value="15000"
+                  class="w-28 px-2.5 py-1 text-right font-formula text-sm font-semibold text-forest-800 bg-forest-50 border border-forest-700/30 rounded-md focus:outline-none focus:ring-2 focus:ring-forest-700"
+                />
+                <span class="font-formula text-xs text-ink-500">kWh</span>
+              </div>
+            </div>
+            <input
+              id="debt-slider"
+              type="range"
+              min="1000"
+              max="60000"
+              step="500"
+              value="15000"
+              class="academic-slider"
+            />
+            <div class="flex justify-between text-[11px] font-formula text-ink-400">
+              <span>1,000 kWh</span>
+              <span>Default: 15,000 kWh</span>
+              <span>60,000 kWh</span>
+            </div>
+            <p class="text-xs text-ink-700 leading-relaxed">
+              One-time manufacturing energy requirement of reusable cup production.
+            </p>
+          </div>
+
+          <!-- 2. Avoided Disposable Cup Energy -->
+          <div class="space-y-2 pb-4 border-b border-borderSubtle/70">
+            <div class="flex items-baseline justify-between gap-2">
+              <label for="avoided-slider" class="text-sm font-semibold text-ink-900">
+                Avoided Disposable Cup Energy
+              </label>
+              <span id="avoided-value" class="font-formula text-sm font-semibold text-forest-800 bg-forest-50 px-2 py-0.5 rounded border border-forest-700/20">
+                450.0 kWh / use
+              </span>
+            </div>
+            <input
+              id="avoided-slider"
+              type="range"
+              min="50"
+              max="1200"
+              step="10"
+              value="450"
+              class="academic-slider"
+            />
+            <div class="flex justify-between text-[11px] font-formula text-ink-400">
+              <span>50 kWh</span>
+              <span>Default: 450 kWh</span>
+              <span>1,200 kWh</span>
+            </div>
+            <p class="text-xs text-ink-700 leading-relaxed">
+              Energy that would otherwise be required to manufacture a disposable cup. This is the primary source of energy savings.
+            </p>
+          </div>
+
+          <!-- 3. Wash Energy per Cycle -->
+          <div class="space-y-2 pb-4 border-b border-borderSubtle/70">
+            <div class="flex items-baseline justify-between gap-2">
+              <label for="wash-slider" class="text-sm font-semibold text-ink-900">
+                Wash Energy per Cycle
+              </label>
+              <span id="wash-value" class="font-formula text-sm font-semibold text-ink-900 bg-paper px-2 py-0.5 rounded border border-borderSubtle">
+                80.0 kWh / cycle
+              </span>
+            </div>
+            <input
+              id="wash-slider"
+              type="range"
+              min="0"
+              max="400"
+              step="5"
+              value="80"
+              class="academic-slider"
+            />
+            <div class="flex justify-between text-[11px] font-formula text-ink-400">
+              <span>0 kWh</span>
+              <span>Default: 80 kWh</span>
+              <span>400 kWh</span>
+            </div>
+            <p class="text-xs text-ink-700 leading-relaxed">
+              Energy required to wash one reusable cup.
+            </p>
+          </div>
+
+          <!-- 4. Transport Energy per Cycle -->
+          <div class="space-y-2 pb-4 border-b border-borderSubtle/70">
+            <div class="flex items-baseline justify-between gap-2">
+              <label for="transport-slider" class="text-sm font-semibold text-ink-900">
+                Transport Energy per Cycle
+              </label>
+              <span id="transport-value" class="font-formula text-sm font-semibold text-ink-900 bg-paper px-2 py-0.5 rounded border border-borderSubtle">
+                70.0 kWh / cycle
+              </span>
+            </div>
+            <input
+              id="transport-slider"
+              type="range"
+              min="0"
+              max="400"
+              step="5"
+              value="70"
+              class="academic-slider"
+            />
+            <div class="flex justify-between text-[11px] font-formula text-ink-400">
+              <span>0 kWh</span>
+              <span>Default: 70 kWh</span>
+              <span>400 kWh</span>
+            </div>
+            <p class="text-xs text-ink-700 leading-relaxed">
+              Energy associated with collection, redistribution, and logistics.
+            </p>
+          </div>
+
+          <!-- 5. Number of Uses -->
+          <div class="space-y-2">
+            <div class="flex items-baseline justify-between gap-2">
+              <label for="uses-slider" class="text-sm font-semibold text-ink-900">
+                Number of Uses
+              </label>
+              <span id="uses-value" class="font-formula text-sm font-semibold text-forest-800 bg-forest-50 px-2 py-0.5 rounded border border-forest-700/20">
+                50 uses
+              </span>
+            </div>
+            <input
+              id="uses-slider"
+              type="range"
+              min="1"
+              max="150"
+              step="1"
+              value="50"
+              class="academic-slider"
+            />
+            <div class="flex justify-between text-[11px] font-formula text-ink-400">
+              <span>1 use</span>
+              <span>Reference: 50 uses</span>
+              <span>150 uses</span>
+            </div>
+            <p class="text-xs text-ink-700 leading-relaxed">
+              Total number of reuse cycles.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Column: Explicit Equations + Live Calculated Outputs (6 cols) -->
+        <div class="lg:col-span-6 space-y-6">
+
+          <!-- Explicit Formula Reference Panel -->
+          <div class="academic-card p-6 space-y-3.5">
+            <div class="border-b border-borderSubtle pb-2.5">
+              <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+                Explicit Calculation Equations
+              </span>
+              <h3 class="font-academic text-xl font-semibold text-ink-900 mt-0.5">
+                Model Formulas (Transparent &amp; Visible)
+              </h3>
+            </div>
+
+            <div class="formula-box p-3.5">
+              <div class="text-xs font-semibold text-forest-800">1. Net Energy Saved per Use</div>
+              <div class="font-formula text-xs sm:text-sm font-medium text-ink-900 mt-1">
+                Net Energy Saved per Use = Avoided Disposable Cup Energy &minus; Wash Energy &minus; Transport Energy
+              </div>
+              <div id="live-formula-net" class="font-formula text-xs text-ink-500 mt-1"></div>
+            </div>
+
+            <div class="formula-box p-3.5">
+              <div class="text-xs font-semibold text-forest-800">2. Cumulative Energy Savings</div>
+              <div class="font-formula text-xs sm:text-sm font-medium text-ink-900 mt-1">
+                Cumulative Energy Savings = Number of Uses &times; Net Energy Saved per Use
+              </div>
+              <div id="live-formula-cum" class="font-formula text-xs text-ink-500 mt-1"></div>
+            </div>
+
+            <div class="formula-box p-3.5">
+              <div class="text-xs font-semibold text-forest-800">3. Energy Payback Point</div>
+              <div class="font-formula text-xs sm:text-sm font-medium text-ink-900 mt-1">
+                Energy Payback Point = Manufacturing Energy Debt &divide; Net Energy Saved per Use
+              </div>
+              <div id="live-formula-payback" class="font-formula text-xs text-ink-500 mt-1"></div>
+            </div>
+          </div>
+
+          <!-- Calculated Outputs Panel -->
+          <div class="academic-card p-6 space-y-4">
+            <div class="border-b border-borderSubtle pb-2.5">
+              <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+                Live Model Outputs
+              </span>
+              <h3 class="font-academic text-xl font-semibold text-ink-900 mt-0.5">
+                Calculated Energy Metrics
+              </h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="p-4 rounded-xl bg-paper border border-borderSubtle">
+                <div class="text-xs font-medium text-ink-500">Net Energy Saved per Use</div>
+                <div id="out-net-saved" class="font-formula text-xl sm:text-2xl font-semibold text-forest-800 mt-1">
+                  300.0 kWh
+                </div>
+                <div class="text-[11px] text-ink-500 mt-1">Per reuse cycle (kWh)</div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-paper border border-borderSubtle">
+                <div class="text-xs font-medium text-ink-500">Cumulative Energy Savings</div>
+                <div id="out-cum-savings" class="font-formula text-xl sm:text-2xl font-semibold text-ink-900 mt-1">
+                  15,000.0 kWh
+                </div>
+                <div id="out-cum-sub" class="text-[11px] text-ink-500 mt-1">Across 50 uses</div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-paper border border-borderSubtle">
+                <div class="text-xs font-medium text-ink-500">Remaining Manufacturing Debt</div>
+                <div id="out-remaining-debt" class="font-formula text-xl sm:text-2xl font-semibold text-ink-900 mt-1">
+                  0.0 kWh
+                </div>
+                <div class="text-[11px] text-ink-500 mt-1">max(0, Debt &minus; Cumulative Savings)</div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-forest-50 border border-forest-700/25">
+                <div class="text-xs font-medium text-forest-800">Estimated Energy Payback Point</div>
+                <div id="out-payback-uses" class="font-formula text-xl sm:text-2xl font-semibold text-forest-900 mt-1">
+                  50.0 uses
+                </div>
+                <div class="text-[11px] text-forest-800/80 mt-1">Break-even cycle count</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- D3.js Payback Intersection Chart -->
+      <div class="academic-card p-6 space-y-4">
+        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-borderSubtle pb-3">
+          <div>
+            <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+              Break-Even Trajectory Visualization
+            </span>
+            <h3 class="font-academic text-xl sm:text-2xl font-semibold text-ink-900 mt-0.5">
+              Manufacturing Debt vs. Cumulative Energy Savings
+            </h3>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4 text-xs font-medium">
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-4 h-0.5 border-t-2 border-dashed border-amber-700"></span>
+              <span class="text-ink-900">Manufacturing Debt</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-4 h-1 rounded bg-forest-700"></span>
+              <span class="text-ink-900">Cumulative Energy Savings</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-forest-900 ring-2 ring-white border border-forest-900"></span>
+              <span class="text-ink-900">Energy Payback Point</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-3 h-0.5 border-t border-dotted border-ink-400"></span>
+              <span class="text-ink-500">50-Use Reference Line</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="w-full bg-paper/60 border border-borderSubtle rounded-xl p-2 sm:p-3">
+          <div id="d3-payback-chart" class="w-full min-h-[370px] sm:min-h-[420px]"></div>
+        </div>
+
+        <p id="payback-chart-caption" class="text-xs sm:text-sm text-ink-700 leading-relaxed">
+          The horizontal dashed line represents the fixed Manufacturing Energy Debt, while the solid green line tracks Cumulative Energy Savings across reuse cycles. Their intersection marks the Energy Payback Point where cumulative net savings equal initial manufacturing energy.
+        </p>
+      </div>
+
+      <!-- Discussion Questions Section (Exact 4 Numbered Questions) -->
+      <div class="academic-card p-6 space-y-4">
+        <div class="border-b border-borderSubtle pb-3">
+          <span class="text-xs font-formula uppercase tracking-wider text-forest-700 font-semibold">
+            Seminar Reflection &amp; Critical Inquiry
+          </span>
+          <h3 class="font-academic text-xl sm:text-2xl font-semibold text-ink-900 mt-0.5">
+            Discussion Questions
+          </h3>
+        </div>
+
+        <ol class="space-y-4 text-sm sm:text-base text-ink-900 list-decimal pl-5 leading-relaxed">
+          <li class="pl-1">
+            <span class="font-medium">Which assumption has the greatest influence on the break-even point?</span>
+            <p class="text-xs sm:text-sm text-ink-700 mt-1">
+              Examine how proportional changes in <em>Avoided Disposable Cup Energy</em>, <em>Wash Energy per Cycle</em>, and <em>Transport Energy per Cycle</em> compress or expand <em>Net Energy Saved per Use</em>—the denominator of the Energy Payback Point equation.
+            </p>
+          </li>
+          <li class="pl-1">
+            <span class="font-medium">Which assumptions can RECUP influence?</span>
+            <p class="text-xs sm:text-sm text-ink-700 mt-1">
+              Consider operational and design levers under organizational or partner influence, such as cup material specification and durability, return-rate incentives, collection routing density, and washing partner selection.
+            </p>
+          </li>
+          <li class="pl-1">
+            <span class="font-medium">Which assumptions lie outside RECUP&rsquo;s control?</span>
+            <p class="text-xs sm:text-sm text-ink-700 mt-1">
+              Consider broader contextual factors such as regional electrical grid carbon/energy intensity, user return habits and loss rates, municipal waste infrastructure, and baseline manufacturing profiles of competing disposable cups.
+            </p>
+          </li>
+          <li class="pl-1">
+            <span class="font-medium">Why might different studies report different break-even values?</span>
+            <p class="text-xs sm:text-sm text-ink-700 mt-1">
+              Compare differences in system boundaries (cradle-to-gate vs. cradle-to-grave, inclusion of dishwashing water/detergent or logistics detours), geographic energy mixes, cup loss/breakage rates, and functional unit definitions.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Academic Footer -->
+  <footer class="bg-white border-t border-borderSubtle mt-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-ink-500">
+      <div>
+        Critiquing Sustainability Claims Using Theoretical Lenses &bull; University Teaching Module
+      </div>
+      <div>
+        Built with HTML, Tailwind CSS &amp; D3.js for seminar analysis and theoretical critique.
+      </div>
+    </div>
+  </footer>
+
+  <!-- =======================================================================
+       APPLICATION LOGIC & D3.JS VISUALIZATIONS
+       ======================================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      // ---------------------------------------------------------------------
+      // 1. STATE & CONFIGURATION
+      // ---------------------------------------------------------------------
+      const state = {
+        activeTab: 1,
+        selectedStageId: 'resources',
+        tab2: {
+          dissipationPct: 8.0,
+          qualityDecayPct: 12.0,
+          initialMassKg: 100.0,
+          initialQualityPct: 100.0,
+          cycles: 30
+        },
+        tab3: {
+          debtKwh: 15000,
+          avoidedKwh: 450,
+          washKwh: 80,
+          transportKwh: 70,
+          uses: 50
+        }
+      };
+
+      const STAGES_DATA = [
+        {
+          id: 'resources',
+          indexLabel: 'Stage 1 of 4 • Low-Entropy Input',
+          title: 'Natural Resources',
+          shortLabel: 'Natural\nResources',
+          subtitle: 'Low-entropy stocks & flows',
+          color: '#e8f3e9',
+          stroke: '#2e7d32',
+          summary:
+            'Supplies low-entropy matter and available energy (such as concentrated ores, fossil fuels, timber, and ecological flows) required to sustain real economic transformation.'
+        },
+        {
+          id: 'production',
+          indexLabel: 'Stage 2 of 4 • Transformation',
+          title: 'Production',
+          shortLabel: 'Production',
+          subtitle: 'Shaping & ordering matter',
+          color: '#eef5ef',
+          stroke: '#1b5e20',
+          summary:
+            'Converts low-entropy inputs into goods and infrastructure through energy-intensive processes; every real transformation is irreversible and increases total entropy.'
+        },
+        {
+          id: 'consumption',
+          indexLabel: 'Stage 3 of 4 • Service & Use',
+          title: 'Consumption',
+          shortLabel: 'Consumption',
+          subtitle: 'Satisfying human wants',
+          color: '#f3f8f3',
+          stroke: '#2e7d32',
+          summary:
+            'Utilizes goods and services to generate economic value and human well-being while progressive wear, friction, and dispersion degrade material order.'
+        },
+        {
+          id: 'waste',
+          indexLabel: 'Stage 4 of 4 • High-Entropy Output',
+          title: 'Waste',
+          shortLabel: 'Waste',
+          subtitle: 'Dissipated matter & heat',
+          color: '#f9f5ee',
+          stroke: '#8a5a1e',
+          summary:
+            'Outputs high-entropy waste heat and dissipated residuals; because real processes are irreversible, waste cannot be restored to low-entropy inputs without new energy throughput.'
+        }
+      ];
+
+      const tooltipEl = document.getElementById('d3-tooltip');
+
+      function showTooltip(event, htmlContent) {
+        if (!tooltipEl) return;
+        tooltipEl.innerHTML = htmlContent;
+        tooltipEl.style.opacity = '1';
+        tooltipEl.setAttribute('aria-hidden', 'false');
+        moveTooltip(event);
+      }
+
+      function moveTooltip(event) {
+        if (!tooltipEl || tooltipEl.style.opacity === '0') return;
+        const offset = 14;
+        const pad = 12;
+        let x = event.clientX + offset;
+        let y = event.clientY + offset;
+
+        const rect = tooltipEl.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        if (x + rect.width + pad > vw) {
+          x = Math.max(pad, event.clientX - rect.width - offset);
+        }
+        if (y + rect.height + pad > vh) {
+          y = Math.max(pad, event.clientY - rect.height - offset);
+        }
+
+        tooltipEl.style.left = `${x}px`;
+        tooltipEl.style.top = `${y}px`;
+      }
+
+      function hideTooltip() {
+        if (!tooltipEl) return;
+        tooltipEl.style.opacity = '0';
+        tooltipEl.setAttribute('aria-hidden', 'true');
+      }
+
+      // ---------------------------------------------------------------------
+      // 2. TAB NAVIGATION
+      // ---------------------------------------------------------------------
+      function initTabs() {
+        const buttons = document.querySelectorAll('.tab-trigger');
+        const panels = document.querySelectorAll('.tab-panel');
+
+        buttons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const tabNum = Number(btn.getAttribute('data-tab'));
+            state.activeTab = tabNum;
+
+            buttons.forEach((b) => {
+              const isSelected = Number(b.getAttribute('data-tab')) === tabNum;
+              b.setAttribute('aria-selected', String(isSelected));
+              if (isSelected) {
+                b.classList.remove('border-transparent', 'text-ink-500', 'hover:text-ink-900', 'hover:bg-paper');
+                b.classList.add('border-forest-700', 'text-forest-800', 'bg-forest-50/70');
+              } else {
+                b.classList.remove('border-forest-700', 'text-forest-800', 'bg-forest-50/70');
+                b.classList.add('border-transparent', 'text-ink-500', 'hover:text-ink-900', 'hover:bg-paper');
+              }
+            });
+
+            panels.forEach((panel) => {
+              const panelId = panel.getAttribute('id');
+              if (panelId === `tab-panel-${tabNum}`) {
+                panel.classList.remove('hidden');
+              } else {
+                panel.classList.add('hidden');
+              }
+            });
+
+            // Re-render visible D3 visualization so responsive dimensions match container
+            renderActiveTabVisualizations();
+          });
+        });
+      }
+
+      function renderActiveTabVisualizations() {
+        if (state.activeTab === 1) {
+          renderEntropyLoopDiagram();
+        } else if (state.activeTab === 2) {
+          renderDegradationChart();
+        } else if (state.activeTab === 3) {
+          renderPaybackChart();
+        }
+      }
+
+      // ---------------------------------------------------------------------
+      // 3. TAB 1: D3.JS GENERIC 4-STAGE ECONOMIC PROCESS LOOP
+      // ---------------------------------------------------------------------
+      function updateStageInspector(stageObj) {
+        state.selectedStageId = stageObj.id;
+        const badge = document.getElementById('stage-detail-badge');
+        const title = document.getElementById('stage-detail-title');
+        const text = document.getElementById('stage-detail-text');
+        if (badge) badge.textContent = stageObj.indexLabel;
+        if (title) title.textContent = stageObj.title;
+        if (text) text.textContent = stageObj.summary;
+      }
+
+      function renderEntropyLoopDiagram() {
+        const container = document.getElementById('d3-entropy-loop-container');
+        if (!container || typeof d3 === 'undefined') return;
+
+        d3.select(container).selectAll('*').remove();
+
+        const width = Math.max(320, container.clientWidth || 680);
+        const height = width < 520 ? 450 : 410;
+
+        const svg = d3
+          .select(container)
+          .append('svg')
+          .attr('viewBox', `0 0 ${width} ${height}`)
+          .attr('width', '100%')
+          .attr('height', height)
+          .attr('role', 'img')
+          .attr('aria-label', 'Generic 4-Stage Economic Process Loop showing Natural Resources, Production, Consumption, and Waste with low-entropy throughput and high-entropy output');
+
+        // Arrowhead markers
+        const defs = svg.append('defs');
+
+        const addMarker = (id, color) => {
+          defs
+            .append('marker')
+            .attr('id', id)
+            .attr('viewBox', '0 0 10 10')
+            .attr('refX', 8)
+            .attr('refY', 5)
+            .attr('markerWidth', 6.5)
+            .attr('markerHeight', 6.5)
+            .attr('orient', 'auto-start-reverse')
+            .append('path')
+            .attr('d', 'M 0 1.5 L 9 5 L 0 8.5 z')
+            .attr('fill', color);
+        };
+
+        addMarker('arrow-forest', '#2e7d32');
+        addMarker('arrow-amber', '#8a5a1e');
+        addMarker('arrow-muted', '#6b7d6d');
+
+        // Layout coordinates responsive to width
+        const isCompact = width < 560;
+        const marginX = isCompact ? 18 : 34;
+        const usableW = width - marginX * 2;
+
+        // 4 stages arranged in a clear process flow:
+        // Top row: Natural Resources -> Production -> Consumption
+        // Bottom right/center: Waste (receiving dissipated flow from Consumption & Production)
+        const boxW = isCompact ? Math.min(140, usableW * 0.44) : Math.min(168, (usableW - 90) / 3);
+        const boxH = isCompact ? 62 : 70;
+
+        const topY = isCompact ? 66 : 78;
+        const bottomY = isCompact ? 286 : 265;
+
+        const col1X = marginX + 6;
+        const col2X = marginX + (usableW - boxW) / 2;
+        const col3X = marginX + usableW - boxW - 6;
+
+        const positions = {
+          resources: { x: col1X, y: topY, w: boxW, h: boxH },
+          production: { x: col2X, y: topY, w: boxW, h: boxH },
+          consumption: { x: col3X, y: topY, w: boxW, h: boxH },
+          waste: { x: col2X, y: bottomY, w: boxW * 1.15, h: boxH, cxOffset: -(boxW * 0.075) }
+        };
+        positions.waste.x = Math.max(marginX, col2X + positions.waste.cxOffset);
+
+        // Title inside SVG
+        svg
+          .append('text')
+          .attr('x', width / 2)
+          .attr('y', 24)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'Newsreader, Georgia, serif')
+          .attr('font-size', isCompact ? '15px' : '17px')
+          .attr('font-weight', '600')
+          .attr('fill', '#182219')
+          .text('Generic 4-Stage Economic Process Loop');
+
+        // Low-entropy throughput inflow arrow above Natural Resources
+        const rPos = positions.resources;
+        const inflowStartY = Math.max(36, rPos.y - 34);
+        svg
+          .append('line')
+          .attr('x1', rPos.x + rPos.w / 2)
+          .attr('y1', inflowStartY)
+          .attr('x2', rPos.x + rPos.w / 2)
+          .attr('y2', rPos.y - 4)
+          .attr('stroke', '#2e7d32')
+          .attr('stroke-width', 2.2)
+          .attr('marker-end', 'url(#arrow-forest)');
+
+        svg
+          .append('text')
+          .attr('x', rPos.x + rPos.w / 2 + 8)
+          .attr('y', inflowStartY + 12)
+          .attr('font-family', 'IBM Plex Sans, sans-serif')
+          .attr('font-size', '10.5px')
+          .attr('font-weight', '600')
+          .attr('fill', '#1b5e20')
+          .text('Low-entropy matter & energy');
+
+        // Forward flow arrows: Resources -> Production -> Consumption
+        const pPos = positions.production;
+        const cPos = positions.consumption;
+        const wPos = positions.waste;
+
+        // Resources -> Production
+        svg
+          .append('line')
+          .attr('x1', rPos.x + rPos.w + 3)
+          .attr('y1', rPos.y + rPos.h / 2)
+          .attr('x2', pPos.x - 4)
+          .attr('y2', pPos.y + pPos.h / 2)
+          .attr('stroke', '#2e7d32')
+          .attr('stroke-width', 2.2)
+          .attr('marker-end', 'url(#arrow-forest)');
+
+        // Production -> Consumption
+        svg
+          .append('line')
+          .attr('x1', pPos.x + pPos.w + 3)
+          .attr('y1', pPos.y + pPos.h / 2)
+          .attr('x2', cPos.x - 4)
+          .attr('y2', cPos.y + cPos.h / 2)
+          .attr('stroke', '#2e7d32')
+          .attr('stroke-width', 2.2)
+          .attr('marker-end', 'url(#arrow-forest)');
+
+        // Consumption -> Waste (irreversible throughput / residuals)
+        const cToWastePath = `M ${cPos.x + cPos.w / 2} ${cPos.y + cPos.h + 3} L ${cPos.x + cPos.w / 2} ${wPos.y + wPos.h / 2} L ${wPos.x + wPos.w + 4} ${wPos.y + wPos.h / 2}`;
+        svg
+          .append('path')
+          .attr('d', cToWastePath)
+          .attr('fill', 'none')
+          .attr('stroke', '#8a5a1e')
+          .attr('stroke-width', 2.2)
+          .attr('marker-end', 'url(#arrow-amber)');
+
+        svg
+          .append('text')
+          .attr('x', Math.min(width - 12, cPos.x + cPos.w / 2 + 6))
+          .attr('y', (cPos.y + cPos.h + wPos.y + wPos.h / 2) / 2)
+          .attr('font-family', 'IBM Plex Sans, sans-serif')
+          .attr('font-size', '10.5px')
+          .attr('font-weight', '600')
+          .attr('fill', '#8a5a1e')
+          .text('Irreversible throughput');
+
+        // Production -> Waste (process scrap / heat)
+        svg
+          .append('line')
+          .attr('x1', pPos.x + pPos.w / 2)
+          .attr('y1', pPos.y + pPos.h + 3)
+          .attr('x2', wPos.x + wPos.w / 2)
+          .attr('y2', wPos.y - 4)
+          .attr('stroke', '#8a5a1e')
+          .attr('stroke-width', 1.8)
+          .attr('stroke-dasharray', '4,3')
+          .attr('marker-end', 'url(#arrow-amber)');
+
+        // High-entropy outflow from Waste
+        const wasteOutY = Math.min(height - 16, wPos.y + wPos.h + 32);
+        svg
+          .append('line')
+          .attr('x1', wPos.x + wPos.w / 2)
+          .attr('y1', wPos.y + wPos.h + 3)
+          .attr('x2', wPos.x + wPos.w / 2)
+          .attr('y2', wasteOutY)
+          .attr('stroke', '#8a5a1e')
+          .attr('stroke-width', 2.2)
+          .attr('marker-end', 'url(#arrow-amber)');
+
+        svg
+          .append('text')
+          .attr('x', wPos.x + wPos.w / 2 + 10)
+          .attr('y', wPos.y + wPos.h + 22)
+          .attr('font-family', 'IBM Plex Sans, sans-serif')
+          .attr('font-size', '10.5px')
+          .attr('font-weight', '600')
+          .attr('fill', '#8a5a1e')
+          .text('High-entropy dissipated matter & waste heat');
+
+        // Partial / constrained recycling feedback arc (dashed, non-perfect loop)
+        const feedbackY = Math.max(wasteOutY + 14, height - 24);
+        if (feedbackY < height - 6) {
+          const recPath = `M ${wPos.x - 4} ${wPos.y + wPos.h / 2} L ${rPos.x + rPos.w / 2} ${wPos.y + wPos.h / 2} L ${rPos.x + rPos.w / 2} ${rPos.y + rPos.h + 4}`;
+          svg
+            .append('path')
+            .attr('d', recPath)
+            .attr('fill', 'none')
+            .attr('stroke', '#58685a')
+            .attr('stroke-width', 1.5)
+            .attr('stroke-dasharray', '5,4')
+            .attr('marker-end', 'url(#arrow-muted)');
+
+          svg
+            .append('text')
+            .attr('x', rPos.x + rPos.w / 2 + 8)
+            .attr('y', (rPos.y + rPos.h + wPos.y + wPos.h / 2) / 2 + 24)
+            .attr('font-family', 'IBM Plex Sans, sans-serif')
+            .attr('font-size', '10px')
+            .attr('font-style', 'italic')
+            .attr('fill', '#58685a')
+            .text('Partial recovery only');
+          svg
+            .append('text')
+            .attr('x', rPos.x + rPos.w / 2 + 8)
+            .attr('y', (rPos.y + rPos.h + wPos.y + wPos.h / 2) / 2 + 36)
+            .attr('font-family', 'IBM Plex Sans, sans-serif')
+            .attr('font-size', '10px')
+            .attr('font-style', 'italic')
+            .attr('fill', '#58685a')
+            .text('(entropy increases)');
+        }
+
+        // Draw stage nodes
+        STAGES_DATA.forEach((stage) => {
+          const pos = positions[stage.id];
+          const isSelected = state.selectedStageId === stage.id;
+
+          const g = svg
+            .append('g')
+            .attr('class', 'stage-node')
+            .attr('tabindex', 0)
+            .attr('role', 'button')
+            .attr('aria-label', `${stage.title}: ${stage.summary}`)
+            .on('click', () => {
+              updateStageInspector(stage);
+              renderEntropyLoopDiagram();
+            })
+            .on('keydown', (event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                updateStageInspector(stage);
+                renderEntropyLoopDiagram();
+              }
+            })
+            .on('mouseenter', (event) => {
+              showTooltip(
+                event,
+                `<div class="font-semibold text-white mb-0.5">${stage.title}</div>
+                 <div class="text-xs text-gray-200">${stage.summary}</div>`
+              );
+            })
+            .on('mousemove', moveTooltip)
+            .on('mouseleave', hideTooltip);
+
+          g.append('rect')
+            .attr('x', pos.x)
+            .attr('y', pos.y)
+            .attr('width', pos.w)
+            .attr('height', pos.h)
+            .attr('rx', 10)
+            .attr('fill', stage.color)
+            .attr('stroke', stage.stroke)
+            .attr('stroke-width', isSelected ? 2.8 : 1.5);
+
+          g.append('text')
+            .attr('x', pos.x + pos.w / 2)
+            .attr('y', pos.y + pos.h / 2 - 4)
+            .attr('text-anchor', 'middle')
+            .attr('font-family', 'IBM Plex Sans, sans-serif')
+            .attr('font-size', isCompact ? '11.5px' : '13px')
+            .attr('font-weight', '700')
+            .attr('fill', '#182219')
+            .text(stage.title);
+
+          g.append('text')
+            .attr('x', pos.x + pos.w / 2)
+            .attr('y', pos.y + pos.h / 2 + 13)
+            .attr('text-anchor', 'middle')
+            .attr('font-family', 'IBM Plex Sans, sans-serif')
+            .attr('font-size', '10px')
+            .attr('fill', '#58685a')
+            .text(stage.subtitle);
+        });
+      }
+
+      // ---------------------------------------------------------------------
+      // 4. TAB 2: MULTI-CYCLE RECYCLING DECAY (30 CYCLES)
+      // ---------------------------------------------------------------------
+      function computeDegradationSeries() {
+        const dRate = state.tab2.dissipationPct / 100;
+        const qRate = state.tab2.qualityDecayPct / 100;
+        const series = [];
+
+        let mass = state.tab2.initialMassKg;
+        let quality = state.tab2.initialQualityPct;
+
+        series.push({ cycle: 0, massKg: mass, qualityPct: quality });
+
+        for (let t = 1; t <= state.tab2.cycles; t++) {
+          mass = mass * (1 - dRate);
+          quality = quality * (1 - qRate);
+          series.push({ cycle: t, massKg: mass, qualityPct: quality });
+        }
+
+        return series;
+      }
+
+      function updateTab2UI() {
+        const dPct = state.tab2.dissipationPct;
+        const qPct = state.tab2.qualityDecayPct;
+
+        const dLabel = document.getElementById('dissipation-value');
+        const qLabel = document.getElementById('quality-decay-value');
+        const dSlider = document.getElementById('dissipation-slider');
+        const qSlider = document.getElementById('quality-decay-slider');
+
+        if (dLabel) dLabel.textContent = `${dPct.toFixed(1)}%`;
+        if (qLabel) qLabel.textContent = `${qPct.toFixed(1)}%`;
+        if (dSlider && Number(dSlider.value) !== dPct) dSlider.value = String(dPct);
+        if (qSlider && Number(qSlider.value) !== qPct) qSlider.value = String(qPct);
+
+        const series = computeDegradationSeries();
+        const finalPoint = series[series.length - 1];
+
+        const c30Mass = document.getElementById('cycle30-mass');
+        const c30Qual = document.getElementById('cycle30-quality');
+        if (c30Mass) c30Mass.textContent = `${finalPoint.massKg.toFixed(2)} kg`;
+        if (c30Qual) c30Qual.textContent = `${finalPoint.qualityPct.toFixed(2)}%`;
+
+        const compNote = document.getElementById('tab2-computation-note');
+        if (compNote) {
+          compNote.innerHTML =
+            `Starting at <span class="font-formula">t = 0</span> with <span class="font-formula">100.0 kg</span> mass and <span class="font-formula">100.0%</span> structural quality, each cycle <span class="font-formula">t</span> (from 1 to 30) applies <span class="font-formula">Mass(t) = Mass(t&minus;1) &times; (1 &minus; ${(dPct / 100).toFixed(3)})</span> and <span class="font-formula">Quality(t) = Quality(t&minus;1) &times; (1 &minus; ${(qPct / 100).toFixed(3)})</span>.`;
+        }
+
+        if (state.activeTab === 2) {
+          renderDegradationChart(series);
+        }
+      }
+
+      function renderDegradationChart(precomputedSeries) {
+        const container = document.getElementById('d3-degradation-chart');
+        if (!container || typeof d3 === 'undefined') return;
+
+        d3.select(container).selectAll('*').remove();
+
+        const series = precomputedSeries || computeDegradationSeries();
+        const width = Math.max(300, container.clientWidth || 720);
+        const height = width < 520 ? 340 : 390;
+
+        const margin = { top: 20, right: 56, bottom: 48, left: 56 };
+        const innerW = Math.max(120, width - margin.left - margin.right);
+        const innerH = Math.max(140, height - margin.top - margin.bottom);
+
+        const svg = d3
+          .select(container)
+          .append('svg')
+          .attr('viewBox', `0 0 ${width} ${height}`)
+          .attr('width', '100%')
+          .attr('height', height)
+          .attr('role', 'img')
+          .attr('aria-label', '30-Cycle Degradation Tracking chart showing Mass Retention in kilograms and Structural Quality in percentage across cycles 0 to 30');
+
+        const g = svg
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const xScale = d3.scaleLinear().domain([0, 30]).range([0, innerW]);
+        const yLeftScale = d3.scaleLinear().domain([0, 100]).range([innerH, 0]);
+        const yRightScale = d3.scaleLinear().domain([0, 100]).range([innerH, 0]);
+
+        // Subtle horizontal gridlines
+        g.append('g')
+          .attr('class', 'grid')
+          .call(
+            d3
+              .axisLeft(yLeftScale)
+              .ticks(5)
+              .tickSize(-innerW)
+              .tickFormat('')
+          )
+          .selectAll('line')
+          .attr('stroke', '#e2eae2')
+          .attr('stroke-dasharray', '3,3');
+
+        g.selectAll('.grid .domain').remove();
+
+        // X Axis
+        g.append('g')
+          .attr('transform', `translate(0,${innerH})`)
+          .call(d3.axisBottom(xScale).ticks(width < 480 ? 6 : 10).tickFormat((d) => `${d}`))
+          .selectAll('text')
+          .attr('font-family', 'JetBrains Mono, monospace')
+          .attr('font-size', '11px')
+          .attr('fill', '#344236');
+
+        // Left Y Axis: Mass Retention (kg)
+        g.append('g')
+          .call(d3.axisLeft(yLeftScale).ticks(5).tickFormat((d) => `${d}`))
+          .selectAll('text')
+          .attr('font-family', 'JetBrains Mono, monospace')
+          .attr('font-size', '11px')
+          .attr('fill', '#1b5e20');
+
+        // Right Y Axis: Structural Quality (%)
+        g.append('g')
+          .attr('transform', `translate(${innerW},0)`)
+          .call(d3.axisRight(yRightScale).ticks(5).tickFormat((d) => `${d}%`))
+          .selectAll('text')
+          .attr('font-family', 'JetBrains Mono, monospace')
+          .attr('font-size', '11px')
+          .attr('fill', '#b45309');
+
+        // Axis Labels
+        g.append('text')
+          .attr('x', innerW / 2)
+          .attr('y', innerH + 38)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'IBM Plex Sans, sans-serif')
+          .attr('font-size', '12px')
+          .attr('font-weight', '600')
+          .attr('fill', '#182219')
+          .text('Recycling Cycle (t)');
+
+        g.append('text')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -innerH / 2)
+          .attr('y', -42)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'IBM Plex Sans, sans-serif')
+          .attr('font-size', '12px')
+          .attr('font-weight', '600')
+          .attr('fill', '#1b5e20')
+          .text('Mass Retention (kg)');
+
+        g.append('text')
+          .attr('transform', 'rotate(90)')
+          .attr('x', innerH / 2)
+          .attr('y', -innerW - 44)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'IBM Plex Sans, sans-serif')
+          .attr('font-size', '12px')
+          .attr('font-weight', '600')
+          .attr('fill', '#b45309')
+          .text('Structural Quality (%)');
+
+        // Line generators
+        const massLine = d3
+          .line()
+          .x((d) => xScale(d.cycle))
+          .y((d) => yLeftScale(d.massKg));
+
+        const qualityLine = d3
+          .line()
+          .x((d) => xScale(d.cycle))
+          .y((d) => yRightScale(d.qualityPct));
+
+        // Plot Mass Retention curve
+        g.append('path')
+          .datum(series)
+          .attr('fill', 'none')
+          .attr('stroke', '#2e7d32')
+          .attr('stroke-width', 2.8)
+          .attr('d', massLine);
+
+        // Plot Structural Quality curve
+        g.append('path')
+          .datum(series)
+          .attr('fill', 'none')
+          .attr('stroke', '#b45309')
+          .attr('stroke-width', 2.5)
+          .attr('stroke-dasharray', '6,3')
+          .attr('d', qualityLine);
+
+        // Interactive hover overlay across cycles 0..30
+        const focusLine = g
+          .append('line')
+          .attr('y1', 0)
+          .attr('y2', innerH)
+          .attr('stroke', '#58685a')
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', '3,3')
+          .style('opacity', 0);
+
+        const massDot = g
+          .append('circle')
+          .attr('r', 4.5)
+          .attr('fill', '#2e7d32')
+          .attr('stroke', '#ffffff')
+          .attr('stroke-width', 1.5)
+          .style('opacity', 0);
+
+        const qualityDot = g
+          .append('circle')
+          .attr('r', 4.5)
+          .attr('fill', '#b45309')
+          .attr('stroke', '#ffffff')
+          .attr('stroke-width', 1.5)
+          .style('opacity', 0);
+
+        g.append('rect')
+          .attr('width', innerW)
+          .attr('height', innerH)
+          .attr('fill', 'transparent')
+          .style('cursor', 'crosshair')
+          .on('mousemove', (event) => {
+            const [mx] = d3.pointer(event);
+            const rawCycle = Math.round(xScale.invert(mx));
+            const clampedCycle = Math.max(0, Math.min(30, rawCycle));
+            const pt = series[clampedCycle];
+            if (!pt) return;
+
+            const cx = xScale(pt.cycle);
+            const cyMass = yLeftScale(pt.massKg);
+            const cyQual = yRightScale(pt.qualityPct);
+
+            focusLine.attr('x1', cx).attr('x2', cx).style('opacity', 1);
+            massDot.attr('cx', cx).attr('cy', cyMass).style('opacity', 1);
+            qualityDot.attr('cx', cx).attr('cy', cyQual).style('opacity', 1);
+
+            showTooltip(
+              event,
+              `<div class="font-formula font-semibold text-white mb-1">Cycle t = ${pt.cycle}</div>
+               <div class="flex justify-between gap-4">
+                 <span class="text-green-300">Mass Retention:</span>
+                 <span class="font-formula font-semibold">${pt.massKg.toFixed(2)} kg</span>
+               </div>
+               <div class="flex justify-between gap-4">
+                 <span class="text-amber-300">Structural Quality:</span>
+                 <span class="font-formula font-semibold">${pt.qualityPct.toFixed(2)}%</span>
+               </div>`
+            );
+          })
+          .on('mouseleave', () => {
+            focusLine.style('opacity', 0);
+            massDot.style('opacity', 0);
+            qualityDot.style('opacity', 0);
+            hideTooltip();
+          });
+      }
+
+      // ---------------------------------------------------------------------
+      // 5. TAB 3: ENERGY PAYBACK ANALYSIS
+      // ---------------------------------------------------------------------
+      function computePaybackMetrics() {
+        const debt = Number(state.tab3.debtKwh) || 0;
+        const avoided = Number(state.tab3.avoidedKwh) || 0;
+        const wash = Number(state.tab3.washKwh) || 0;
+        const transport = Number(state.tab3.transportKwh) || 0;
+        const uses = Number(state.tab3.uses) || 0;
+
+        const netSavedPerUse = avoided - wash - transport;
+        const cumulativeSavings = uses * netSavedPerUse;
+        const remainingDebt = Math.max(0, debt - cumulativeSavings);
+
+        let paybackUses = null;
+        if (netSavedPerUse > 0) {
+          paybackUses = debt / netSavedPerUse;
+        }
+
+        return {
+          debt,
+          avoided,
+          wash,
+          transport,
+          uses,
+          netSavedPerUse,
+          cumulativeSavings,
+          remainingDebt,
+          paybackUses
+        };
+      }
+
+      function formatNum(val, decimals = 1) {
+        return Number(val).toLocaleString('en-US', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function updateTab3UI() {
+        const m = computePaybackMetrics();
+
+        // Sync controls
+        const debtInput = document.getElementById('debt-input');
+        const debtSlider = document.getElementById('debt-slider');
+        if (debtInput && Number(debtInput.value) !== m.debt) debtInput.value = String(m.debt);
+        if (debtSlider && Number(debtSlider.value) !== m.debt) {
+          debtSlider.value = String(Math.min(60000, Math.max(1000, m.debt)));
+        }
+
+        const avoidedSlider = document.getElementById('avoided-slider');
+        const washSlider = document.getElementById('wash-slider');
+        const transportSlider = document.getElementById('transport-slider');
+        const usesSlider = document.getElementById('uses-slider');
+
+        if (avoidedSlider) avoidedSlider.value = String(m.avoided);
+        if (washSlider) washSlider.value = String(m.wash);
+        if (transportSlider) transportSlider.value = String(m.transport);
+        if (usesSlider) usesSlider.value = String(m.uses);
+
+        const avoidedValEl = document.getElementById('avoided-value');
+        const washValEl = document.getElementById('wash-value');
+        const transportValEl = document.getElementById('transport-value');
+        const usesValEl = document.getElementById('uses-value');
+
+        if (avoidedValEl) avoidedValEl.textContent = `${formatNum(m.avoided, 1)} kWh / use`;
+        if (washValEl) washValEl.textContent = `${formatNum(m.wash, 1)} kWh / cycle`;
+        if (transportValEl) transportValEl.textContent = `${formatNum(m.transport, 1)} kWh / cycle`;
+        if (usesValEl) usesValEl.textContent = `${m.uses} ${m.uses === 1 ? 'use' : 'uses'}`;
+
+        // Live substitution lines inside formula cards
+        const liveNet = document.getElementById('live-formula-net');
+        const liveCum = document.getElementById('live-formula-cum');
+        const livePay = document.getElementById('live-formula-payback');
+
+        if (liveNet) {
+          liveNet.textContent = `= ${formatNum(m.avoided, 1)} − ${formatNum(m.wash, 1)} − ${formatNum(m.transport, 1)} = ${formatNum(m.netSavedPerUse, 1)} kWh / use`;
+        }
+        if (liveCum) {
+          liveCum.textContent = `= ${m.uses} × ${formatNum(m.netSavedPerUse, 1)} = ${formatNum(m.cumulativeSavings, 1)} kWh`;
+        }
+        if (livePay) {
+          if (m.paybackUses !== null) {
+            livePay.textContent = `= ${formatNum(m.debt, 0)} ÷ ${formatNum(m.netSavedPerUse, 1)} = ${formatNum(m.paybackUses, 1)} uses`;
+          } else {
+            livePay.textContent = `= ${formatNum(m.debt, 0)} ÷ ${formatNum(m.netSavedPerUse, 1)} → No positive payback (net savings per use ≤ 0)`;
+          }
+        }
+
+        // Outputs panel
+        const outNet = document.getElementById('out-net-saved');
+        const outCum = document.getElementById('out-cum-savings');
+        const outCumSub = document.getElementById('out-cum-sub');
+        const outRem = document.getElementById('out-remaining-debt');
+        const outPay = document.getElementById('out-payback-uses');
+
+        if (outNet) {
+          outNet.textContent = `${formatNum(m.netSavedPerUse, 1)} kWh`;
+          outNet.className = `font-formula text-xl sm:text-2xl font-semibold mt-1 ${
+            m.netSavedPerUse > 0 ? 'text-forest-800' : 'text-amber-800'
+          }`;
+        }
+        if (outCum) {
+          outCum.textContent = `${formatNum(m.cumulativeSavings, 1)} kWh`;
+        }
+        if (outCumSub) {
+          outCumSub.textContent = `Across ${m.uses} ${m.uses === 1 ? 'use' : 'uses'}`;
+        }
+        if (outRem) {
+          outRem.textContent = `${formatNum(m.remainingDebt, 1)} kWh`;
+        }
+        if (outPay) {
+          outPay.textContent =
+            m.paybackUses !== null ? `${formatNum(m.paybackUses, 1)} uses` : 'Never (Net ≤ 0)';
+        }
+
+        const caption = document.getElementById('payback-chart-caption');
+        if (caption) {
+          if (m.paybackUses !== null) {
+            caption.textContent = `At current assumptions, Net Energy Saved per Use is ${formatNum(m.netSavedPerUse, 1)} kWh and Manufacturing Energy Debt is ${formatNum(m.debt, 0)} kWh, placing the Energy Payback Point at ${formatNum(m.paybackUses, 1)} uses where the cumulative savings curve crosses the debt line.`;
+          } else {
+            caption.textContent = `Because Net Energy Saved per Use (${formatNum(m.netSavedPerUse, 1)} kWh) is zero or negative under these assumptions, cumulative energy savings do not overcome the ${formatNum(m.debt, 0)} kWh manufacturing debt.`;
+          }
+        }
+
+        if (state.activeTab === 3) {
+          renderPaybackChart(m);
+        }
+      }
+
+      function renderPaybackChart(precomputedMetrics) {
+        const container = document.getElementById('d3-payback-chart');
+        if (!container || typeof d3 === 'undefined') return;
+
+        d3.select(container).selectAll('*').remove();
+
+        const m = precomputedMetrics || computePaybackMetrics();
+        const width = Math.max(300, container.clientWidth || 760);
+        const height = width < 520 ? 350 : 410;
+
+        const margin = { top: 24, right: 28, bottom: 52, left: 68 };
+        const innerW = Math.max(120, width - margin.left - margin.right);
+        const innerH = Math.max(150, height - margin.top - margin.bottom);
+
+        // Domain of uses: show up to at least 120 uses, or extend if payback is beyond 120
+        const maxUses = Math.max(120, Math.ceil((m.paybackUses || 100) * 1.25));
+        const points = [];
+        for (let u = 0; u <= maxUses; u += 2) {
+          points.push({
+            uses: u,
+            debt: m.debt,
+            cumulativeSavings: u * m.netSavedPerUse
+          });
+        }
+        if (points[points.length - 1].uses !== maxUses) {
+          points.push({
+            uses: maxUses,
+            debt: m.debt,
+            cumulativeSavings: maxUses * m.netSavedPerUse
+          });
+        }
+
+        const minY = Math.min(0, d3.min(points, (d) => d.cumulativeSavings));
+        const maxY = Math.max(
+          m.debt * 1.25,
+          d3.max(points, (d) => d.cumulativeSavings) * 1.08,
+          1000
+        );
+
+        const svg = d3
+          .select(container)
+          .append('svg')
+          .attr('viewBox', `0 0 ${width} ${height}`)
+          .attr('width', '100%')
+          .attr('height', height)
+          .attr('role', 'img')
+          .attr('aria-label', 'Chart comparing Manufacturing Debt and Cumulative Energy Savings across number of uses with the Energy Payback Point marked');
+
+        const g = svg
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+
+        const xScale = d3.scaleLinear().domain([0, maxUses]).range([0, innerW]);
+        const yScale = d3.scaleLinear().domain([minY, maxY]).range([innerH, 0]);
+
+        // Gridlines
+        g.append('g')
+          .call(
+            d3
+              .axisLeft(yScale)
+              .ticks(6)
+              .tickSize(-innerW)
+              .tickFormat('')
+          )
+          .selectAll('line')
+          .attr('stroke', '#e2eae2')
+          .attr('stroke-dasharray', '3,3');
+
+        g.selectAll('.domain').filter(function () {
+          return !d3.select(this).classed('axis-main');
+        });
+
+        // Zero baseline if negative savings occur
+        if (minY < 0) {
+          g.append('line')
+            .attr('x1', 0)
+            .attr('x2', innerW)
+            .attr('y1', yScale(0))
+            .attr('y2', yScale(0))
+            .attr('stroke', '#768778')
+            .attr('stroke-width', 1);
+        }
+
+        // X Axis
+        g.append('g')
+          .attr('class', 'axis-main')
+          .attr('transform', `translate(0,${innerH})`)
+          .call(d3.axisBottom(xScale).ticks(width < 500 ? 6 : 10).tickFormat((d) => `${d}`))
+          .selectAll('text')
+          .attr('font-family', 'JetBrains Mono, monospace')
+          .attr('font-size', '11px')
+          .attr('fill', '#344236');
+
+        // Y Axis
+        g.append('g')
+          .attr('class', 'axis-main')
+          .call(
+            d3
+              .axisLeft(yScale)
+              .ticks(6)
+              .tickFormat((d) => `${Math.round(d / 1000)}k`)
+          )
+          .selectAll('text')
+          .attr('font-family', 'JetBrains Mono, monospace')
+          .attr('font-size', '11px')
+          .attr('fill', '#344236');
+
+        // Axis labels
+        g.append('text')
+          .attr('x', innerW / 2)
+          .attr('y', innerH + 40)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'IBM Plex Sans, sans-serif')
+          .attr('font-size', '12px')
+          .attr('font-weight', '600')
+          .attr('fill', '#182219')
+          .text('Number of Uses');
+
+        g.append('text')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -innerH / 2)
+          .attr('y', -50)
+          .attr('text-anchor', 'middle')
+          .attr('font-family', 'IBM Plex Sans, sans-serif')
+          .attr('font-size', '12px')
+          .attr('font-weight', '600')
+          .attr('fill', '#182219')
+          .text('Energy (kWh)');
+
+        // Subtle 50-use reference line (neutral marker without threshold verdict)
+        if (50 <= maxUses) {
+          g.append('line')
+            .attr('x1', xScale(50))
+            .attr('x2', xScale(50))
+            .attr('y1', 0)
+            .attr('y2', innerH)
+            .attr('stroke', '#8a9b8c')
+            .attr('stroke-width', 1.2)
+            .attr('stroke-dasharray', '2,4');
+
+          g.append('text')
+            .attr('x', xScale(50) + 4)
+            .attr('y', 12)
+            .attr('font-family', 'JetBrains Mono, monospace')
+            .attr('font-size', '10px')
+            .attr('fill', '#58685a')
+            .text('50 uses');
+        }
+
+        // Manufacturing Debt horizontal dashed line
+        g.append('line')
+          .attr('x1', 0)
+          .attr('x2', innerW)
+          .attr('y1', yScale(m.debt))
+          .attr('y2', yScale(m.debt))
+          .attr('stroke', '#b45309')
+          .attr('stroke-width', 2.2)
+          .attr('stroke-dasharray', '7,4');
+
+        // Cumulative Energy Savings line
+        const savingsLine = d3
+          .line()
+          .x((d) => xScale(d.uses))
+          .y((d) => yScale(d.cumulativeSavings));
+
+        g.append('path')
+          .datum(points)
+          .attr('fill', 'none')
+          .attr('stroke', '#2e7d32')
+          .attr('stroke-width', 2.8)
+          .attr('d', savingsLine);
+
+        // Current selected Number of Uses vertical indicator
+        if (m.uses <= maxUses) {
+          const selX = xScale(m.uses);
+          const selY = yScale(m.cumulativeSavings);
+          g.append('circle')
+            .attr('cx', selX)
+            .attr('cy', selY)
+            .attr('r', 4.5)
+            .attr('fill', '#388e3c')
+            .attr('stroke', '#ffffff')
+            .attr('stroke-width', 1.5);
+        }
+
+        // Intersection / Energy Payback Point marker
+        if (m.paybackUses !== null && m.paybackUses >= 0 && m.paybackUses <= maxUses) {
+          const ix = xScale(m.paybackUses);
+          const iy = yScale(m.debt);
+
+          // Drop line to x-axis
+          g.append('line')
+            .attr('x1', ix)
+            .attr('x2', ix)
+            .attr('y1', iy)
+            .attr('y2', innerH)
+            .attr('stroke', '#143d17')
+            .attr('stroke-width', 1.4)
+            .attr('stroke-dasharray', '3,3');
+
+          g.append('circle')
+            .attr('cx', ix)
+            .attr('cy', iy)
+            .attr('r', 6.5)
+            .attr('fill', '#143d17')
+            .attr('stroke', '#ffffff')
+            .attr('stroke-width', 2);
+
+          const labelX = Math.min(innerW - 125, Math.max(8, ix + 10));
+          const labelY = Math.max(24, iy - 12);
+
+          g.append('text')
+            .attr('x', labelX)
+            .attr('y', labelY)
+            .attr('font-family', 'JetBrains Mono, monospace')
+            .attr('font-size', '11px')
+            .attr('font-weight', '600')
+            .attr('fill', '#143d17')
+            .text(`Payback: ${m.paybackUses.toFixed(1)} uses`);
+        }
+
+        // Interactive hover overlay
+        const hoverLine = g
+          .append('line')
+          .attr('y1', 0)
+          .attr('y2', innerH)
+          .attr('stroke', '#58685a')
+          .attr('stroke-width', 1)
+          .attr('stroke-dasharray', '3,3')
+          .style('opacity', 0);
+
+        const hoverDot = g
+          .append('circle')
+          .attr('r', 4.5)
+          .attr('fill', '#2e7d32')
+          .attr('stroke', '#ffffff')
+          .attr('stroke-width', 1.5)
+          .style('opacity', 0);
+
+        g.append('rect')
+          .attr('width', innerW)
+          .attr('height', innerH)
+          .attr('fill', 'transparent')
+          .style('cursor', 'crosshair')
+          .on('mousemove', (event) => {
+            const [mx] = d3.pointer(event);
+            const u = Math.max(0, Math.min(maxUses, Math.round(xScale.invert(mx))));
+            const cum = u * m.netSavedPerUse;
+            const rem = Math.max(0, m.debt - cum);
+
+            hoverLine.attr('x1', xScale(u)).attr('x2', xScale(u)).style('opacity', 1);
+            hoverDot.attr('cx', xScale(u)).attr('cy', yScale(cum)).style('opacity', 1);
+
+            showTooltip(
+              event,
+              `<div class="font-formula font-semibold text-white mb-1">Uses = ${u}</div>
+               <div class="flex justify-between gap-4">
+                 <span class="text-green-300">Cumulative Savings:</span>
+                 <span class="font-formula font-semibold">${formatNum(cum, 1)} kWh</span>
+               </div>
+               <div class="flex justify-between gap-4">
+                 <span class="text-amber-300">Manufacturing Debt:</span>
+                 <span class="font-formula font-semibold">${formatNum(m.debt, 0)} kWh</span>
+               </div>
+               <div class="flex justify-between gap-4">
+                 <span class="text-gray-300">Remaining Debt:</span>
+                 <span class="font-formula font-semibold">${formatNum(rem, 1)} kWh</span>
+               </div>`
+            );
+          })
+          .on('mouseleave', () => {
+            hoverLine.style('opacity', 0);
+            hoverDot.style('opacity', 0);
+            hideTooltip();
+          });
+      }
+
+      // ---------------------------------------------------------------------
+      // 6. EVENT BINDINGS & INITIALIZATION
+      // ---------------------------------------------------------------------
+      function bindControls() {
+        // Tab 2 sliders & reset
+        const dSlider = document.getElementById('dissipation-slider');
+        const qSlider = document.getElementById('quality-decay-slider');
+        const resetTab2 = document.getElementById('reset-tab2-btn');
+
+        if (dSlider) {
+          dSlider.addEventListener('input', (e) => {
+            state.tab2.dissipationPct = parseFloat(e.target.value) || 0;
+            updateTab2UI();
+          });
+        }
+
+        if (qSlider) {
+          qSlider.addEventListener('input', (e) => {
+            state.tab2.qualityDecayPct = parseFloat(e.target.value) || 0;
+            updateTab2UI();
+          });
+        }
+
+        if (resetTab2) {
+          resetTab2.addEventListener('click', () => {
+            state.tab2.dissipationPct = 8.0;
+            state.tab2.qualityDecayPct = 12.0;
+            updateTab2UI();
+          });
+        }
+
+        // Tab 3 controls & reset
+        const debtInput = document.getElementById('debt-input');
+        const debtSlider = document.getElementById('debt-slider');
+        const avoidedSlider = document.getElementById('avoided-slider');
+        const washSlider = document.getElementById('wash-slider');
+        const transportSlider = document.getElementById('transport-slider');
+        const usesSlider = document.getElementById('uses-slider');
+        const resetTab3 = document.getElementById('reset-tab3-btn');
+
+        if (debtInput) {
+          debtInput.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            state.tab3.debtKwh = Number.isFinite(val) && val >= 0 ? val : 0;
+            updateTab3UI();
+          });
+        }
+
+        if (debtSlider) {
+          debtSlider.addEventListener('input', (e) => {
+            state.tab3.debtKwh = parseFloat(e.target.value) || 0;
+            updateTab3UI();
+          });
+        }
+
+        if (avoidedSlider) {
+          avoidedSlider.addEventListener('input', (e) => {
+            state.tab3.avoidedKwh = parseFloat(e.target.value) || 0;
+            updateTab3UI();
+          });
+        }
+
+        if (washSlider) {
+          washSlider.addEventListener('input', (e) => {
+            state.tab3.washKwh = parseFloat(e.target.value) || 0;
+            updateTab3UI();
+          });
+        }
+
+        if (transportSlider) {
+          transportSlider.addEventListener('input', (e) => {
+            state.tab3.transportKwh = parseFloat(e.target.value) || 0;
+            updateTab3UI();
+          });
+        }
+
+        if (usesSlider) {
+          usesSlider.addEventListener('input', (e) => {
+            state.tab3.uses = parseInt(e.target.value, 10) || 1;
+            updateTab3UI();
+          });
+        }
+
+        if (resetTab3) {
+          resetTab3.addEventListener('click', () => {
+            state.tab3.debtKwh = 15000;
+            state.tab3.avoidedKwh = 450;
+            state.tab3.washKwh = 80;
+            state.tab3.transportKwh = 70;
+            state.tab3.uses = 50;
+            updateTab3UI();
+          });
+        }
+
+        // Responsive resize listener for D3 charts/diagrams
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            renderActiveTabVisualizations();
+          }, 120);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        initTabs();
+        bindControls();
+        updateTab2UI();
+        updateTab3UI();
+        renderEntropyLoopDiagram();
+      });
+    })();
+  </script>
+</body>
+</html>
